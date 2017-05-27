@@ -3,7 +3,9 @@ MySQL.__index = MySQL
 MySQL.Utils = setmetatable({}, MySQL)
 MySQL.Async = setmetatable({}, MySQL)
 MySQL.Sync = setmetatable({}, MySQL)
+MySQL.Config = setmetatable({}, MySQL)
 
+require "resources/mysql-async/lib/config"
 require "resources/mysql-async/lib/Utils"
 require "resources/mysql-async/lib/Async"
 require "resources/mysql-async/lib/Sync"
@@ -17,18 +19,13 @@ require "resources/mysql-async/lib/Sync"
 -- @param user
 -- @param password
 --
-function MySQL.configure(self, server, database, user, password)
+function MySQL.init(self)
     local reflection = clr.System.Reflection
 
     reflection.Assembly.LoadFrom('resources/mysql-async/lib/MySqlConnector.dll')
     reflection.Assembly.LoadFrom('resources/mysql-async/lib/Async.dll')
 
     self.mysql = clr.MySql.Data.MySqlClient
-
-    self.server = server;
-    self.database = database;
-    self.user = user;
-    self.password = password;
 end
 
 ---
@@ -37,10 +34,10 @@ end
 -- @param self
 --
 function MySQL.createConnection(self)
-    local connection = self.mysql.MySqlConnection("server="..self.server..";database="..self.database..";userid="..self.user..";password="..self.password.."")
+    local connection = self.mysql.MySqlConnection("server="..self.Config.Host..";database="..self.Config.Database..";userid="..self.Config.User..";password="..self.Config.Password.."")
     connection.Open()
 
     return connection
 end
 
-MySQL:configure("127.0.0.1", "fivem", "root", "000")
+MySQL:init()

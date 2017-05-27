@@ -5,7 +5,7 @@
 --
 
 function MySQL.open(self, server, database, userid, password)
-    return MySQL.configure(server, database, userid, password)
+    -- do nothing
 end
 
 function MySQL.executeQuery(self, command, params)

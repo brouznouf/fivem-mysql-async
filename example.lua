@@ -1,3 +1,5 @@
+require "resources/mysql-async/lib/MySQL"
+
 MySQL.Async.execute('SELECT SLEEP(5)', '', function()
     print("1")
 end)

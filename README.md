@@ -7,47 +7,57 @@ This library intends to provide function to connect to a MySql library in a Sync
 This library is still in alpha and has not been fully tested on heavy load that can occurs on some servers, 
 all feedback is appreciated in order to deliver a stable release.
 
+This mod does not replace EssentialMode, it offers instead a new way of connecting to mysql, but
+it will never contain any gameplay logic or opiniated vision. It will remain a simple wrapper around MySQL 
+Functions.
+
 ## Installation
 
 Install the content of this repository in the `resources/mysql-async` folder. **Name of the folder** matters, 
 do not use a different name (otherwiser you must have knowledge on how this works and make the apprioriate 
 changes)
 
-Once installed, you can change the `resources/mysql-async/init.lua` to set the correct configuration of your 
-mysql server and add this mod to your FiveM configuration file:
+Once installed, you will need to add these lines of code in your mod in order to profit from the MySQL 
+Library:
 
-```yml
-AutoStartResources:
-    - mysql-async
+```
+require "resources/mysql-async/lib/MySQL"
 ```
 
-Loading this library in first is higly recommanded so you don't have dependencies problem when using MySql.
+## Configuration
+
+Copy the file `resources/mysql-async/lib/config.lua-dist` to `resources/mysql-async/lib/config.lua` and 
+change the values according to your mysql installation.
+
+## Replacing MySQL of EssentialMode
+
+[See the UPGRADING.md documentation](UPGRADING.md)
 
 ## Usage
 
 ### Sync
 
-#### MySQL:execute(string query, array params) : int
+#### MySQL.Sync.execute(string query, array params) : int
 
 Execute a mysql query which should not send any result (like a Insert / Delete / Update), and will return the 
 number of affected rows.
 
 ```lua
-MySQL:execute("UPDATE player SET name='foo' WHERE id='@id'", {['@id'] = 10})
+MySQL.Sync.execute("UPDATE player SET name='foo' WHERE id='@id'", {['@id'] = 10})
 ```
 
-#### MySQL:fetchAll(string query, array params) : object[]
+#### MySQL.Sync.fetchAll(string query, array params) : object[]
 
 Fetch results from MySQL and returns them in the form of an Array of Objects:
 
 ```lua
-local players = MySQL:fetchAll('SELECT id, name FROM player')
+local players = MySQL.Sync.fetchAll('SELECT id, name FROM player')
 print(players[1].id)
 ```
 
 ### Async
 
-#### MySQL:executeAsync(string query, array params, function callback) : coroutine
+#### MySQL.Async.execute(string query, array params, function callback) : coroutine
 
 Works like `MySQL:execute` but will return immediatly instead of waiting for the execution of the query.
 There is 2 way to retrieve the result.
@@ -55,7 +65,7 @@ There is 2 way to retrieve the result.
 You can use a callback function:
 
 ```lua
-MySQL:executeAsync('SELECT SLEEP(10)', {}, function(rowsChanged)
+MySQL.Async.execute('SELECT SLEEP(10)', {}, function(rowsChanged)
     print(rowsChanged)
 end)
 ```
@@ -63,7 +73,7 @@ end)
 Or you can use a coroutine:
 
 ```lua
-cor = MySQL:executeAsync('SELECT SLEEP(10)')
+cor = MySQL.Async.execute('SELECT SLEEP(10)')
 
 -- do some works here
 
@@ -72,12 +82,12 @@ list status, rowsChanged = cor.resume()
 print(rowsChanged)
 ```
 
-#### MySQL:fetchAllAsync(string query, array params, function callback) : coroutine
+#### MySQL.Async.fetchAll(string query, array params, function callback) : coroutine
 
-Works like `MySQL:fetchAll` and provide callback and coroutine like the `MySQL:executeAsync` method:
+Works like `MySQL.Sync.fetchAll` and provide callback and coroutine like the `MySQL.Async.execute` method:
 
 ```lua
-cor = MySQL:fetchAllAsync('SELECT * FROM player', {}, function(players)
+cor = MySQL.Async.fetchAll('SELECT * FROM player', {}, function(players)
     print(players[1].name)
 end)
 
