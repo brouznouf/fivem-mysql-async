@@ -43,13 +43,13 @@ function MySQL.Utils.ConvertResultToTable(MySqlDataReader)
     local result = {}
 
     while MySqlDataReader:Read() do
+        local line = {}
+
         for i=0,MySqlDataReader.FieldCount-1 do
-            local line = {}
-
             line[MySqlDataReader.GetName(i)] = MySQL.Utils.ConvertFieldValue(MySqlDataReader, i);
-
-            result[#result+1] = line;
         end
+
+        result[#result+1] = line;
     end
 
     MySqlDataReader:Close()
