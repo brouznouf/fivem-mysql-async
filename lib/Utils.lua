@@ -97,6 +97,13 @@ end
 --
 function MySQL.Utils.CreateCoroutineFromTask(Task, Transformer)
     return coroutine.create(function()
-        coroutine.yield(Transformer(Task.GetAwaiter().GetResult()))
+        local status, result = pcall(Task.Wait)
+
+        if not status then
+            Logger:Error(Task.Exception.ToString())
+            coroutine.yield(null)
+        else
+            coroutine.yield(Transformer(Task.GetAwaiter().GetResult()))
+        end
     end)
 end

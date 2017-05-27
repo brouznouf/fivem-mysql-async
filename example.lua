@@ -16,4 +16,16 @@ MySQL.Async.execute('SELECT SLEEP(1)', '', function()
     print("5")
 end)
 
-print(MySQL.Sync.fetchAll('SELECT "hello" as world', '')[1].world)
+print(MySQL.Sync.fetchAll('SELECT "hello1" as world', '')[1].world)
+
+MySQL.Async.fetchAll('SELECT "hello2" as world', '', function(result)
+    print(result[1].world)
+end)
+
+print(MySQL.Sync.fetchScalar('SELECT "hello3" as world', ''))
+
+MySQL.Async.fetchScalar('SELECT "hello4" as world', '', function(result)
+   print(result)
+end)
+
+MySQL.Sync.fetchAll('WRONG SQL QUERY', '')

@@ -55,11 +55,19 @@ local players = MySQL.Sync.fetchAll('SELECT id, name FROM player')
 print(players[1].id)
 ```
 
+### MySQL.Sync.fetchScalar(string query, array params) : mixed
+
+Fetch the first field of the first row in a query:
+
+```lua
+local countPlayer = MySQL.Sync.fetchScalar("SELECT COuNT(1) FROM players")
+```
+
 ### Async
 
 #### MySQL.Async.execute(string query, array params, function callback) : coroutine
 
-Works like `MySQL:execute` but will return immediatly instead of waiting for the execution of the query.
+Works like `MySQL.Sync.execute` but will return immediatly instead of waiting for the execution of the query.
 There is 2 way to retrieve the result.
 
 You can use a callback function:
@@ -95,6 +103,10 @@ list status, players = cor.resume()
 
 print(players[1].name)
 ```
+
+### MySQL.Async.fetchScalar(string query, array params, function callback) : coroutine
+
+Same as before for the fetchScalar method.
 
 ## Difference from Essential Mod (before CouchDb)
 

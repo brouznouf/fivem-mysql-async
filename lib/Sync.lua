@@ -26,3 +26,17 @@ function MySQL.Sync.fetchAll(query, params)
     return value;
 end
 
+---
+-- Fetch result from the first row and first column in a sync way
+--
+-- @param string      query  The SQL Query
+-- @param object|null params Parameters to replace in the query, which will be escaped
+--
+-- @return mixed
+--
+function MySQL.Sync.fetchScalar(query, params)
+    local status, value = MySQL.Async.fetchScalar(query, params).resume();
+
+    return value;
+end
+

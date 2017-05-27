@@ -6,6 +6,7 @@ MySQL.Sync = setmetatable({}, MySQL)
 MySQL.Config = setmetatable({}, MySQL)
 
 require "resources/mysql-async/lib/config"
+require "resources/mysql-async/lib/Logger"
 require "resources/mysql-async/lib/Utils"
 require "resources/mysql-async/lib/Async"
 require "resources/mysql-async/lib/Sync"
