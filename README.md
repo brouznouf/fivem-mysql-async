@@ -100,3 +100,7 @@ print(players[1].name)
  * New API Methods to reduce code base for common use case (like fetching a single scalar / row)
  * Transaction supports
 
+## Credits
+
+Some parts of this library, and also my understaning were directly inspired by "Essential Mode", thanks to 
+them to have begin to work on this, which allows guy like me to not start from scratch every time...
