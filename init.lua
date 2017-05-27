@@ -1,3 +1,3 @@
 require "resources/mysql-async/lib/MySQL"
+require "resources/mysql-async/lib/EssentialBC" -- Will be removed in a future release
 
-MySQL:configure("127.0.0.1", "fivem", "root", "000")
