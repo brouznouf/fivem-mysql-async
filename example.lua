@@ -29,3 +29,25 @@ MySQL.Async.fetchScalar('SELECT "hello4" as world', '', function(result)
 end)
 
 MySQL.Sync.fetchAll('WRONG SQL QUERY', '')
+
+local transaction = MySQL.Sync.beginTransaction();
+
+MySQL.Async.fetchAll('SELECT "hello5" as world', '', function(result)
+    print(result[1].world)
+end, transaction)
+
+MySQL.Async.commitTransaction(transaction, function()
+    print('transaction commited')
+end)
+
+local transaction = MySQL.Sync.beginTransaction();
+
+MySQL.Async.rollbackTransaction(transaction, function()
+    print('transaction rollbacked')
+end)
+
+local transaction = MySQL.Sync.beginTransaction();
+MySQL.Sync.commitTransaction(transaction)
+
+local transaction = MySQL.Sync.beginTransaction();
+MySQL.Sync.rollbackTransaction(transaction)

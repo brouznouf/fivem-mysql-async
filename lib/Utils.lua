@@ -18,8 +18,15 @@ end
 --
 -- @return DbCommand
 --
-function MySQL.Utils.CreateCommand(Query, Parameters)
-    local Command = MySQL:createConnection().CreateCommand()
+function MySQL.Utils.CreateCommand(Query, Parameters, Transaction)
+    local Command
+
+    if transaction == nil then
+        Command = MySQL:createConnection().CreateCommand()
+    else
+        Command = Transaction.Connection.CreateCommand()
+    end
+
     Command.CommandText = Query
 
     if type(Parameters) == "table" then
@@ -52,7 +59,8 @@ function MySQL.Utils.ConvertResultToTable(MySqlDataReader)
         result[#result+1] = line;
     end
 
-    MySqlDataReader:Close()
+    MySqlDataReader.Close()
+    MySqlDataReader.Dispose()
 
     return result;
 end
