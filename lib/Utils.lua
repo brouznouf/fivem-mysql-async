@@ -1,14 +1,3 @@
----
--- Escape a value to avoid SQL injection
---
--- @param value
---
--- @return string
---
-function MySQL.Utils.escape(value)
-    return value
---    return MySQL.mysql.MySqlHelper.EscapeString(value)
-end
 
 ---
 -- Create a MySQL Command from a query string and its parameters
@@ -31,7 +20,7 @@ function MySQL.Utils.CreateCommand(Query, Parameters, Transaction)
 
     if type(Parameters) == "table" then
         for Param in pairs(Parameters) do
-            Command.CommandText = string.gsub(Command.CommandText, Param, MySQL.Utils.escape(Parameters[Param]))
+            Command.Parameters.AddWithValue(Param, Parameters[Param])
         end
     end
 

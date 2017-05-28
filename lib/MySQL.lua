@@ -38,6 +38,7 @@ function MySQL.init(self)
     self.mysql = clr.MySql.Data.MySqlClient
     self.isInit = true;
     self.settings = clr.MySql.Data.MySqlClient.MySqlConnectionStringBuilder("server="..self.Config.Host..";database="..self.Config.Database..";userid="..self.Config.User..";password="..self.Config.Password.."")
+    self.settings.AllowUserVariables = true
 
     return self.mysql, isInit
 end

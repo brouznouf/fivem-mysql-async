@@ -1,5 +1,15 @@
 require "resources/mysql-async/lib/MySQL"
 
+
+print(MySQL.Sync.fetchScalar('SELECT @parameters', {
+    ['@parameters'] =  1
+}))
+
+print(MySQL.Sync.fetchScalar('SELECT @parameters', {
+    ['@parameters'] =  'string'
+}))
+
+
 MySQL.Async.execute('SELECT SLEEP(5)', '', function()
     print("1")
 end)
