@@ -43,7 +43,7 @@ Execute a mysql query which should not send any result (like a Insert / Delete /
 number of affected rows.
 
 ```lua
-MySQL.Sync.execute("UPDATE player SET name='foo' WHERE id='@id'", {['@id'] = 10})
+MySQL.Sync.execute("UPDATE player SET name=@name WHERE id=@id", {['@id'] = 10, ['@name'] = 'foo'})
 ```
 
 #### MySQL.Sync.fetchAll(string query, array params) : object[]
