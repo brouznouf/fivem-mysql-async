@@ -44,7 +44,9 @@ function MySQL.Async.fetchAll(query, params, func, transaction)
 
     if func ~= nil then
         clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, LogWrapper(
-            ResultCallback(func),
+            ResultCallback(function (Result)
+                return func(MySQL.Utils.ConvertResultToTable(Result))
+            end),
             Command.Connection.ServerThread,
             Command.CommandText
         ))
