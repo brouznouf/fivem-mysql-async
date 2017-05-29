@@ -1,1 +1,1 @@
---server_script 'example.lua'
+server_script 'example.lua'
