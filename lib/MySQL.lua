@@ -23,7 +23,7 @@ require "resources/mysql-async/lib/Sync"
 function MySQL.init(self)
     local isInit = false
 
-    -- Very Ugly not to be done better
+    -- Very Ugly need to be done better
     foreach assembly in clr.System.AppDomain.CurrentDomain.GetAssemblies() do
         if assembly.ToString() == "Async, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" then
             isInit = true

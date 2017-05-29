@@ -14,18 +14,18 @@ function MySQL.Async.execute(query, params, func, transaction)
     local executeTask = Command.ExecuteNonQueryAsync();
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, function(Result, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func(Result)
-            end
-        end)
+        clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, LogWrapper(
+            ResultCallback(func),
+            Command.Connection.ServerThread,
+            Command.CommandText
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(executeTask, function (Result)
-        return Result
-    end)
+    return MySQL.Utils.CreateCoroutineFromTask(executeTask, LogWrapper(
+        NoTransform,
+        Command.Connection.ServerThread,
+        Command.CommandText
+    ))
 end
 
 ---
@@ -43,16 +43,18 @@ function MySQL.Async.fetchAll(query, params, func, transaction)
     local executeReaderTask = Command.ExecuteReaderAsync();
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, function (Reader, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func(MySQL.Utils.ConvertResultToTable(Reader));
-            end
-        end)
+        clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, LogWrapper(
+            ResultCallback(func),
+            Command.Connection.ServerThread,
+            Command.CommandText
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(executeReaderTask, MySQL.Utils.ConvertResultToTable)
+    return MySQL.Utils.CreateCoroutineFromTask(executeReaderTask, LogWrapper(
+        MySQL.Utils.ConvertResultToTable,
+        Command.Connection.ServerThread,
+        Command.CommandText
+    ))
 end
 
 ---
@@ -71,18 +73,18 @@ function MySQL.Async.fetchScalar(query, params, func, transaction)
     local executeScalarTask = Command.ExecuteScalarAsync();
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, function(Result, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func(Result)
-            end
-        end)
+        clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, LogWrapper(
+            ResultCallback(func),
+            Command.Connection.ServerThread,
+            Command.CommandText
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(executeScalarTask, function (Result)
-        return Result
-    end)
+    return MySQL.Utils.CreateCoroutineFromTask(executeScalarTask, LogWrapper(
+        NoTransform,
+        Command.Connection.ServerThread,
+        Command.CommandText
+    ))
 end
 
 ---
@@ -93,21 +95,22 @@ end
 -- @return coroutine
 --
 function MySQL.Async.beginTransaction(func)
-    local beginTransactionTask = MySQL:createConnection().BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
+    local connection = MySQL:createConnection();
+    local beginTransactionTask = connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, function(Result, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func(Result)
-            end
-        end)
+        clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, LogWrapper(
+            NoResultCallback(func),
+            connection.ServerThread,
+            'BEGIN TRANSACTION'
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(beginTransactionTask, function (Result)
-        return Result
-    end)
+    return MySQL.Utils.CreateCoroutineFromTask(beginTransactionTask, LogWrapper(
+        NoTransform,
+        connection.ServerThread,
+        'BEGIN TRANSACTION'
+    ))
 end
 
 ---
@@ -120,20 +123,18 @@ function MySQL.Async.commitTransaction(transaction, func)
     local commitTransactionTrask = transaction.CommitAsync(clr.System.Threading.CancellationToken.None);
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.CommitTransactionCallback(commitTransactionTrask, function(Result, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func()
-            end
-
-            transaction.Dispose();
-        end)
+        clr.Brouznouf.FiveM.Async.CommitTransactionCallback(commitTransactionTrask, LogWrapper(
+            NoResultCallback(func),
+            transaction.Connection.ServerThread,
+            'COMMIT'
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(commitTransactionTrask, function (Result)
-        return Result
-    end)
+    return MySQL.Utils.CreateCoroutineFromTask(commitTransactionTrask, LogWrapper(
+        NoTransform,
+        transaction.Connection.ServerThread,
+        'COMMIT'
+    ))
 end
 
 ---
@@ -146,18 +147,52 @@ function MySQL.Async.rollbackTransaction(transaction, func)
     local rollbackTransactionTask = transaction.RollbackAsync(clr.System.Threading.CancellationToken.None);
 
     if func ~= nil then
-        clr.Brouznouf.FiveM.Async.RollbackTransactionCallback(rollbackTransactionTask, function(Result, Error)
-            if Error ~= nil then
-                Logger:Error(Error.ToString())
-            else
-                func()
-            end
-
-            transaction.Dispose();
-        end)
+        clr.Brouznouf.FiveM.Async.RollbackTransactionCallback(rollbackTransactionTask, LogWrapper(
+            NoResultCallback(func),
+            transaction.Connection.ServerThread,
+            'ROLLBACK'
+        ))
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(rollbackTransactionTask, function (Result)
-        return Result
-    end)
+    return MySQL.Utils.CreateCoroutineFromTask(rollbackTransactionTask, LogWrapper(
+        NoTransform,
+        transaction.Connection.ServerThread,
+        'ROLLBACK'
+    ))
+end
+
+function NoTransform(Result)
+    return Result
+end
+
+function ResultCallback(next)
+    return function(Result, Error)
+        if Error ~= nil then
+            Logger:Error(Error.ToString())
+        else
+            next(Result)
+        end
+    end
+end
+
+function NoResultCallback(next)
+    return function(Result, Error)
+        if Error ~= nil then
+            Logger:Error(Error.ToString())
+        else
+            next()
+        end
+    end
+end
+
+function LogWrapper(next, ServerThread, Message)
+    local Stopwatch = clr.System.Diagnostics.Stopwatch()
+    Stopwatch.Start()
+
+    return function (Result, Error)
+        Stopwatch.Stop()
+        Logger:Info(string.format('[%d][%dms] %s', ServerThread, Stopwatch.ElapsedMilliseconds, Message))
+
+        return next(Result, Error)
+    end
 end
