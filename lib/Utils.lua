@@ -65,23 +65,40 @@ end
 function MySQL.Utils.ConvertFieldValue(MysqlDataReader, index)
     local type = tostring(MysqlDataReader:GetFieldType(index))
 
+    if MysqlDataReader.IsDBNull(index) then
+        return nil
+    end
+
     if type == "System.DateTime" then
-        return MysqlDataReader:GetDateTime(index)
+        -- Some date time cannot be parsed like 0000-01-01
+        local status, data = pcall(MysqlDataReader.GetDateTime, index)
+
+        if status then
+            return data
+        end
+
+        Logger:Warn(data)
+
+        return nil
     end
 
     if type == "System.Double" then
-        return MysqlDataReader:GetDouble(index)
+        return MysqlDataReader.GetDouble(index)
     end
 
-    if type == "System.Int32" then
-        return MysqlDataReader:GetInt32(index)
+    if type == "System.Int32" or type == "System.UInt32" then
+        return MysqlDataReader.GetInt32(index)
     end
 
-    if type == "System.Int64" then
-        return MysqlDataReader:GetInt64(index)
+    if type == "System.Int64" or type == "System.UInt64" then
+        return MysqlDataReader.GetInt64(index)
     end
 
-    return MysqlDataReader:GetString(index)
+    if type == "System.Boolean" then
+        return MysqlDataReader.GetBoolean(index)
+    end
+
+    return MysqlDataReader.GetString(index)
 end
 
 ---
