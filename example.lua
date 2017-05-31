@@ -40,22 +40,23 @@ MySQL.Sync.fetchAll('WRONG SQL QUERY', '')
 
 local transaction = MySQL.Sync.beginTransaction();
 
-MySQL.Async.fetchAll('SELECT "hello5" as world', '', function(result)
+MySQL.Async.fetchAll('SELECT SLEEP(2), "hello5" as world', '', function(result)
     print(result[1].world)
+
+    MySQL.Async.commitTransaction(transaction, function()
+        print('transaction commited')
+    end)
 end, transaction)
 
-MySQL.Async.commitTransaction(transaction, function()
-    print('transaction commited')
-end)
 
-local transaction = MySQL.Sync.beginTransaction();
+local transaction2 = MySQL.Sync.beginTransaction();
 
-MySQL.Async.rollbackTransaction(transaction, function()
+MySQL.Async.rollbackTransaction(transaction2, function()
     print('transaction rollbacked')
 end)
 
-local transaction = MySQL.Sync.beginTransaction();
-MySQL.Sync.commitTransaction(transaction)
+local transaction3 = MySQL.Sync.beginTransaction();
+MySQL.Sync.commitTransaction(transaction3)
 
-local transaction = MySQL.Sync.beginTransaction();
-MySQL.Sync.rollbackTransaction(transaction)
+local transaction4 = MySQL.Sync.beginTransaction();
+MySQL.Sync.rollbackTransaction(transaction4)

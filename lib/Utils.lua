@@ -100,24 +100,3 @@ function MySQL.Utils.ConvertFieldValue(MysqlDataReader, index)
 
     return MysqlDataReader.GetString(index)
 end
-
----
--- Create a lua coroutine from a C# Task (System.Threading.Tasks.Task)
---
--- @param Task        Task that comes from C#
--- @param Transformer Delegate (function) to transform the result into another one
---
--- @return coroutine
---
-function MySQL.Utils.CreateCoroutineFromTask(Task, Transformer)
-    return coroutine.create(function()
-        local status, result = pcall(Task.Wait)
-
-        if not status then
-            Logger:Error(Task.Exception.ToString())
-            coroutine.yield(null)
-        else
-            coroutine.yield(Transformer(Task.GetAwaiter().GetResult()))
-        end
-    end)
-end

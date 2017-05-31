@@ -7,9 +7,16 @@
 -- @return int
 --
 function MySQL.Sync.execute(query, params, transaction)
-    local status, value = MySQL.Async.execute(query, params, nil, transaction).resume()
+    local Command = MySQL.Utils.CreateCommand(query, params, transaction)
+    local connection
 
-    return value;
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
+    end
+
+    return MySQL.Sync.wrapQuery(Command.ExecuteNonQuery, connection, Command.CommandText)
 end
 
 ---
@@ -21,9 +28,16 @@ end
 -- @return object
 --
 function MySQL.Sync.fetchAll(query, params, transaction)
-    local status, value = MySQL.Async.fetchAll(query, params, nil, transaction).resume();
+    local Command = MySQL.Utils.CreateCommand(query, params, transaction)
+    local connection
 
-    return value;
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
+    end
+
+    return MySQL.Sync.wrapQuery(Command.ExecuteReader, connection, Command.CommandText, MySQL.Utils.ConvertResultToTable)
 end
 
 ---
@@ -35,9 +49,16 @@ end
 -- @return mixed
 --
 function MySQL.Sync.fetchScalar(query, params, transaction)
-    local status, value = MySQL.Async.fetchScalar(query, params, nil, transaction).resume();
+    local Command = MySQL.Utils.CreateCommand(query, params, transaction)
+    local connection
 
-    return value;
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
+    end
+
+    return MySQL.Sync.wrapQuery(Command.ExecuteScalar, connection, Command.CommandText)
 end
 
 ---
@@ -46,9 +67,9 @@ end
 -- @return Transaction
 --
 function MySQL.Sync.beginTransaction()
-    local status, value = MySQL.Async.beginTransaction().resume();
+    local connection = MySQL:createConnection();
 
-    return value;
+    return MySQL.Sync.wrapQuery(connection.BeginTransaction, nil, 'BEGIN TRANSACTION')
 end
 
 ---
@@ -57,9 +78,7 @@ end
 -- @param Transaction transaction
 --
 function MySQL.Sync.commitTransaction(transaction)
-    local status, value = MySQL.Async.commitTransaction(transaction).resume();
-
-    return value;
+    return MySQL.Sync.wrapQuery(transaction.Commit, transaction.Connection, 'COMMIT')
 end
 
 ---
@@ -68,8 +87,25 @@ end
 -- @param Transaction transaction
 --
 function MySQL.Sync.rollbackTransaction(transaction)
-    local status, value = MySQL.Async.rollbackTransaction(transaction).resume();
+    return MySQL.Sync.wrapQuery(transaction.Rollback, transaction.Connection, 'COMMIT')
+end
 
-    return value;
+function MySQL.Sync.wrapQuery(call, Connection, Message, Transformer)
+    Transformer = Transformer or function(Result) return Result end
+    local asyncWrapper = MySQL.Async.wrapQuery(
+        function (Result)
+            return Result
+        end,
+        Connection,
+        Message
+    )
+
+    local status, result = pcall(call)
+
+    if not status then
+        return asyncWrapper(nil, result)
+    end
+
+    return asyncWrapper(Transformer(result), nil)
 end
 

@@ -13,14 +13,19 @@ function MySQL.Async.execute(query, params, func, transaction)
     local Command = MySQL.Utils.CreateCommand(query, params, transaction)
     local executeTask = Command.ExecuteNonQueryAsync();
     local callback = func or function() end
+    local connection
 
-    clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, LogWrapper(
-        ResultCallback(callback),
-        Command.Connection.ServerThread,
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
+    end
+
+    clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, MySQL.Async.wrapQuery(
+        callback,
+        connection,
         Command.CommandText
     ))
-
-    return MySQL.Utils.CreateCoroutineFromTask(executeTask, NoTransform)
 end
 
 ---
@@ -37,25 +42,21 @@ function MySQL.Async.fetchAll(query, params, func, transaction)
     local Command = MySQL.Utils.CreateCommand(query, params, transaction)
     local executeReaderTask = Command.ExecuteReaderAsync();
     local callback = func or function(Result) return Result end
+    local connection
 
-    clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, LogWrapper(
-        ResultCallback(function (Result)
-            if (func ~= nil) then
-                return callback(MySQL.Utils.ConvertResultToTable(Result))
-            end
-
-            return nil
-        end),
-        Command.Connection.ServerThread,
-        Command.CommandText
-    ))
-
-    -- This is mainly to avoid 2 calls to convert result as it will fail
-    if func ~= nil then
-        return coroutine.create(function () coroutine.yield(nil) end)
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
     end
 
-    return MySQL.Utils.CreateCoroutineFromTask(executeReaderTask, MySQL.Utils.ConvertResultToTable)
+    clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, MySQL.Async.wrapQuery(
+        function (Result)
+            callback(MySQL.Utils.ConvertResultToTable(Result))
+        end,
+        connection,
+        Command.CommandText
+    ))
 end
 
 ---
@@ -73,14 +74,19 @@ function MySQL.Async.fetchScalar(query, params, func, transaction)
     local Command = MySQL.Utils.CreateCommand(query, params, transaction)
     local executeScalarTask = Command.ExecuteScalarAsync();
     local callback = func or function() end
+    local connection
 
-    clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, LogWrapper(
-        ResultCallback(callback),
-        Command.Connection.ServerThread,
+    if transaction then
+        connection = nil
+    else
+        connection = Command.connection
+    end
+
+    clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, MySQL.Async.wrapQuery(
+        callback,
+        connection,
         Command.CommandText
     ))
-
-    return MySQL.Utils.CreateCoroutineFromTask(executeScalarTask, NoTransform)
 end
 
 ---
@@ -95,13 +101,11 @@ function MySQL.Async.beginTransaction(func)
     local beginTransactionTask = connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
     local callback = func or function() end
 
-    clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, LogWrapper(
-        NoResultCallback(callback),
-        connection.ServerThread,
+    clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, MySQL.Async.wrapQuery(
+        callback,
+        nil,
         'BEGIN TRANSACTION'
     ))
-
-    return MySQL.Utils.CreateCoroutineFromTask(beginTransactionTask, NoTransform)
 end
 
 ---
@@ -114,13 +118,11 @@ function MySQL.Async.commitTransaction(transaction, func)
     local commitTransactionTrask = transaction.CommitAsync(clr.System.Threading.CancellationToken.None);
     local callback = func or function() end
 
-    clr.Brouznouf.FiveM.Async.CommitTransactionCallback(commitTransactionTrask, LogWrapper(
-        NoResultCallback(callback),
-        transaction.Connection.ServerThread,
+    clr.Brouznouf.FiveM.Async.CommitTransactionCallback(commitTransactionTrask, MySQL.Async.wrapQuery(
+        callback,
+        transaction.Connection,
         'COMMIT'
     ))
-
-    return MySQL.Utils.CreateCoroutineFromTask(commitTransactionTrask, NoTransform)
 end
 
 ---
@@ -133,47 +135,32 @@ function MySQL.Async.rollbackTransaction(transaction, func)
     local rollbackTransactionTask = transaction.RollbackAsync(clr.System.Threading.CancellationToken.None);
     local callback = func or function() end
 
-    clr.Brouznouf.FiveM.Async.RollbackTransactionCallback(rollbackTransactionTask, LogWrapper(
-        NoResultCallback(callback),
-        transaction.Connection.ServerThread,
+    clr.Brouznouf.FiveM.Async.RollbackTransactionCallback(rollbackTransactionTask, MySQL.Async.wrapQuery(
+        callback,
+        transaction.Connection,
         'ROLLBACK'
     ))
-
-    return MySQL.Utils.CreateCoroutineFromTask(rollbackTransactionTask, NoTransform)
 end
 
-function NoTransform(Result)
-    return Result
-end
-
-function ResultCallback(next)
-    return function(Result, Error)
-        if Error ~= nil then
-            Logger:Error(Error.ToString())
-        else
-            next(Result)
-        end
-    end
-end
-
-function NoResultCallback(next)
-    return function(Result, Error)
-        if Error ~= nil then
-            Logger:Error(Error.ToString())
-        else
-            next()
-        end
-    end
-end
-
-function LogWrapper(next, ServerThread, Message)
+function MySQL.Async.wrapQuery(next, Connection, Message)
     local Stopwatch = clr.System.Diagnostics.Stopwatch()
     Stopwatch.Start()
 
     return function (Result, Error)
-        Stopwatch.Stop()
-        Logger:Info(string.format('[%d][%dms] %s', ServerThread, Stopwatch.ElapsedMilliseconds, Message))
+        if Error ~= nil then
+            Logger:Error(Error.ToString())
 
-        return next(Result, Error)
+            return nil
+        end
+
+        Stopwatch.Stop()
+        Logger:Info(string.format('[%dms] %s', Stopwatch.ElapsedMilliseconds, Message))
+        Result = next(Result)
+
+        if Connection then
+            Connection.Close()
+        end
+
+        return Result
     end
 end
