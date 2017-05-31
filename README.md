@@ -59,7 +59,7 @@ print(players[1].id)
 Fetch the first field of the first row in a query:
 
 ```lua
-local countPlayer = MySQL.Sync.fetchScalar("SELECT COuNT(1) FROM players")
+local countPlayer = MySQL.Sync.fetchScalar("SELECT COUNT(1) FROM players")
 ```
 
 ### Async
@@ -88,6 +88,13 @@ end)
 #### MySQL.Async.fetchScalar(string query, array params, function callback)
 
 Same as before for the fetchScalar method.
+
+```lua
+MySQL.Async.fetchScalar("SELECT COUNT(1) FROM players", function(countPlayer)
+    print(countPlayer)
+end
+```
+
 
 ## Difference from Essential Mod MySQL library (before CouchDb)
 
