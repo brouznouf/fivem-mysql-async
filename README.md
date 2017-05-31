@@ -85,7 +85,7 @@ MySQL.Async.fetchAll('SELECT * FROM player', {}, function(players)
 end)
 ```
 
-#### MySQL.Async.fetchScalar(string query, array params, function callback) : coroutine
+#### MySQL.Async.fetchScalar(string query, array params, function callback)
 
 Same as before for the fetchScalar method.
 
