@@ -18,38 +18,38 @@ function MySQL.executeQuery(self, command, params)
     command = string.gsub(command, "'(@.+?)'", "%1")
 
     local c = MySQL.Utils.CreateCommand(command, params)
-    local res = c.ExecuteNonQuery()
+    local res = c.ExecuteReader()
 
-    print("Query Executed("..res.."): " .. c.CommandText)
+    print("Query Executed("..res.RecordsAffected.."): " .. c.CommandText)
 
-    return {mySqlCommand = c, result = res}
+    local value = MySQL.Utils.ConvertResultToTable(res);
+
+    c.Connection.Close()
+
+    return {mySqlCommand = c, reader = value, result = res.RecordsAffected}
 end
 
 --- @deprecated
-function MySQL.getResults(self, mySqlCommand, fields, byField)
+function MySQL.getResults(self, reader, fields, byField)
     Logger:Debug('MySQL:getResults is deprecated, please use MySQL.Sync.fetchAll or MySQL.Async.fetchAll instead')
     if type(fields) ~= "table" or #fields == 0 then
         return nil
     end
 
-    if type(mySqlCommand) == "table" and mySqlCommand['mySqlCommand'] ~= nil then
-        mySqlCommand = mySqlCommand['mySqlCommand']
+    if type(reader) == "table" and reader['reader'] ~= nil then
+        reader = reader['reader']
     end
 
-    local reader = mySqlCommand:ExecuteReader()
     local result = {}
-    local c = nil
 
-    while reader:Read() do
-        c = #result+1
+    for c, line in ipairs(reader) do
         result[c] = {}
 
         for field in pairs(fields) do
-            result[c][fields[field]] = self:_getFieldByName(reader, fields[field])
+            result[c][fields[field]] = line[fields[field]]
         end
     end
 
-    reader:Close()
     return result
 end
 
