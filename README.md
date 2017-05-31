@@ -1,24 +1,20 @@
-# MySql Async Library for FiveM
+# MySQL Async Library for FiveM
 
-This library intends to provide function to connect to a MySql library in a Sync and Async Way.
+This library intends to provide function to connect to a MySQL library in a Sync and Async Way.
 
 ## Disclaimer
 
-This library is still in alpha and has not been fully tested on heavy load that can occurs on some servers, 
-all feedback is appreciated in order to deliver a stable release.
+This mod does not replace EssentialMode, it offers instead a new way of connecting to MySQL, but
+it will never contain any gameplay logic. It will remain a simple wrapper around MySQL functions.
 
-This mod does not replace EssentialMode, it offers instead a new way of connecting to mysql, but
-it will never contain any gameplay logic or opiniated vision. It will remain a simple wrapper around MySQL 
-Functions.
+All feedback is appreciated in order to deliver a stable release.
 
 ## Installation
 
 Install the content of this repository in the `resources/mysql-async` folder. **Name of the folder** matters, 
-do not use a different name (otherwiser you must have knowledge on how this works and make the apprioriate 
-changes)
+do not use a different name (otherwise you must have knowledge on how this works and make the appropriate changes)
 
-Once installed, you will need to add these lines of code in your mod in order to profit from the MySQL 
-Library:
+Once installed, you will need to add these lines of code in each mod needing a MySQL client:
 
 ```
 require "resources/mysql-async/lib/MySQL"
@@ -27,7 +23,7 @@ require "resources/mysql-async/lib/MySQL"
 ## Configuration
 
 Copy the file `resources/mysql-async/lib/config.lua-dist` to `resources/mysql-async/lib/config.lua` and 
-change the values according to your mysql installation.
+change the values according to your MySQL installation.
 
 ## Replacing MySQL of EssentialMode
 
@@ -36,6 +32,11 @@ change the values according to your mysql installation.
 ## Usage
 
 ### Sync
+
+<aside class="warning">
+Sync functions can block the main thread, always prefer the Async version if possible, there is very rare 
+use case for you to use this.
+</aside>
 
 #### MySQL.Sync.execute(string query, array params) : int
 
@@ -65,12 +66,10 @@ local countPlayer = MySQL.Sync.fetchScalar("SELECT COuNT(1) FROM players")
 
 ### Async
 
-#### MySQL.Async.execute(string query, array params, function callback) : coroutine
+#### MySQL.Async.execute(string query, array params, function callback)
 
 Works like `MySQL.Sync.execute` but will return immediatly instead of waiting for the execution of the query.
-There is 2 way to retrieve the result.
-
-You can use a callback function:
+To exploit the result of an async method you must use a callback function:
 
 ```lua
 MySQL.Async.execute('SELECT SLEEP(10)', {}, function(rowsChanged)
@@ -78,49 +77,36 @@ MySQL.Async.execute('SELECT SLEEP(10)', {}, function(rowsChanged)
 end)
 ```
 
-Or you can use a coroutine:
+#### MySQL.Async.fetchAll(string query, array params, function callback)
+
+Works like `MySQL.Sync.fetchAll` and provide callback like the `MySQL.Async.execute` method:
 
 ```lua
-cor = MySQL.Async.execute('SELECT SLEEP(10)')
-
--- do some works here
-
--- Block until query execution
-list status, rowsChanged = cor.resume()
-print(rowsChanged)
-```
-
-#### MySQL.Async.fetchAll(string query, array params, function callback) : coroutine
-
-Works like `MySQL.Sync.fetchAll` and provide callback and coroutine like the `MySQL.Async.execute` method:
-
-```lua
-cor = MySQL.Async.fetchAll('SELECT * FROM player', {}, function(players)
+MySQL.Async.fetchAll('SELECT * FROM player', {}, function(players)
     print(players[1].name)
 end)
-
-list status, players = cor.resume()
-
-print(players[1].name)
 ```
 
 ### MySQL.Async.fetchScalar(string query, array params, function callback) : coroutine
 
 Same as before for the fetchScalar method.
 
-## Difference from Essential Mod (before CouchDb)
+## Difference from Essential Mod MySQL library (before CouchDb)
 
- * Each query will attempt to use an existing connection if available or create a new one if not available
- (a query is still running). It uses the internal Pool of the Mysql Connector in order to achieve that.
+ * Async
  * It uses the https://github.com/mysql-net/MySqlConnector library instead of the official Connector to support
- real async behavior.
+ real async behavior
+ * Create and close a connection for each query, the underlying library use a connection pool so only the 
+mysql auth is done each time, old tcp connections are keeped in memory for performance reasons
+ * Use NLog for logging, so you can filter and remove logs for the SQL queries in your server
+ * The log will also show you the time take by the query, it can be useful to see slow queries. However it is 
+recommended to use the official slow query of MySQL in order to do that
 
 ## Things that may be added in the future
 
- * New configuration options for the connection (max connections, ...)
- * Regulary clean the connection pool (in order to avoid have too many "dead" connection)
- * New API Methods to reduce code base for common use case (like fetching a single scalar / row)
- * Transaction supports
+ * New configuration options for the connection (pool connections, life time, ...) (Make an issue if you need 
+a specific configuration)
+ * Migration Tool for your Schemas
 
 ## Credits
 
