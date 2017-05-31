@@ -33,10 +33,8 @@ change the values according to your MySQL installation.
 
 ### Sync
 
-<aside class="warning">
-Sync functions can block the main thread, always prefer the Async version if possible, there is very rare 
-use case for you to use this.
-</aside>
+> Sync functions can block the main thread, always prefer the Async version if possible, there is very rare 
+> use case for you to use this.
 
 #### MySQL.Sync.execute(string query, array params) : int
 
@@ -56,7 +54,7 @@ local players = MySQL.Sync.fetchAll('SELECT id, name FROM player')
 print(players[1].id)
 ```
 
-### MySQL.Sync.fetchScalar(string query, array params) : mixed
+#### MySQL.Sync.fetchScalar(string query, array params) : mixed
 
 Fetch the first field of the first row in a query:
 
@@ -87,7 +85,7 @@ MySQL.Async.fetchAll('SELECT * FROM player', {}, function(players)
 end)
 ```
 
-### MySQL.Async.fetchScalar(string query, array params, function callback) : coroutine
+#### MySQL.Async.fetchScalar(string query, array params, function callback) : coroutine
 
 Same as before for the fetchScalar method.
 
