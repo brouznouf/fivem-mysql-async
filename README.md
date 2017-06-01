@@ -109,7 +109,7 @@ recommended to use the official slow query of MySQL in order to do that
 
 ## FXServer
 
-Plan of this library will also to be have a compatible layer with the MySQL library of FXServer, so you will not need to rewrite everything when it will be released.
+Plan of this library will also to have a compatible layer with the MySQL library of FXServer, so you will not need to rewrite everything when it will be released.
 
 ## Things that may be added in the future
 
