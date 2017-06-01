@@ -21,7 +21,7 @@ However you will potentialy have the same problems as before: locking the main t
 
 ## Upgrade to the Async API
 
-Now that you have 
+Now that everything is ready, you can begin to replace your sync queries by async one.
 
 ### Queries returning a result (Select / ...)
 
