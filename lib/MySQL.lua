@@ -39,6 +39,7 @@ function MySQL.init(self)
     self.isInit = true;
     self.settings = clr.MySql.Data.MySqlClient.MySqlConnectionStringBuilder("server="..self.Config.Host..";database="..self.Config.Database..";userid="..self.Config.User..";password="..self.Config.Password.."")
     self.settings.AllowUserVariables = true
+    self.settings.Pooling = false
 
     return self.mysql, isInit
 end
@@ -61,17 +62,4 @@ function MySQL.createConnection(self)
     return connection
 end
 
-local function ClearPoolLoop(mysql)
-    SetTimeout(180000, function()
-        Logger:Info('Clear MySQL connection pool')
-        mysql.MySqlConnection.ClearAllPools()
-
-        ClearPoolLoop(mysql)
-    end)
-end
-
-local mysql, isInit = MySQL:init()
-
-if not isInit then
-    ClearPoolLoop(mysql)
-end
+MySQL:init()
