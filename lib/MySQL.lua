@@ -50,7 +50,13 @@ end
 --
 function MySQL.createConnection(self)
     local connection = self.mysql.MySqlConnection(self.settings)
-    connection.Open()
+    local status, error = pcall(connection.Open)
+
+    if not status then
+        Logger:Fatal(error)
+
+        return nil
+    end
 
     return connection
 end

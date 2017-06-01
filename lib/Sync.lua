@@ -13,7 +13,7 @@ function MySQL.Sync.execute(query, params, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     return MySQL.Sync.wrapQuery(Command.ExecuteNonQuery, connection, Command.CommandText)
@@ -34,7 +34,7 @@ function MySQL.Sync.fetchAll(query, params, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     return MySQL.Sync.wrapQuery(Command.ExecuteReader, connection, Command.CommandText, MySQL.Utils.ConvertResultToTable)
@@ -55,7 +55,7 @@ function MySQL.Sync.fetchScalar(query, params, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     return MySQL.Sync.wrapQuery(Command.ExecuteScalar, connection, Command.CommandText)

@@ -18,7 +18,7 @@ function MySQL.Async.execute(query, params, func, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, MySQL.Async.wrapQuery(
@@ -47,7 +47,7 @@ function MySQL.Async.fetchAll(query, params, func, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, MySQL.Async.wrapQuery(
@@ -79,7 +79,7 @@ function MySQL.Async.fetchScalar(query, params, func, transaction)
     if transaction then
         connection = nil
     else
-        connection = Command.connection
+        connection = Command.Connection
     end
 
     clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, MySQL.Async.wrapQuery(
