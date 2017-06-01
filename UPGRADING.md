@@ -10,7 +10,7 @@ provides the same MySQL functions from version 2 of Essential Mode and earlier.
 
 You just need to replace **all** contents of the `resources/essentialmode/lib/MySQL.lua` file by the following code:
 
-```
+```lua
 require "resources/mysql-async/lib/MySQL"
 require "resources/mysql-async/lib/EssentialModeApi"
 ```
@@ -21,13 +21,13 @@ However you will potentialy have the same problems as before: locking the main t
 
 ## Upgrade to the Async API
 
-Now that you have 
+Now that everything is ready, you can begin to replace your sync queries by async one.
 
 ### Queries returning a result (Select / ...)
 
 Let's say you have the following code:
 
-```
+```lua
 local executed_query = MySQL:executeQuery("SELECT * FROM users WHERE identifier = '@name'", {['@name'] = 
 identifier})
 local result = MySQL:getResults(executed_query, {'money'}, 
@@ -38,7 +38,7 @@ TriggerClientEvent("my_event", self.source, result[1].money)
 
 You can replace it with the following code:
 
-```
+```lua
 MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @name", {['@name'] = identifier}, function (result)
     TriggerClientEvent("my_event", self.source, result[1].money)
 end
@@ -62,7 +62,7 @@ A last optimisation can be done here, if you read well the example we only care 
 user (so only one value). This library provide the `MySQL.Async.fetchScalar` method to handle this use case 
 which will return only the value of the first column in the first line, so you can safely write this instead:
 
-```
+```lua
 MySQL.Async.fetchAll("SELECT money FROM users WHERE identifier = @name", {['@name'] = identifier}, function (money)
     TriggerClientEvent("my_event", self.source, money)
 end
@@ -75,7 +75,7 @@ value of the column in your schema.
 
 For query no returning any result like this code:
 
-```
+```lua
 MySQL:executeQuery("UPDATE users SET `money`='@value' WHERE identifier = '@identifier'", {
     ['@value'] = 300,
     ['@identifier'] = 'steam...'
@@ -84,7 +84,7 @@ MySQL:executeQuery("UPDATE users SET `money`='@value' WHERE identifier = '@ident
 
 you can replace it with
 
-```
+```lua
 MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier", {
     ['@value'] = 300,
     ['@identifier'] = 'steam...'
@@ -97,7 +97,7 @@ fail.
 Like `fetchAll` this method propose also a callback parameter in the third position which can be used if you 
 want to do something once this query has been executed:
 
-```
+```lua
 MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier", {
     ['@value'] = 300,
     ['@identifier'] = 'steam...'
@@ -112,7 +112,7 @@ To help upgrading, each call to the old API will trigger a debug log in your ser
 have to change the configuration of the `NLog.config` file at the root of your fivem server, in order to have 
 theses lines:
 
-```
+```xml
 <rules>
   <logger name="*" minlevel="Debug" writeTo="console"/>
 </rules>
@@ -122,7 +122,7 @@ theses lines:
 
 Once all queries have been replaced you can safely remove this line:
 
-```
+```lua
 require "resources/mysql-async/lib/EssentialModeApi"
 ```
 

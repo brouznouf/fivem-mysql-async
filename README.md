@@ -107,6 +107,10 @@ mysql auth is done each time, old tcp connections are keeped in memory for perfo
  * The log will also show you the time take by the query, it can be useful to see slow queries. However it is 
 recommended to use the official slow query of MySQL in order to do that
 
+## FXServer
+
+Plan of this library will also to have a compatible layer with the MySQL library of FXServer, so you will not need to rewrite everything when it will be released.
+
 ## Things that may be added in the future
 
  * New configuration options for the connection (pool connections, life time, ...) (Make an issue if you need 
