@@ -150,6 +150,10 @@ function MySQL.Async.wrapQuery(next, Connection, Message)
         if Error ~= nil then
             Logger:Error(Error.ToString())
 
+            if Connection then
+                Connection.Close()
+            end
+
             return nil
         end
 
