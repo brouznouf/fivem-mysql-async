@@ -51,11 +51,10 @@ function MySQL.Async.fetchAll(query, params, func, transaction)
     end
 
     clr.Brouznouf.FiveM.Async.ExecuteReaderCallback(executeReaderTask, MySQL.Async.wrapQuery(
-        function (Result)
-            callback(MySQL.Utils.ConvertResultToTable(Result))
-        end,
+        callback,
         connection,
-        Command.CommandText
+        Command.CommandText,
+        MySQL.Utils.ConvertResultToTable
     ))
 end
 
@@ -98,7 +97,8 @@ end
 --
 function MySQL.Async.beginTransaction(func)
     local connection = MySQL:createConnection();
-    local beginTransactionTask = connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
+    local beginTransactionTask = 
+connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
     local callback = func or function() end
 
     clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, MySQL.Async.wrapQuery(
@@ -142,7 +142,8 @@ function MySQL.Async.rollbackTransaction(transaction, func)
     ))
 end
 
-function MySQL.Async.wrapQuery(next, Connection, Message)
+function MySQL.Async.wrapQuery(next, Connection, Message, Transformer)
+    Transformer = Transformer or function (Result) return Result end
     local Stopwatch = clr.System.Diagnostics.Stopwatch()
     Stopwatch.Start()
 
@@ -152,19 +153,29 @@ function MySQL.Async.wrapQuery(next, Connection, Message)
 
             if Connection then
                 Connection.Close()
+                Connection.Dispose()
             end
 
             return nil
         end
 
-        Stopwatch.Stop()
-        Logger:Info(string.format('[%dms] %s', Stopwatch.ElapsedMilliseconds, Message))
-        Result = next(Result)
+        local ConnectionId = -1;
+
+        Result = Transformer(Result)
 
         if Connection then
+            ConnectionId = Connection.ServerThread
             Connection.Close()
+            Connection.Dispose()
         end
+
+        Stopwatch.Stop()
+        Logger:Info(string.format('[%s][%d][%dms] %s', GetInvokingResource(), ConnectionId, 
+Stopwatch.ElapsedMilliseconds, Message))
+
+        next(Result)
 
         return Result
     end
 end
+
