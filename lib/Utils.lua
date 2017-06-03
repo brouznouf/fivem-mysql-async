@@ -63,40 +63,54 @@ end
 -- @return mixed
 --
 function MySQL.Utils.ConvertFieldValue(MysqlDataReader, index)
-    local type = tostring(MysqlDataReader:GetFieldType(index))
-
     if MysqlDataReader.IsDBNull(index) then
         return nil
     end
 
-    if type == "System.DateTime" then
-        -- Some date time cannot be parsed like 0000-01-01
-        local status, data = pcall(MysqlDataReader.GetDateTime, index)
+    -- Some date time cannot be parsed like 0000-01-01
+    local status, data = pcall(MysqlDataReader.GetValue, index)
 
-        if status then
-            return data
+    if status then
+        return MySQL.Utils.ConvertObject(data)
+    end
+
+    Logger:Warn(data)
+
+    return nil
+end
+
+function MySQL.Utils.ConvertObject(Value)
+    if type(Value) == "userdata" then
+        local netType = tostring(Value.GetType())
+
+        if netType == "System.DateTime" then
+            local timestamp = Value.ToUniversalTime().Subtract(clr.System.DateTime(1970, 1, 1)).TotalSeconds
+
+            return os.date("*t", tonumber(tostring(timestamp)))
         end
 
-        Logger:Warn(data)
+        if netType == "System.Double" then
+            return tonumber(tostring(Value))
+        end
 
-        return nil
+        if netType == "System.Decimal" then
+            return tonumber(tostring(Value))
+        end
+
+        if netType == "System.Int32" or netType == "System.UInt32" then
+            return tonumber(tostring(Value))
+        end
+
+        if netType == "System.Int64" or netType == "System.UInt64" then
+            return tonumber(tostring(Value))
+        end
+
+        if netType == "System.Boolean" then
+            return toboolean(tostring(Value))
+        end
+
+        return tostring(Value)
     end
 
-    if type == "System.Double" then
-        return MysqlDataReader.GetDouble(index)
-    end
-
-    if type == "System.Int32" or type == "System.UInt32" then
-        return MysqlDataReader.GetInt32(index)
-    end
-
-    if type == "System.Int64" or type == "System.UInt64" then
-        return MysqlDataReader.GetInt64(index)
-    end
-
-    if type == "System.Boolean" then
-        return MysqlDataReader.GetBoolean(index)
-    end
-
-    return MysqlDataReader.GetString(index)
+    return Value
 end

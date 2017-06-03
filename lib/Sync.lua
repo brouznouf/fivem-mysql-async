@@ -16,7 +16,7 @@ function MySQL.Sync.execute(query, params, transaction)
         connection = Command.Connection
     end
 
-    return MySQL.Sync.wrapQuery(Command.ExecuteNonQuery, connection, Command.CommandText)
+    return MySQL.Sync.wrapQuery(Command.ExecuteNonQuery, connection, Command.CommandText, MySQL.Utils.ConvertObject)
 end
 
 ---
@@ -58,7 +58,7 @@ function MySQL.Sync.fetchScalar(query, params, transaction)
         connection = Command.Connection
     end
 
-    return MySQL.Sync.wrapQuery(Command.ExecuteScalar, connection, Command.CommandText)
+    return MySQL.Sync.wrapQuery(Command.ExecuteScalar, connection, Command.CommandText, MySQL.Utils.ConvertObject)
 end
 
 ---

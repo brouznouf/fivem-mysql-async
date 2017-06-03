@@ -24,7 +24,8 @@ function MySQL.Async.execute(query, params, func, transaction)
     clr.Brouznouf.FiveM.Async.ExecuteCallback(executeTask, MySQL.Async.wrapQuery(
         callback,
         connection,
-        Command.CommandText
+        Command.CommandText,
+        MySQL.Utils.ConvertObject
     ))
 end
 
@@ -84,7 +85,8 @@ function MySQL.Async.fetchScalar(query, params, func, transaction)
     clr.Brouznouf.FiveM.Async.ExecuteScalarCallback(executeScalarTask, MySQL.Async.wrapQuery(
         callback,
         connection,
-        Command.CommandText
+        Command.CommandText,
+        MySQL.Utils.ConvertObject
     ))
 end
 
@@ -97,8 +99,7 @@ end
 --
 function MySQL.Async.beginTransaction(func)
     local connection = MySQL:createConnection();
-    local beginTransactionTask = 
-connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
+    local beginTransactionTask = connection.BeginTransactionAsync(clr.System.Threading.CancellationToken.None);
     local callback = func or function() end
 
     clr.Brouznouf.FiveM.Async.BeginTransactionCallback(beginTransactionTask, MySQL.Async.wrapQuery(
@@ -170,8 +171,7 @@ function MySQL.Async.wrapQuery(next, Connection, Message, Transformer)
         end
 
         Stopwatch.Stop()
-        Logger:Info(string.format('[%s][%d][%dms] %s', GetInvokingResource(), ConnectionId, 
-Stopwatch.ElapsedMilliseconds, Message))
+        Logger:Info(string.format('[%s][%d][%dms] %s', GetInvokingResource(), ConnectionId, Stopwatch.ElapsedMilliseconds, Message))
 
         next(Result)
 
