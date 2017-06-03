@@ -41,7 +41,7 @@ You can replace it with the following code:
 ```lua
 MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @name", {['@name'] = identifier}, function (result)
     TriggerClientEvent("my_event", self.source, result[1].money)
-end
+end)
 ```
 
 First we use the new method `MySQL.Async.fetchAll` which intends to retrieve results from a query, it use the 
@@ -63,9 +63,9 @@ user (so only one value). This library provide the `MySQL.Async.fetchScalar` met
 which will return only the value of the first column in the first line, so you can safely write this instead:
 
 ```lua
-MySQL.Async.fetchAll("SELECT money FROM users WHERE identifier = @name", {['@name'] = identifier}, function (money)
+MySQL.Async.fetchScalar("SELECT money FROM users WHERE identifier = @name", {['@name'] = identifier}, function (money)
     TriggerClientEvent("my_event", self.source, money)
-end
+end)
 ```
 
 However the query has to bee updated in order to select only the money, otherwise it will return the first 
@@ -103,7 +103,7 @@ MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identif
     ['@identifier'] = 'steam...'
 }, function (rowsUpdate)
     print('Query executed')
-end
+end)
 ```
 
 ### Debugging
