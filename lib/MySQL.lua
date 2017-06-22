@@ -5,61 +5,81 @@ MySQL.Async = setmetatable({}, MySQL)
 MySQL.Sync = setmetatable({}, MySQL)
 MySQL.Config = setmetatable({}, MySQL)
 
-require "resources/mysql-async/lib/config"
-require "resources/mysql-async/lib/Logger"
-require "resources/mysql-async/lib/Utils"
-require "resources/mysql-async/lib/Async"
-require "resources/mysql-async/lib/Sync"
+local function safeParameters(params)
+    if nil == params then
+        return {[''] = ''}
+    end
 
----
--- Configure the MySQL Connection and Load the necessary lib
---
--- @param self
--- @param server
--- @param database
--- @param user
--- @param password
---
+    if next(params) == nil then
+        return {[''] = ''}
+    end
+
+    return params
+end
+
 function MySQL.init(self)
-    local isInit = false
+    exports['mysql-async']:mysql_configure(self.Config.Host, self.Config.User, self.Config.Password, self.Config.Database)
+end
 
-    -- Very Ugly need to be done better
-    foreach assembly in clr.System.AppDomain.CurrentDomain.GetAssemblies() do
-        if assembly.ToString() == "Async, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" then
-            isInit = true
-        end
-    end
+function MySQL.Sync.execute(query, params)
+    return exports['mysql-async']:mysql_sync_execute(query, safeParameters(params))
+end
 
-    local reflection = clr.System.Reflection
+function MySQL.Sync.fetchAll(query, params)
+    return exports['mysql-async']:mysql_sync_fetch_all(query, safeParameters(params))
+end
 
-    reflection.Assembly.LoadFrom('resources/mysql-async/lib/MySqlConnector.dll')
-    reflection.Assembly.LoadFrom('resources/mysql-async/lib/Async.dll')
-
-    self.mysql = clr.MySql.Data.MySqlClient
-    self.isInit = true;
-    self.settings = clr.MySql.Data.MySqlClient.MySqlConnectionStringBuilder("server="..self.Config.Host..";database="..self.Config.Database..";userid="..self.Config.User..";password="..self.Config.Password.."")
-    self.settings.AllowUserVariables = true
-    self.settings.Pooling = false
-
-    return self.mysql, isInit
+function MySQL.Sync.fetchScalar(query, params)
+    return exports['mysql-async']:mysql_sync_fetch_scalar(query, safeParameters(params))
 end
 
 ---
--- Create a new connection
+-- Execute a query with no result required
 --
--- @param self
+-- @param query
+-- @param params
+-- @param func
+-- @param Transaction transaction
 --
-function MySQL.createConnection(self)
-    local connection = self.mysql.MySqlConnection(self.settings)
-    local status, error = pcall(connection.Open)
-
-    if not status then
-        Logger:Fatal(error)
-
-        return nil
-    end
-
-    return connection
+-- @return coroutine
+--
+function MySQL.Async.execute(query, params, func)
+    exports['mysql-async']:mysql_execute(query, safeParameters(params), func)
 end
 
-MySQL:init()
+---
+-- Execute a query and fetch all results in an async way
+--
+-- @param query
+-- @param params
+-- @param func
+-- @param Transaction transaction
+--
+-- @return coroutine
+--
+function MySQL.Async.fetchAll(query, params, func)
+    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), func)
+end
+
+---
+-- Execute a query and fetch the first column of the first row
+-- Useful for count function by example
+--
+-- @param query
+-- @param params
+-- @param func
+-- @param Transaction transaction
+--
+-- @return coroutine
+--
+function MySQL.Async.fetchScalar(query, params, func)
+    exports['mysql-async']:mysql_fetch_scalar(query, safeParameters(params), func)
+end
+
+AddEventHandler('onServerResourceStart', function (resource)
+    if resource == "mysql-async" then
+        MySQL:init()
+
+        TriggerEvent('onMySQLReady', MySQL)
+    end
+end)

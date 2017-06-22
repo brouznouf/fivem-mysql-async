@@ -1,2 +1,12 @@
-server_script 'clear.lua'
+server_script 'MySqlAsync.net.dll'
+server_export 'mysql_configure'
+server_export 'mysql_execute'
+server_export 'mysql_sync_execute'
+server_export 'mysql_fetch_all'
+server_export 'mysql_sync_fetch_all'
+server_export 'mysql_fetch_scalar'
+server_export 'mysql_sync_fetch_scalar'
+
+server_script 'lib/MySQL.lua'
+server_script 'lib/config.lua'
 --server_script 'example.lua'

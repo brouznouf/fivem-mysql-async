@@ -8,7 +8,7 @@ associated with.
 Instead of upgrading all your mods one by one, this library offers a lua script which 
 provides the same MySQL functions from version 2 of Essential Mode and earlier.
 
-You just need to replace **all** contents of the `resources/essentialmode/lib/MySQL.lua` file by the following code:
+You just need to replace **all** contents of the `resources/essentialmode/lib/example.fxserver.lua` file by the following code:
 
 ```lua
 require "resources/mysql-async/lib/MySQL"
