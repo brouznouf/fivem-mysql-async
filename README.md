@@ -16,17 +16,16 @@ All feedback is appreciated in order to deliver a stable release.
 Install the content of this repository in the `resources/mysql-async` folder. **Name of the folder** matters, 
 do not use a different name (otherwise you must have knowledge on how this works and make the appropriate changes)
 
-Once installed, you will need to add these lines of code in the resource file of each mod needing a MySQL client:
+Once installed, you will need to add this line of code in the resource file of each mod needing a MySQL client:
 
 ```
 server_script '@mysql-async/lib/MySQL.lua'
-server_script '@mysql-async/lib/config.lua'
 ```
 
 ## Configuration
 
-Copy the file `resources/mysql-async/lib/config.lua-dist` to `resources/mysql-async/lib/config.lua` and 
-change the values according to your MySQL installation.
+Add this convar to your server configuration and change the values according to your MySQL installation:
+`set mysql_connection_string "server=127.0.0.01;database=gta5_gamemode_essential;userid=root;password=1202`
 
 ## Usage
 
