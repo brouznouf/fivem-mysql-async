@@ -33,8 +33,8 @@ end
 ---
 -- Init mysql
 --
-function MySQL.init(self)
-    exports['mysql-async']:mysql_configure(self.Config.Host, self.Config.User, self.Config.Password, self.Config.Database)
+function MySQL.init()
+    exports['mysql-async']:mysql_configure()
 end
 
 ---

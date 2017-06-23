@@ -21,8 +21,8 @@ namespace MySqlAsync
 
         public MySqlAsync()
         {
-            Exports.Add("mysql_configure", new Action<string, string, string, string>((host, user, password, database) => {
-                Configure(host, user, password, database);
+            Exports.Add("mysql_configure", new Action<string, string, string, string>(() => {
+                Configure(Function.Call<string>(Hash.GET_CONVAR, "mysql_connection_string"));
             }));
 
             Exports.Add("mysql_execute", new Action<string, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) => {
@@ -68,9 +68,9 @@ namespace MySqlAsync
             });
         }
 
-        private void Configure(string host, string user, string password, string database)
+        private void Configure(string connectionString)
         {
-            ConnectionStringBuilder = new MySqlConnectionStringBuilder("server=" + host + ";database=" + database + ";userid=" + user + ";password=" + password);
+            ConnectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
             ConnectionStringBuilder.AllowUserVariables = true;
             ConnectionStringBuilder.Pooling = false;
         }
