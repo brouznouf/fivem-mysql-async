@@ -78,7 +78,12 @@ namespace MySqlAsync
         private MySqlConnection CreateConnection()
         {
             MySqlConnection connection = new MySqlConnection(ConnectionStringBuilder.ToString());
-            connection.Open();
+
+            try {
+                connection.Open();
+            } catch (Exception error) {
+                CitizenFX.Core.Debug.Write(string.Format("An error happens when opening MySQL connection {0}\n", error.Message));
+            }
 
             return connection;
         }
@@ -99,7 +104,7 @@ namespace MySqlAsync
             try {
                 result = command.ExecuteNonQuery();
             } catch (Exception error) {
-                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1}\n", stopwatch.ElapsedMilliseconds, command.CommandText));
+                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1} : {2}\n", stopwatch.ElapsedMilliseconds, command.CommandText, error.Message));
                 command.Connection.Close();
 
                 throw error;
@@ -128,7 +133,7 @@ namespace MySqlAsync
             try {
                 result = ReaderToDictionary(command.ExecuteReader());
             } catch (Exception error) {
-                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1}\n", stopwatch.ElapsedMilliseconds, command.CommandText));
+                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1} : {2}\n", stopwatch.ElapsedMilliseconds, command.CommandText, error.Message));
                 command.Connection.Close();
 
                 throw error;
@@ -157,7 +162,7 @@ namespace MySqlAsync
             try {
                 result = command.ExecuteScalar();
             } catch (Exception error) {
-                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1}\n", stopwatch.ElapsedMilliseconds, command.CommandText));
+                CitizenFX.Core.Debug.Write(string.Format("[{0}ms] An error happens when executing {1} : {2}\n", stopwatch.ElapsedMilliseconds, command.CommandText, error.Message));
                 command.Connection.Close();
 
                 throw error;
