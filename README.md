@@ -2,6 +2,10 @@
 
 This library intends to provide function to connect to a MySQL library in a Sync and Async Way.
 
+## FXServer
+
+For fxserver version look at the master branch
+
 ## Disclaimer
 
 This mod does not replace EssentialMode, it offers instead a new way of connecting to MySQL, but
