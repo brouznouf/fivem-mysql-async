@@ -2,7 +2,9 @@
 
 This library intends to provide function to connect to a MySQL library in a Sync and Async Way.
 
-This is the **fxserver** version, for legacy server use a older version.
+## Legacy version
+
+This is the **fxserver** version, for legacy server look at the 1.0 branch
 
 ## Disclaimer
 
