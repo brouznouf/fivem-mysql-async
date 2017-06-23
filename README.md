@@ -2,6 +2,8 @@
 
 This library intends to provide function to connect to a MySQL library in a Sync and Async Way.
 
+This is the **fxserver** version, for legacy server use a older version.
+
 ## Disclaimer
 
 This mod does not replace EssentialMode, it offers instead a new way of connecting to MySQL, but
@@ -14,22 +16,31 @@ All feedback is appreciated in order to deliver a stable release.
 Install the content of this repository in the `resources/mysql-async` folder. **Name of the folder** matters, 
 do not use a different name (otherwise you must have knowledge on how this works and make the appropriate changes)
 
-Once installed, you will need to add these lines of code in each mod needing a MySQL client:
+Once installed, you will need to add this line of code in the resource file of each mod needing a MySQL client:
 
 ```
-require "resources/mysql-async/lib/MySQL"
+server_script '@mysql-async/lib/MySQL.lua'
 ```
 
 ## Configuration
 
-Copy the file `resources/mysql-async/lib/config.lua-dist` to `resources/mysql-async/lib/config.lua` and 
-change the values according to your MySQL installation.
-
-## Replacing MySQL of EssentialMode
-
-[See the UPGRADING.md documentation](UPGRADING.md)
+Add this convar to your server configuration and change the values according to your MySQL installation:
+`set mysql_connection_string "server=127.0.0.01;database=gta5_gamemode_essential;userid=root;password=1202`
 
 ## Usage
+
+### Waiting for MySQL to be ready
+
+You need to encapsulate your code into the `onMySQLReady` to be sure that the mod will be available and initialized
+before your first request.
+
+```lua
+AddEventHandler('onMySQLReady', function ()
+    print(MySQL.Sync.fetchScalar('SELECT @parameters', {
+        ['@parameters'] =  'string'
+    }))
+end)
+```
 
 ### Sync
 
@@ -96,16 +107,13 @@ end
 ```
 
 
-## Difference from Essential Mod MySQL library (before CouchDb)
+## Features
 
- * Async
+ * Async / Sync
  * It uses the https://github.com/mysql-net/MySqlConnector library instead of the official Connector to support
  real async behavior
  * Create and close a connection for each query, the underlying library use a connection pool so only the 
 mysql auth is done each time, old tcp connections are keeped in memory for performance reasons
- * Use NLog for logging, so you can filter and remove logs for the SQL queries in your server
- * The log will also show you the time take by the query, it can be useful to see slow queries. However it is 
-recommended to use the official slow query of MySQL in order to do that
 
 ## FXServer
 
