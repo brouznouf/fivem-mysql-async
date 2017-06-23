@@ -8,6 +8,5 @@ server_export 'mysql_fetch_scalar'
 server_export 'mysql_sync_fetch_scalar'
 
 server_script 'lib/MySQL.lua'
-server_script 'lib/config.lua'
 server_script 'lib/init.lua'
 --server_script 'example.lua'
