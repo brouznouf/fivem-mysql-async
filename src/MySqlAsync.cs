@@ -21,7 +21,7 @@ namespace MySqlAsync
 
         public MySqlAsync()
         {
-            Exports.Add("mysql_configure", new Action<string, string, string, string>(() => {
+            Exports.Add("mysql_configure", new Action(() => {
                 Configure(Function.Call<string>(Hash.GET_CONVAR, "mysql_connection_string"));
             }));
 
