@@ -213,9 +213,9 @@ namespace MySqlAsync
                 for (int i=0; i < reader.FieldCount; i++) {
                     if (reader.IsDBNull(i)) {
                         line.Add(reader.GetName(i), null);
+                    } else {
+                        line.Add(reader.GetName(i), reader.GetValue(i));
                     }
-
-                    line.Add(reader.GetName(i), reader.GetValue(i));
                 }
 
                 results.Add(line);
