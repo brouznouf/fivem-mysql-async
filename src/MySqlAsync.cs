@@ -50,19 +50,28 @@ namespace MySqlAsync
             }));
 
             EventHandlers["onMySqlQueryExecute"] += new Action<int, bool>((key, error) => {
-                CallbackRegistry[key].Call<int, int>(error, (result) => {
+                QueryProcess process = CallbackRegistry[key];
+                CallbackRegistry.Remove(key);
+
+                process.Call<int, int>(error, (result) => {
                     return result;
                 });
             });
 
             EventHandlers["onMySqlQueryFetchAll"] += new Action<int, bool>((key, error) => {
-                CallbackRegistry[key].Call<DbDataReader, List<Dictionary<string, Object>>>(error, (reader) => {
+                QueryProcess process = CallbackRegistry[key];
+                CallbackRegistry.Remove(key);
+
+                process.Call<DbDataReader, List<Dictionary<string, Object>>>(error, (reader) => {
                     return ReaderToDictionary(reader);
                 });
             });
 
             EventHandlers["onMySqlQueryFetchScalar"] += new Action<int, bool>((key, error) => {
-                CallbackRegistry[key].Call<Object, Object>(error, (result) => {
+                QueryProcess process = CallbackRegistry[key];
+                CallbackRegistry.Remove(key);
+
+                process.Call<Object, Object>(error, (result) => {
                     return result;
                 });
             });
@@ -221,6 +230,7 @@ namespace MySqlAsync
                 results.Add(line);
             }
 
+            reader.Dispose();
             reader.Close();
 
             return results;
@@ -265,6 +275,7 @@ namespace MySqlAsync
 
             TResult result = transform(((Task<TParam>)task).GetAwaiter().GetResult());
             command.Connection.Close();
+            command.Connection.Dispose();
 
             Console.WriteLine(string.Format("[{0}ms] {1}", stopwatch.ElapsedMilliseconds, command.CommandText));
 
