@@ -1,129 +1,55 @@
-# Upgrading from Essential Mode
+# Upgrading from Legacy Server
 
-As said in the README, this library does not fully replace Essential Mode, it can only replace the MySQL part 
-associated with.
+## A note about EssentialMode
 
-## First and quick upgrade
+This library does not provide api compatibility with EssentialMode. The reason is that old API was not logic due to the
+ way on how mysql work which was inducing bad behavior, like executing multiple queries instead of one, or using only one 
+ connection for all players (which was the main source of bug, having sync is not a problem as long as you know what you
+ are doing).
+ 
+Then if you come from legacy server and still using essential mod API, you should update by using this path:
 
-Instead of upgrading all your mods one by one, this library offers a lua script which 
-provides the same MySQL functions from version 2 of Essential Mode and earlier.
+ * Use the 1.0 of this library and read the UPGRADING.md file of it to use the new API
+ * Then you can Update to fxserver and use the 2.X version of this lib
+ * Then read the following advices on how to update your existing codebase for the 2.0 version
+ 
+## Require
 
-You just need to replace **all** contents of the `resources/essentialmode/lib/example.fxserver.lua` file by the following code:
+The `require` keyword does not exist anymore and will throw an error on fxserver. You should remove all references to 
+require, there is no replacement as this is no longer useful.
+
+However you will have to add this line to your resource file `__resource.lua` in order to have access to the mysql async:
 
 ```lua
-require "resources/mysql-async/lib/MySQL"
-require "resources/mysql-async/lib/EssentialModeApi"
+server_script '@mysql-async/lib/MySQL.lua'
 ```
 
-Then all old code should work like before.
+## Configuration
 
-However you will potentialy have the same problems as before: locking the main thread with a bad query.
+There is no more configuration file in this lib, instead it use directly a `conv_var` which is basically a variable set
+in the configuration file of your fxserver `server.cfg`
 
-## Upgrade to the Async API
+So you can remove the config file that you were having and add this line into your `server.cfg` file :
 
-Now that everything is ready, you can begin to replace your sync queries by async one.
-
-### Queries returning a result (Select / ...)
-
-Let's say you have the following code:
-
-```lua
-local executed_query = MySQL:executeQuery("SELECT * FROM users WHERE identifier = '@name'", {['@name'] = 
-identifier})
-local result = MySQL:getResults(executed_query, {'money'}, 
-"identifier")
-
-TriggerClientEvent("my_event", self.source, result[1].money)
+```
+set mysql_connection_string "server=mariadb;database=fivem;userid=root;password=fivem"
 ```
 
-You can replace it with the following code:
+It is highly recommended to set those variable **before** starting modules so they will be available directly on startup
+(even if we provide some safety check for someone defining this var after...)
+
+## Startup code with queries
+
+You may have some sql queries at the start of your module, however due to the new way of loading modules in fxserver 
+(which is somehow async): Your library can be loaded before mysql-async even if you start it after.
+
+To handle this use case, this library provide a special event `onMySQLReady` that is emitted once it's loaded, so you can do:
 
 ```lua
-MySQL.Async.fetchAll("SELECT * FROM users WHERE identifier = @name", {['@name'] = identifier}, function (result)
-    TriggerClientEvent("my_event", self.source, result[1].money)
+AddEventHandler('onMySQLReady', function ()
+    -- Startup code using mysql
 end)
 ```
 
-First we use the new method `MySQL.Async.fetchAll` which intends to retrieve results from a query, it use the 
-same API as before for the first two parameters. However it provides a third parameters which is a callback 
-(a function).
 
-This API is mandatory when dealing with async, as you don't know when the result will be available, that's 
-why you provide a callback that will be called once the result is ready to exploit.
 
-Also there is no more need of having 2 calls to the API.
-
-There is one little change you may have not seen on the query on the `@name` parameter: it does not require 
-quote anymore. Parameter replacing is done with the underlying library which guard you from SQL injection. 
-However, be warned, you can still have SQL injection if you poorly construct your query (like using 
-concatenation with a value coming from the user), but if you stick with paramters you should be good.
-
-A last optimisation can be done here, if you read well the example we only care about the money for a given 
-user (so only one value). This library provide the `MySQL.Async.fetchScalar` method to handle this use case 
-which will return only the value of the first column in the first line, so you can safely write this instead:
-
-```lua
-MySQL.Async.fetchScalar("SELECT money FROM users WHERE identifier = @name", {['@name'] = identifier}, function (money)
-    TriggerClientEvent("my_event", self.source, money)
-end)
-```
-
-However the query has to bee updated in order to select only the money, otherwise it will return the first 
-value of the column in your schema.
-
-### Queries no returning a result (Update / Insert / Delete / ...)
-
-For query no returning any result like this code:
-
-```lua
-MySQL:executeQuery("UPDATE users SET `money`='@value' WHERE identifier = '@identifier'", {
-    ['@value'] = 300,
-    ['@identifier'] = 'steam...'
-})
-```
-
-you can replace it with
-
-```lua
-MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier", {
-    ['@value'] = 300,
-    ['@identifier'] = 'steam...'
-})
-```
-
-Like before the quote around parameters are no more required, and in fact you should remove them or it will 
-fail.
-
-Like `fetchAll` this method propose also a callback parameter in the third position which can be used if you 
-want to do something once this query has been executed:
-
-```lua
-MySQL.Async.execute("UPDATE users SET `money`=@value WHERE identifier = @identifier", {
-    ['@value'] = 300,
-    ['@identifier'] = 'steam...'
-}, function (rowsUpdate)
-    print('Query executed')
-end)
-```
-
-### Debugging
-
-To help upgrading, each call to the old API will trigger a debug log in your server, to read them you will 
-have to change the configuration of the `NLog.config` file at the root of your fivem server, in order to have 
-theses lines:
-
-```xml
-<rules>
-  <logger name="*" minlevel="Debug" writeTo="console"/>
-</rules>
-```
-
-### Cleaning
-
-Once all queries have been replaced you can safely remove this line:
-
-```lua
-require "resources/mysql-async/lib/EssentialModeApi"
-```
-
-since the old API is not required anymore.
