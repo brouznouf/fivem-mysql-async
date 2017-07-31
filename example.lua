@@ -3,6 +3,8 @@
 --
 --local function Loop()
 --    SetTimeout(2, function ()
+----        MySQL.Sync.fetchAll('WRONG SQL QUERY', {})
+--
 --        MySQL.Sync.fetchScalar('SELECT @parameters', {
 --            ['@parameters'] =  'string'
 --        })
