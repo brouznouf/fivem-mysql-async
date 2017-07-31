@@ -49,8 +49,15 @@ namespace MySQLAsync
             }));
 
             Exports.Add("mysql_sync_fetch_scalar", new Func<string, IDictionary<string, object>, Object>((query, parameters) => {
-
                 return (new FetchScalar(ConnectionString)).Execute(query, parameters, null, debug);
+            }));
+
+            Exports.Add("mysql_insert", new Action<string, IDictionary<string, object>, CallbackDelegate>(async (query, parameters, callback) => {
+                await (new Insert(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
+            }));
+
+            Exports.Add("mysql_sync_insert", new Func<string, IDictionary<string, object>, Object>((query, parameters) => {
+                return (new Insert(ConnectionString)).Execute(query, parameters, null, debug);
             }));
         }
 

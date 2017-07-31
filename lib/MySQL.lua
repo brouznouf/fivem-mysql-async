@@ -81,6 +81,20 @@ function MySQL.Sync.fetchScalar(query, params)
 end
 
 ---
+-- Execute a query and retrieve the last id insert, sync version
+--
+-- @param query
+-- @param params
+--
+-- @return mixed Value of the first column in the first row
+--
+function MySQL.Sync.insert(query, params)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    return exports['mysql-async']:mysql_sync_insert(query, safeParameters(params))
+end
+
+---
 -- Execute a query with no result required, async version
 --
 -- @param query
@@ -118,4 +132,17 @@ function MySQL.Async.fetchScalar(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_fetch_scalar(query, safeParameters(params), safeCallback(func))
+end
+
+---
+-- Execute a query and retrieve the last id insert, async version
+--
+-- @param query
+-- @param params
+-- @param func(string)
+--
+function MySQL.Async.insert(query, params, func)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    exports['mysql-async']:mysql_insert(query, safeParameters(params), safeCallback(func))
 end
