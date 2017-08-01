@@ -65,7 +65,6 @@ namespace MySQLAsync
         {
             var connectionStringBuilder = new MySqlConnectionStringBuilder(connectionStringConfig);
             connectionStringBuilder.AllowUserVariables = true;
-            connectionStringBuilder.Pooling = false;
 
             this.debug = debug;
             ConnectionString = connectionStringBuilder.ToString();

@@ -54,7 +54,7 @@ namespace MySQLAsync
 
                 if (!(firstException is MySqlException))
                 {
-                    throw aggregateException;
+                    throw;
                 }
 
                 // @TODO Function.Call<string>(Hash.GET_INVOKING_RESOURCE)
