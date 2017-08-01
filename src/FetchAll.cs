@@ -19,23 +19,26 @@ namespace MySQLAsync
 
             using (var reader = command.ExecuteReader())
             {
-                while (reader.Read())
+                if (reader.HasRows)
                 {
-                    var line = new Dictionary<string, Object>();
-
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    while (reader.Read())
                     {
-                        if (reader.IsDBNull(i))
-                        {
-                            line.Add(reader.GetName(i), null);
-                        }
-                        else
-                        {
-                            line.Add(reader.GetName(i), reader.GetValue(i));
-                        }
-                    }
+                        var line = new Dictionary<string, Object>();
 
-                    results.Add(line);
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.IsDBNull(i))
+                            {
+                                line.Add(reader.GetName(i), null);
+                            }
+                            else
+                            {
+                                line.Add(reader.GetName(i), reader.GetValue(i));
+                            }
+                        }
+
+                        results.Add(line);
+                    }
                 }
             }
 
@@ -48,23 +51,26 @@ namespace MySQLAsync
 
             using (var reader = await command.ExecuteReaderAsync())
             {
-                while (await reader.ReadAsync())
+                if (reader.HasRows)
                 {
-                    var line = new Dictionary<string, Object>();
-
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    while (await reader.ReadAsync())
                     {
-                        if (await reader.IsDBNullAsync(i))
-                        {
-                            line.Add(reader.GetName(i), null);
-                        }
-                        else
-                        {
-                            line.Add(reader.GetName(i), reader.GetValue(i));
-                        }
-                    }
+                        var line = new Dictionary<string, Object>();
 
-                    results.Add(line);
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            if (reader.IsDBNull(i))
+                            {
+                                line.Add(reader.GetName(i), null);
+                            }
+                            else
+                            {
+                                line.Add(reader.GetName(i), reader.GetValue(i));
+                            }
+                        }
+
+                        results.Add(line);
+                    }
                 }
             }
 

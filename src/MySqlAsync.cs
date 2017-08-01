@@ -28,36 +28,36 @@ namespace MySQLAsync
                 );
             }));
 
-            Exports.Add("mysql_execute", new Action<string, IDictionary<string, object>, CallbackDelegate>(async (query, parameters, callback) => {
-                await (new Execute(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
+            Exports.Add("mysql_execute", new Action<string, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) => {
+                (new Execute(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
             }));
 
             Exports.Add("mysql_sync_execute", new Func<string, IDictionary<string, object>, int>((query, parameters) => {
-                return (new Execute(ConnectionString)).Execute(query, parameters, null, debug);
+                return (new Execute(ConnectionString)).Execute(query, parameters, debug);
             }));
 
-            Exports.Add("mysql_fetch_all", new Action<string, IDictionary<string, object>, CallbackDelegate>(async (query, parameters, callback) => {
-                await (new FetchAll(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
+            Exports.Add("mysql_fetch_all", new Action<string, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) => {
+                (new FetchAll(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
             }));
 
             Exports.Add("mysql_sync_fetch_all", new Func<string, IDictionary<string, object>, List<Dictionary<string, Object>>>((query, parameters) => {
-                return (new FetchAll(ConnectionString)).Execute(query, parameters, null, debug);
+                return (new FetchAll(ConnectionString)).Execute(query, parameters, debug);
             }));
 
-            Exports.Add("mysql_fetch_scalar", new Action<string, IDictionary<string, object>, CallbackDelegate>(async (query, parameters, callback) => {
-                await (new FetchScalar(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
+            Exports.Add("mysql_fetch_scalar", new Action<string, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) => {
+                (new FetchScalar(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
             }));
 
             Exports.Add("mysql_sync_fetch_scalar", new Func<string, IDictionary<string, object>, Object>((query, parameters) => {
-                return (new FetchScalar(ConnectionString)).Execute(query, parameters, null, debug);
+                return (new FetchScalar(ConnectionString)).Execute(query, parameters, debug);
             }));
 
-            Exports.Add("mysql_insert", new Action<string, IDictionary<string, object>, CallbackDelegate>(async (query, parameters, callback) => {
-                await (new Insert(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
+            Exports.Add("mysql_insert", new Action<string, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) => {
+                (new Insert(ConnectionString)).ExecuteAsync(query, parameters, callback, debug);
             }));
 
             Exports.Add("mysql_sync_insert", new Func<string, IDictionary<string, object>, Object>((query, parameters) => {
-                return (new Insert(ConnectionString)).Execute(query, parameters, null, debug);
+                return (new Insert(ConnectionString)).Execute(query, parameters, debug);
             }));
         }
 
