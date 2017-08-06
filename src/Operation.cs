@@ -26,24 +26,26 @@ namespace MySQLAsync
 
             try
             {
-                if (debug)
-                {
-                    stopwatch.Start();
-                }
+                stopwatch.Start();
 
                 using (var connection = new MySqlConnection(ConnectionString))
                 {
                     connection.Open();
+                    var ConnectionTime = stopwatch.ElapsedMilliseconds;
+                    stopwatch.Restart();
 
                     using (var command = CreateCommand(query, parameters, connection))
                     {
+                        var QueryTime = stopwatch.ElapsedMilliseconds;
+                        stopwatch.Restart();
+
                         result = Reader(command);
+                        stopwatch.Stop();
 
                         if (debug)
                         {
-                            stopwatch.Stop();
                             // @TODO Function.Call<string>(Hash.GET_INVOKING_RESOURCE)
-                            Console.WriteLine(string.Format("[{0}] [{1}ms] {2}", "", stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
+                            Console.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
                         }
                     }
                 }
@@ -76,34 +78,34 @@ namespace MySQLAsync
 
         public async void ExecuteAsync(string query, IDictionary<string, object> parameters, CallbackDelegate callback, bool debug = false)
         {
+            TResult result = default(TResult);
             Stopwatch stopwatch = new Stopwatch();
 
             try
             {
-                if (debug)
-                {
-                    stopwatch.Start();
-                }
+                stopwatch.Start();
 
                 using (var connection = new MySqlConnection(ConnectionString))
                 {
                     await connection.OpenAsync();
+                    var ConnectionTime = stopwatch.ElapsedMilliseconds;
+                    stopwatch.Restart();
 
                     using (var command = CreateCommand(query, parameters, connection))
                     {
-                        var result = await ReaderAsync(command);
+                        var QueryTime = stopwatch.ElapsedMilliseconds;
+                        stopwatch.Restart();
+
+                        result = await ReaderAsync(command);
+                        stopwatch.Stop();
 
                         if (debug)
                         {
-                            stopwatch.Stop();
                             // @TODO Function.Call<string>(Hash.GET_INVOKING_RESOURCE)
-                            Console.WriteLine(string.Format("[{0}] [{1}ms] {2}", "", stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
+                            Console.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
                         }
 
-                        if (result != null)
-                        {
-                            callback.Invoke(result);
-                        }
+                        callback.Invoke(result);
                     }
                 }
             }
