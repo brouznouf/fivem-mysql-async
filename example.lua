@@ -68,5 +68,11 @@ AddEventHandler('onMySQLReady', function ()
         print(result)
     end)
 
+    print(json.encode(MySQL.Sync.fetchScalar('SELECT null', {})))
+
+    MySQL.Async.fetchScalar('SELECT null', {}, function(result)
+        print(result)
+    end)
+
     MySQL.Sync.fetchAll('WRONG SQL QUERY', {})
 end)
