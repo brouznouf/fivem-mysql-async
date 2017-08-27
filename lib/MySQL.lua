@@ -137,3 +137,19 @@ function MySQL.Async.insert(query, params, func)
 
     exports['mysql-async']:mysql_insert(query, safeParameters(params), safeCallback(func))
 end
+
+local isReady = false
+
+AddEventHandler('onMySQLReady', function ()
+    isReady = true
+end)
+
+function MySQL.ready(callback)
+    if isReady then
+        callback()
+
+        return
+    end
+
+    AddEventHandler('onMySQLReady', callback)
+end

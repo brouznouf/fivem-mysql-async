@@ -27,7 +27,7 @@
 --    Loop()
 --end)
 
-AddEventHandler('onMySQLReady', function ()
+MySQL.ready(function ()
     print(MySQL.Sync.fetchScalar('SELECT @parameters', {
         ['@parameters'] =  1
     }))
