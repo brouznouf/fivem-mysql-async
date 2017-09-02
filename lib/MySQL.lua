@@ -20,12 +20,18 @@ end
 
 local function safeCallback(callback)
     if nil == callback then
-        return function() end
+        return function(result)
+            return result
+        end
     end
 
     assert(type(callback) == "function", "A callback is expected")
 
-    return callback
+    return function(result)
+        callback(result)
+        
+        return result
+    end
 end
 
 ---
@@ -95,7 +101,21 @@ end
 function MySQL.Async.execute(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
-    exports['mysql-async']:mysql_execute(query, safeParameters(params), safeCallback(func))
+    local p = promise.new()
+
+    exports['mysql-async']:mysql_execute(query, safeParameters(params), function (result, error)
+        if error then
+            p:reject(error)
+        else
+            p:resolve(result)
+        end
+    end)
+    
+    return p:next(safeCallback(func), function (err)
+        print("[Error] " .. err)
+
+        error(err)
+    end)
 end
 
 ---
@@ -108,7 +128,21 @@ end
 function MySQL.Async.fetchAll(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
-    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), safeCallback(func))
+    local p = promise.new()
+
+    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), function (result, error)
+        if error then
+            p:reject(error)
+        else
+            p:resolve(result)
+        end
+    end)
+
+    return p:next(safeCallback(func), function (err)
+        print("[Error] " .. err)
+
+        error(err)
+    end)
 end
 
 ---
@@ -122,7 +156,21 @@ end
 function MySQL.Async.fetchScalar(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
-    exports['mysql-async']:mysql_fetch_scalar(query, safeParameters(params), safeCallback(func))
+    local p = promise.new()
+
+    exports['mysql-async']:mysql_fetch_scalar(query, safeParameters(params), function (result, error)
+        if error then
+            p:reject(error)
+        else
+            p:resolve(result)
+        end
+    end)
+
+    return p:next(safeCallback(func), function (err)
+        print("[Error] " .. err)
+
+        error(err)
+    end)
 end
 
 ---
@@ -135,7 +183,66 @@ end
 function MySQL.Async.insert(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
-    exports['mysql-async']:mysql_insert(query, safeParameters(params), safeCallback(func))
+    local p = promise.new()
+
+    exports['mysql-async']:mysql_insert(query, safeParameters(params), function (result, error)
+        if error then
+            p:reject(error)
+        else
+            p:resolve(result)
+        end
+    end)
+
+    return p:next(safeCallback(func), function (err)
+        print("[Error] " .. err)
+
+        error(err)
+    end)
+end
+
+---
+-- Execute a query with no result required, async version
+--
+-- @param query
+-- @param params
+-- @param func(int)
+--
+function MySQL.execute(query, params)
+    return Citizen.Await(MySQL.Async.execute(query, params))
+end
+
+---
+-- Execute a query and fetch all results in an async way
+--
+-- @param query
+-- @param params
+-- @param func(table)
+--
+function MySQL.fetchAll(query, params)
+    return Citizen.Await(MySQL.Async.fetchAll(query, params))
+end
+
+---
+-- Execute a query and fetch the first column of the first row, async version
+-- Useful for count function by example
+--
+-- @param query
+-- @param params
+-- @param func(mixed)
+--
+function MySQL.fetchScalar(query, params)
+    return Citizen.Await(MySQL.Async.fetchScalar(query, params))
+end
+
+---
+-- Execute a query and retrieve the last id insert, async version
+--
+-- @param query
+-- @param params
+-- @param func(string)
+--
+function MySQL.insert(query, params)
+    return Citizen.Await(MySQL.Async.insert(query, params))
 end
 
 local isReady = false

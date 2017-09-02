@@ -75,6 +75,7 @@ namespace MySQLAsync
         {
             TResult result = default(TResult);
             Stopwatch stopwatch = new Stopwatch();
+            String error;
 
             try
             {
@@ -109,22 +110,21 @@ namespace MySQLAsync
 
                 if (!(firstException is MySqlException))
                 {
-                    throw aggregateException;
+                    throw;
                 }
 
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), firstException.Message));
+                callback.Invoke("", string.Format("An error happens on MySQL for query \"{0}\": {1}", QueryToString(query, parameters), firstException.Message));
             }
             catch (MySqlException mysqlException)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), mysqlException.Message));
+                callback.Invoke("", string.Format("An error happens on MySQL for query \"{0}\": {1}", QueryToString(query, parameters), mysqlException.Message));
             }
             catch (ArgumentNullException)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] Check the error above, an error happens when executing the callback from the query : \"{1}\"\n", "MySQL", QueryToString(query, parameters)));
             }
             catch (Exception exception)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString(query, parameters), exception.Message, exception.StackTrace));
+                callback.Invoke("", string.Format("A critical error happens on MySQL for query \"{0}\": {1}", QueryToString(query, parameters), exception.Message));
             }
         }
 
