@@ -75,7 +75,6 @@ namespace MySQLAsync
         {
             TResult result = default(TResult);
             Stopwatch stopwatch = new Stopwatch();
-            String error;
 
             try
             {
