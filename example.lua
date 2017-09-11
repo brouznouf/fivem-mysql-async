@@ -56,6 +56,12 @@ MySQL.ready(function ()
         print("5")
     end)
 
+    print(MySQL.Sync.fetchScalar("SELECT money FROM users WHERE id = 'yolo' "))
+
+    MySQL.Async.fetchAll("SELECT money FROM users WHERE id = 'yolo' ", {}, function (result)
+        print(#result)
+    end)
+
     print(MySQL.Sync.fetchAll('SELECT "hello1" as world', {})[1].world)
 
     MySQL.Async.fetchAll('SELECT "hello2" as world', {}, function(result)

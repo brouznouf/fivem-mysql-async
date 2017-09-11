@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +17,7 @@ namespace MySQLAsync
         {
             var result = command.ExecuteScalar();
 
-            if (result.GetType() == typeof(DBNull))
+            if (result != null && result.GetType() == typeof(DBNull))
             {
                 result = null;
             }
@@ -29,7 +29,7 @@ namespace MySQLAsync
         {
             var result = await command.ExecuteScalarAsync();
 
-            if (result.GetType() == typeof(DBNull))
+            if (result != null && result.GetType() == typeof(DBNull))
             {
                 result = null;
             }
