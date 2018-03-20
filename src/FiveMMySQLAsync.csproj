@@ -44,7 +44,7 @@
     <Reference Include="CitizenFX.Core">
       <HintPath>D:\FXServer\citizen\clr2\lib\mono\4.5\CitizenFX.Core.dll</HintPath>
     </Reference>
-    <Reference Include="MySqlConnector, Version=0.26.4.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MySqlConnector, Version=0.28.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\MySqlConnector\src\MySqlConnector\bin\Release\net45\MySqlConnector.dll</HintPath>
     </Reference>
