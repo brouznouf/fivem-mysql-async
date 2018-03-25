@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MySQLAsync
 {
@@ -74,13 +75,13 @@ namespace MySQLAsync
                 return await (new Insert(ConnectionString)).ExecuteThreaded(query, parameters, debug);
             }));
 
-            Exports.Add("mysql_transaction", new Action<IList<string>, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) =>
+            Exports.Add("mysql_transaction", new Action<IList<object>, IDictionary<string, object>, CallbackDelegate>((querys, parameters, callback) =>
             {
-                (new Transaction(ConnectionString)).ExecuteTransactionAsync(query, parameters, callback, debug);
+                (new Transaction(ConnectionString)).ExecuteTransactionAsync(querys.Select(q => q.ToString()).ToList(), parameters, callback, debug);
             }));
-            Exports.Add("mysql_sync_transaction", new Func<IList<string>, IDictionary<string, object>, Object>((query, parameters) =>
+            Exports.Add("mysql_sync_transaction", new Func<IList<object>, IDictionary<string, object>, bool>((querys, parameters) =>
             {
-                return (new Transaction(ConnectionString)).ExecuteTransaction(query, parameters, debug);
+                return (new Transaction(ConnectionString)).ExecuteTransaction(querys.Select(q => q.ToString()).ToList(), parameters, debug);
             }));
         }
 

@@ -29,16 +29,18 @@ namespace MySQLAsync
 
                     using (var command = connection.CreateCommand())
                     {
+                        foreach (var parameter in parameters ?? Enumerable.Empty<KeyValuePair<string, object>>())
+                            command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                         var QueryTime = stopwatch.ElapsedMilliseconds;
                         stopwatch.Restart();
 
-                        using(var transaction = connection.BeginTransaction())
+                        using (var transaction = connection.BeginTransaction())
                         {
                             command.Transaction = transaction;
 
                             try
                             {
-                                foreach(string commandText in querys)
+                                foreach (string commandText in querys)
                                 {
                                     command.CommandText = commandText;
                                     command.ExecuteNonQuery();
@@ -46,13 +48,13 @@ namespace MySQLAsync
                                 transaction.Commit();
                                 result = true;
                             }
-                            catch(Exception ex)
+                            catch (Exception ex)
                             {
                                 transaction.Rollback();
                                 throw ex;
                             }
                         }
-                        
+
                         stopwatch.Stop();
 
                         if (debug)
@@ -102,6 +104,8 @@ namespace MySQLAsync
 
                     using (var command = connection.CreateCommand())
                     {
+                        foreach (var parameter in parameters ?? Enumerable.Empty<KeyValuePair<string, object>>())
+                            command.Parameters.AddWithValue(parameter.Key, parameter.Value);
                         var QueryTime = stopwatch.ElapsedMilliseconds;
                         stopwatch.Restart();
 
