@@ -51,7 +51,7 @@ namespace MySQLAsync
                             catch (Exception ex)
                             {
                                 transaction.Rollback();
-                                throw ex;
+                                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] [{1}] {2}\n", "MySQL", "Transaction", ex.Message));
                             }
                         }
 
@@ -126,7 +126,7 @@ namespace MySQLAsync
                             catch (Exception ex)
                             {
                                 await transaction.RollbackAsync();
-                                throw ex;
+                                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] [{1}] {2}\n", "MySQL", "Transaction", ex.Message));
                             }
                         }
 
