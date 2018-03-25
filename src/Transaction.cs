@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using CitizenFX.Core;
 using MySql.Data.MySqlClient;
 
 namespace MySQLAsync
@@ -84,7 +85,7 @@ namespace MySQLAsync
             return result;
         }
 
-        public async Task<bool> ExecuteTransactionAsync(IList<string> querys, IDictionary<string, object> parameters = null, bool debug = false)
+        public async void ExecuteTransactionAsync(IList<string> querys, IDictionary<string, object> parameters = null, CallbackDelegate callback = null, bool debug = false)
         {
             bool result = false;
             Stopwatch stopwatch = new Stopwatch();
@@ -154,7 +155,7 @@ namespace MySQLAsync
                 CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString("Transaction", parameters), exception.Message, exception.StackTrace));
             }
 
-            return result;
+            callback?.Invoke(result);
         }
 
         protected override bool Reader(MySqlCommand command) => throw new NotImplementedException();

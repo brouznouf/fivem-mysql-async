@@ -74,6 +74,14 @@ namespace MySQLAsync
                 return await (new Insert(ConnectionString)).ExecuteThreaded(query, parameters, debug);
             }));
 
+            Exports.Add("mysql_transaction", new Action<IList<string>, IDictionary<string, object>, CallbackDelegate>((query, parameters, callback) =>
+            {
+                (new Transaction(ConnectionString)).ExecuteTransactionAsync(query, parameters, callback, debug);
+            }));
+            Exports.Add("mysql_sync_transaction", new Func<IList<string>, IDictionary<string, object>, Object>((query, parameters) =>
+            {
+                return (new Transaction(ConnectionString)).ExecuteTransaction(query, parameters, debug);
+            }));
         }
 
         private void Configure(string connectionStringConfig, bool debug)
