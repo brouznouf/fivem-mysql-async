@@ -173,7 +173,7 @@ namespace MySQLAsync
             return command;
         }
 
-        private string QueryToString(string query, IDictionary<string, object> parameters)
+        internal string QueryToString(string query, IDictionary<string, object> parameters)
         {
             return query + " {" + string.Join(";", parameters.Select(x => x.Key + "=" + x.Value).ToArray()) + "}";
         }
