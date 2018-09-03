@@ -1,0 +1,13 @@
+{
+    "parserOptions": {
+        "ecmaVersion": 2017,
+        "sourceType": "script",
+        "ecmaFeatures": {
+            "impliedStrict": false
+        }
+    },
+    "extends": "airbnb",
+    "rules": {
+        "no-console": 0 
+    }
+}

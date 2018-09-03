@@ -1,0 +1,8 @@
+{
+    "username": "mysqluser",
+    "password": "password",
+    "server": "localhost",
+    "port": 3306,
+    "database": "test",
+    "connectionLimit": 50
+}
