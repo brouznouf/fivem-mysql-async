@@ -1,13 +1,2 @@
-lib/config.lua
-src/bin
-src/obj
-src/packages
-src/.vs
-CitizenFX.Core.dll
-MsgPack.dll
-Microsoft.DiaSymReader.Native.amd64.dll
-Microsoft.DiaSymReader.Native.arm.dll
-Microsoft.DiaSymReader.Native.x86.dll
-*.xml
-*.pdb
-MySQLAsync.net.dll.config
+src/node_modules
+src/package-lock.json
