@@ -89,6 +89,7 @@ namespace MySQLAsync
         {
             var connectionStringBuilder = new MySqlConnectionStringBuilder(connectionStringConfig);
             connectionStringBuilder.AllowUserVariables = true;
+            connectionStringBuilder.SslMode = MySqlSslMode.None;
 
             this.debug = debug;
             ConnectionString = connectionStringBuilder.ToString();
