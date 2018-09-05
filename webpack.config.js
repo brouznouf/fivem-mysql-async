@@ -17,4 +17,24 @@ module.exports = {
       { from: 'src/static' },
     ]),
   ],
+  module: {
+    rules: [{
+      test: /\.js$/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: [[
+            '@babel/preset-env',
+            {
+              targets: {
+                chrome: 68,
+              },
+            },
+          ]],
+          comments: false,
+          compact: true,
+        },
+      },
+    }],
+  },
 };
