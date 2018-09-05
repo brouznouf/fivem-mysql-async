@@ -1,7 +1,14 @@
+local function safeParameters(parameters)
+  if parameters == nil then
+    return {[''] = ''}
+  end
+  return parameters
+end
+
 exports('executeSync', function (query, parameters)
   local res = {}
   local finishedQuery = false
-  exports.ghmattimysql:execute(query, parameters, function (result)
+  exports.ghmattimysql:execute(query, safeParameters(parameters), function (result)
     res = result
     finishedQuery = true
   end)
@@ -12,7 +19,7 @@ end)
 exports('scalarSync', function (query, parameters)
   local res = {}
   local finishedQuery = false
-  exports.ghmattimysql:scalar(query, parameters, function (result)
+  exports.ghmattimysql:scalar(query, safeParameters(parameters), function (result)
     res = result
     finishedQuery = true
   end)
