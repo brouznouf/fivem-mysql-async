@@ -40,8 +40,7 @@ function sanitizeInput(query, parameters, callback) {
 }
 
 async function safeInvoke(callback, args) {
-  await new Promise(resolve => setTimeout(resolve, 0));
-  if (typeof callback === 'function') callback(...args);
+  if (typeof callback === 'function') setImmediate(() => { callback(...args); });
 }
 
 function execute(sql, params, connection) {
