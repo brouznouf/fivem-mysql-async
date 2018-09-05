@@ -40,7 +40,11 @@ function sanitizeInput(query, parameters, callback) {
 }
 
 async function safeInvoke(callback, args) {
-  if (typeof callback === 'function') setImmediate(() => { callback(...args); });
+  if (typeof callback === 'function') {
+    setImmediate(() => {
+      callback(args);
+    });
+  }
 }
 
 function execute(sql, params, connection) {
@@ -60,7 +64,7 @@ global.exports('scalar', (query, parameters, callback) => {
   [sql, params, cb] = sanitizeInput(sql, params, cb);
 
   execute(sql, params).then((result) => {
-    safeInvoke(cb, [Object.values(result[0])[0]]);
+    safeInvoke(cb, Object.values(result[0])[0]);
   });
 });
 
@@ -71,7 +75,7 @@ global.exports('execute', (query, parameters, callback) => {
   [sql, params, cb] = sanitizeInput(sql, params, cb);
 
   execute(sql, params).then((result) => {
-    safeInvoke(cb, [result]);
+    safeInvoke(cb, result);
   });
 });
 
@@ -104,7 +108,7 @@ global.exports('transaction', (querys, parameters, callback) => {
   pool.getConnection((connectionError, connection) => {
     if (connectionError) {
       console.error(connectionError);
-      safeInvoke(cb, [false]);
+      safeInvoke(cb, false);
       return;
     }
 
@@ -112,7 +116,7 @@ global.exports('transaction', (querys, parameters, callback) => {
       if (transactionError) {
         connection.rollback(() => {
           console.error(transactionError);
-          safeInvoke(cb, [false]);
+          safeInvoke(cb, false);
         });
         return;
       }
@@ -130,16 +134,16 @@ global.exports('transaction', (querys, parameters, callback) => {
           if (commitError) {
             connection.rollback(() => {
               console.error(commitError);
-              safeInvoke(cb, [false]);
+              safeInvoke(cb, false);
             });
           }
-          safeInvoke(cb, [true]);
+          safeInvoke(cb, true);
         });
         // Otherwise catch the error from the execution
       }).catch((executeError) => {
         connection.rollback(() => {
           console.error(executeError);
-          safeInvoke(cb, [false]);
+          safeInvoke(cb, false);
         });
       });
     });
