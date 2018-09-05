@@ -2,14 +2,7 @@ const mysql = require('mysql2');
 
 const config = JSON.parse(global.LoadResourceFile('ghmattimysql', 'config.json'));
 
-const pool = mysql.createPool({
-  host: config.server,
-  port: config.port,
-  user: config.username,
-  database: config.database,
-  password: config.password,
-  connectionLimit: config.connectionLimit,
-});
+const pool = mysql.createPool(config);
 
 function prepareLegacyQuery(query, parameters) {
   let sql = query;

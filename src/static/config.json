@@ -1,8 +1,9 @@
 {
-    "username": "mysqluser",
+    "user": "mysqluser",
     "password": "password",
-    "server": "localhost",
+    "host": "localhost",
     "port": 3306,
     "database": "test",
-    "connectionLimit": 50
+    "connectionLimit": 50,
+    "dateStrings": true
 }
