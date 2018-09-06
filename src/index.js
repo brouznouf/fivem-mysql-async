@@ -1,7 +1,8 @@
 const mysql = require('mysql2');
 
 const config = JSON.parse(global.LoadResourceFile('ghmattimysql', 'config.json'));
-const pool = mysql.createPool(config);
+const configString = global.GetConvar('mysql_connection_string', 'mysql://localhost/fivem');
+const pool = mysql.createPool(config || configString);
 
 function prepareLegacyQuery(query, parameters) {
   let sql = query;
