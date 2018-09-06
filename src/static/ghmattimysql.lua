@@ -30,7 +30,7 @@ end)
 exports('transactionSync', function (query, parameters)
   local res = {}
   local finishedTransaction = false
-  exports.ghmattimysql:transaction(query, parameters, function (result)
+  exports.ghmattimysql:transaction(query, safeParameters(parameters), function (result)
     res = result
     finishedTransaction = true
   end)

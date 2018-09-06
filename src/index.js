@@ -81,7 +81,7 @@ function onTransactionError(error, connection, callback) {
 global.exports('transaction', (querys, parameters, callback) => {
   let sqls = [];
   let params;
-  let cb;
+  let cb = callback;
   // start by type-checking and sorting the data
   if (!querys.every(element => typeof element === 'string')) {
     sqls = querys;
@@ -92,7 +92,6 @@ global.exports('transaction', (querys, parameters, callback) => {
       params = [];
     } else {
       params = parameters;
-      cb = callback;
     }
     querys.forEach((element) => {
       sqls.push({ query: element, parameters: params });
@@ -105,7 +104,6 @@ global.exports('transaction', (querys, parameters, callback) => {
       parameters: (Array.isArray(element.parameters)) ? element.parameters : [],
     };
   });
-
   // the real transaction can begin
   pool.getConnection((connectionError, connection) => {
     if (connectionError) {
@@ -113,19 +111,16 @@ global.exports('transaction', (querys, parameters, callback) => {
       safeInvoke(cb, false);
       return;
     }
-
     connection.beginTransaction((transactionError) => {
       if (transactionError) {
         onTransactionError(transactionError, connection, callback);
         return;
       }
-
       const promises = [];
       // execute each query on the connection
       sqls.forEach((element) => {
         promises.push(execute(element.query, element.parameters, connection));
       });
-
       // If all have resolved, then commit
       Promise.all(promises).then(() => {
         connection.commit((commitError) => {
