@@ -80,7 +80,7 @@ function onTransactionError(error, connection, callback) {
 
 global.exports('transaction', (querys, parameters, callback) => {
   let sqls = [];
-  let params;
+  let params = parameters;
   let cb = callback;
   // start by type-checking and sorting the data
   if (!querys.every(element => typeof element === 'string')) {
@@ -90,8 +90,6 @@ global.exports('transaction', (querys, parameters, callback) => {
     if (typeof parameters === 'function') {
       cb = parameters;
       params = [];
-    } else {
-      params = parameters;
     }
     querys.forEach((element) => {
       sqls.push({ query: element, parameters: params });
