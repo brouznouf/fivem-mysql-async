@@ -71,6 +71,13 @@ global.exports('execute', (query, parameters, callback) => {
   });
 });
 
+function onTransactionError(error, connection, callback) {
+  connection.rollback(() => {
+    console.error(error);
+    safeInvoke(callback, false);
+  });
+}
+
 global.exports('transaction', (querys, parameters, callback) => {
   let sqls = [];
   let params;
@@ -93,7 +100,10 @@ global.exports('transaction', (querys, parameters, callback) => {
   }
   // build the actual queries
   sqls.forEach((element, index) => {
-    sqls[index] = { query: prepareLegacyQuery(element.query, element.parameters), parameters: [] };
+    sqls[index] = {
+      query: prepareLegacyQuery(element.query, element.parameters),
+      parameters: (Array.isArray(element.parameters)) ? element.parameters : [],
+    };
   });
 
   // the real transaction can begin
@@ -106,15 +116,11 @@ global.exports('transaction', (querys, parameters, callback) => {
 
     connection.beginTransaction((transactionError) => {
       if (transactionError) {
-        connection.rollback(() => {
-          console.error(transactionError);
-          safeInvoke(cb, false);
-        });
+        onTransactionError(transactionError, connection, callback);
         return;
       }
 
       const promises = [];
-
       // execute each query on the connection
       sqls.forEach((element) => {
         promises.push(execute(element.query, element.parameters, connection));
@@ -124,19 +130,12 @@ global.exports('transaction', (querys, parameters, callback) => {
       Promise.all(promises).then(() => {
         connection.commit((commitError) => {
           if (commitError) {
-            connection.rollback(() => {
-              console.error(commitError);
-              safeInvoke(cb, false);
-            });
-          }
-          safeInvoke(cb, true);
+            onTransactionError(commitError, connection, callback);
+          } else safeInvoke(cb, true);
         });
         // Otherwise catch the error from the execution
       }).catch((executeError) => {
-        connection.rollback(() => {
-          console.error(executeError);
-          safeInvoke(cb, false);
-        });
+        onTransactionError(executeError, connection, callback);
       });
     });
   });
