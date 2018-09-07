@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Debug = CitizenFX.Core.Debug;
 
 namespace MySQLAsync
 {
@@ -12,9 +13,9 @@ namespace MySQLAsync
     {
         internal string ConnectionString;
 
-        internal string Query = "";
-        internal IDictionary<string, object> Parameters = null;
-        internal bool Debug = false;
+        internal string query = "";
+        internal IDictionary<string, object> parameters = null;
+        internal bool debug = false;
         internal uint ThreadedId = 0;
 
         public Operation(string connectionString)
@@ -26,9 +27,9 @@ namespace MySQLAsync
         {
             if (string.IsNullOrEmpty(query))
             {
-                query = Query;
-                parameters = Parameters;
-                debug = Debug;
+                this.query = query;
+                this.parameters = parameters;
+                this.debug = debug;
             }
 
             TResult result = default(TResult);
@@ -54,7 +55,7 @@ namespace MySQLAsync
 
                         if (debug)
                         {
-                            Console.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "MySQL", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
+                            Debug.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "MySQL", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
                         }
                     }
                 }
@@ -68,15 +69,15 @@ namespace MySQLAsync
                     throw;
                 }
 
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), firstException.Message));
+                Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), firstException.Message));
             }
             catch (MySqlException mysqlException)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), mysqlException.Message));
+                Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), mysqlException.Message));
             }
             catch (Exception exception)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString(query, parameters), exception.Message, exception.StackTrace));
+                Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString(query, parameters), exception.Message, exception.StackTrace));
             }
 
             return result;
@@ -107,7 +108,7 @@ namespace MySQLAsync
 
                         if (debug)
                         {
-                            Console.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "MySQL", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
+                            Debug.WriteLine(string.Format("[{0}] [C: {1}ms, Q: {2}ms, R: {3}ms] {4}", "MySQL", ConnectionTime, QueryTime, stopwatch.ElapsedMilliseconds, QueryToString(query, parameters)));
                         }
 
                         callback.Invoke(result);
@@ -123,27 +124,27 @@ namespace MySQLAsync
                     throw aggregateException;
                 }
 
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), firstException.Message));
+                Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), firstException.Message));
             }
             catch (MySqlException mysqlException)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), mysqlException.Message));
+                Debug.Write(string.Format("[ERROR] [{0}] An error happens on MySQL for query \"{1}\": {2}\n", "MySQL", QueryToString(query, parameters), mysqlException.Message));
             }
             catch (ArgumentNullException)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] Check the error above, an error happens when executing the callback from the query : \"{1}\"\n", "MySQL", QueryToString(query, parameters)));
+                Debug.Write(string.Format("[ERROR] [{0}] Check the error above, an error happens when executing the callback from the query : \"{1}\"\n", "MySQL", QueryToString(query, parameters)));
             }
             catch (Exception exception)
             {
-                CitizenFX.Core.Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString(query, parameters), exception.Message, exception.StackTrace));
+                Debug.Write(string.Format("[ERROR] [{0}] An critical error happens on MySQL for query \"{1}\": {2} {3}\n", "MySQL", QueryToString(query, parameters), exception.Message, exception.StackTrace));
             }
         }
 
         public async Task<TResult> ExecuteThreaded(string query, IDictionary<string, object> parameters, bool debug = false)
         {
-            Query = query;
-            Parameters = parameters;
-            Debug = debug;
+            this.query = query;
+            this.parameters = parameters;
+            this.debug = debug;
             MySQLThread mysqlAsync = MySQLThread.GetInstance();
             ThreadedId = mysqlAsync.NextId;
             mysqlAsync.queryCollection.TryAdd(this);
