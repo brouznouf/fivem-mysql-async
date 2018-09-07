@@ -13,8 +13,8 @@ namespace MySQLAsync
     {
         internal string ConnectionString;
 
-        internal string Query = "";
-        internal IDictionary<string, object> Parameters = null;
+        internal string query = "";
+        internal IDictionary<string, object> parameters = null;
         internal bool debug = false;
         internal uint ThreadedId = 0;
 
@@ -27,9 +27,9 @@ namespace MySQLAsync
         {
             if (string.IsNullOrEmpty(query))
             {
-                query = Query;
-                parameters = Parameters;
-                debug = this.debug;
+                this.query = query;
+                this.parameters = parameters;
+                this.debug = debug;
             }
 
             TResult result = default(TResult);
@@ -142,8 +142,8 @@ namespace MySQLAsync
 
         public async Task<TResult> ExecuteThreaded(string query, IDictionary<string, object> parameters, bool debug = false)
         {
-            Query = query;
-            Parameters = parameters;
+            this.query = query;
+            this.parameters = parameters;
             this.debug = debug;
             MySQLThread mysqlAsync = MySQLThread.GetInstance();
             ThreadedId = mysqlAsync.NextId;
