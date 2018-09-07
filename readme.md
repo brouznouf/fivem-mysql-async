@@ -22,10 +22,10 @@ Browse to `/resources/ghmattimysql/` and open the `config.json` file. This shows
 
 ### Configuration via `mysql_connection_string`
 
-For this to work you need to delete the `config.json` file in your `/resources/ghmattimysql/` folder. Then the `server.cfg` needs to be modified by adding `set mysql_connection_string 'mysql://mysqluser:password@localhost/database?dateStrings=true'` before the `start ghmattimysql` line. As an example it can look like this:
+For this to work you need to delete the `config.json` file in your `/resources/ghmattimysql/` folder. Then the `server.cfg` needs to be modified by adding `set mysql_connection_string "mysql://mysqluser:password@localhost/database?dateStrings=true"` before the `start ghmattimysql` line. As an example it can look like this:
 
 ```
-set mysql_connection_string 'mysql://mysqluser:password@localhost/database?dateStrings=true'
+set mysql_connection_string "mysql://mysqluser:password@localhost/database?dateStrings=true"
 start ghmattimysql
 ```
 
