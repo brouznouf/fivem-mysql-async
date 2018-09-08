@@ -5035,8 +5035,24 @@ function writeDebug(time, sql, error) {
 }
 
 async function safeInvoke(callback, args) {
-    await new global.Promise(resolve => setTimeout(resolve, 0));
-    if (typeof callback === 'function') callback(args);
+    if (typeof callback === 'function') setImmediate(() => {
+        callback(args);
+    });
+}
+
+// transform tinyint(1) to boolean
+function useBoolean(fields, results) {
+    if (fields) {
+        fields.forEach(field => {
+            // found a column with tinyint(1)
+            if (field.type === 1 && field.length === 1) {
+                results.forEach((_, index) => {
+                    results[index][field.name] = (results[index][field.name] !== 0);
+                });
+            }
+        });
+    }
+    return results;
 }
 
 global.exports('mysql_execute', (query, parameters, callback) => {
@@ -5051,8 +5067,9 @@ global.exports('mysql_execute', (query, parameters, callback) => {
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
-    pool.query(sql, (error, results) => {
+    pool.query(sql, (error, results, fields) => {
         writeDebug(process.hrtime(start), sql, error);
+        results = useBoolean(fields, results);
         safeInvoke(callback, results);
     });
 });
@@ -5060,8 +5077,9 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
-    pool.query(sql, (error, results) => {
+    pool.query(sql, (error, results, fields) => {
         writeDebug(process.hrtime(start), sql, error);
+        results = useBoolean(fields, results);
         safeInvoke(callback, (results) ? Object.values(results[0])[0] : null);
     });
 });
