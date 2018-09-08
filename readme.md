@@ -5,16 +5,19 @@ A mysql middleware for [FiveM](https://fivem.net)
 ## Table of Contents
 
 * [Install](#install)
+  * [Configuration via `config.json`](#configuration-via-configjson)
+  * [Configuration via `mysql_connection_string`](#configuration-via-mysql_connection_string)
+  * [Additional Configuration Options](#additional-configuration-options)
 * [API](#api)
   * [execute](#execute)
   * [scalar](#scalar)
   * [transaction](#transaction)
-  * [execute](#synchronous-methods)
+  * [Synchronous Methods](#synchronous-methods)
 * [Examples](#examples)
 
 ## Install
 
-Download the latest version of ghmattimysql from the [release](https://github.com/GHMatti/ghmattimysql/releases) section of the repository. Pick the file named `ghmattimysql-<version>.zip`. Extract the contents into your `/resources/` folder of the FiveM server, and then configure the resource to make it connect to your *MySQL* / *MariaDB* server.
+Download the latest version of ghmattimysql from the [release](https://github.com/GHMatti/ghmattimysql/releases/latest) section of the repository. Pick the file named `ghmattimysql-<version>.zip`. Extract the contents into your `/resources/` folder of the FiveM server, and then configure the resource to make it connect to your *MySQL* / *MariaDB* server.
 
 ### Configuration via `config.json`
 
@@ -29,10 +32,15 @@ set mysql_connection_string "mysql://mysqluser:password@localhost/database?dateS
 start ghmattimysql
 ```
 
+### Additional Configuration Options
+The following additional options are available in the `server.cfg` which you execute. These have also to be set before `start ghmattimysql`
+* `set mysql_debug 1`: Prints out the actual consumed query.
+* `set mysql_use_boolean 1`: Converts the results of `TINYINT(1)` into true / false. This option is recommended for running lua scripts, as `if (0)` returns true.
+
 ## API
 ### execute
 
-This is called in lua via `exports.ghmattimysql:execute(query: String, parameters: Object||Array||undefined, callback: function||undefined)` and answers according to whether a select or other sql-command was issued. The select commands answers with an array containing row objects. The other commands will be answered by an object that looks like this, but with different values:
+This is called in lua via `exports.ghmattimysql:execute(query: String, parameters: Object | Array | undefined, callback: function | undefined)` and answers according to whether a select or other sql-command was issued. The select commands answers with an array containing row objects. The other commands will be answered by an object that looks like this, but with different values:
 ```js
 { fieldCount: 0,
   affectedRows: 1,
@@ -49,7 +57,7 @@ This works exactly the same as execute, it even executes the same logic, but ret
 
 ### transaction
 
-Transactions are multiple executes chained together, so that if one fails, all others fail too. They can be formated in the following ways. Either an array is passed as the first argument containing objects that are shaped like `{ query: String, parameters: Array||Object }`; here the second parameter would be the callback function which is passed true or false depending on weather the transaction succeeded or not.
+Transactions are multiple executes chained together, so that if one fails, all others fail too. They can be formated in the following ways. Either an array is passed as the first argument containing objects that are shaped like `{ query: String, parameters: Array | Object }`; here the second parameter would be the callback function which is passed true or false depending on weather the transaction succeeded or not.
 
 Alternatively transactions can be written with 3 parameters: An array of strings, containing the sql commands `[String]`, an object containing parameters and a callback function. The sql commands have to use the `@`-variant in this case.
 
