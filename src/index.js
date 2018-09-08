@@ -2,6 +2,8 @@ const mysql = require('mysql2');
 
 const config = JSON.parse(global.LoadResourceFile('ghmattimysql', 'config.json'));
 const configString = global.GetConvar('mysql_connection_string', 'mysql://localhost/fivem');
+const useBoolean = global.GetConvarInt('mysql_use_boolean', 0);
+const showDebug = global.GetConvarInt('mysql_debug', 0);
 const pool = mysql.createPool(config || configString);
 
 function prepareLegacyQuery(query, parameters) {
@@ -15,6 +17,20 @@ function prepareLegacyQuery(query, parameters) {
     });
   }
   return sql;
+}
+
+function transformToBoolean(fields, result) {
+  const res = result;
+  if (fields) {
+    fields.forEach((field) => {
+      if (field.columnType === 1 && field.columnLength === 1) {
+        result.forEach((_, index) => {
+          res[index][field.name] = (result[index][field.name] !== 0);
+        });
+      }
+    });
+  }
+  return res;
 }
 
 function sanitizeInput(query, parameters, callback) {
@@ -43,9 +59,10 @@ async function safeInvoke(callback, args) {
 function execute(sql, params, connection) {
   const orm = connection || pool;
   return new Promise((resolve, reject) => {
-    orm.execute(sql, params, (error, result) => {
+    orm.execute(sql, params, (error, result, fields) => {
+      if (showDebug) console.log(`[MySQL] ${sql} : ${JSON.stringify(params)}`);
       if (error) reject(error);
-      resolve(result);
+      resolve((useBoolean) ? transformToBoolean(fields, result) : result);
     });
   });
 }
