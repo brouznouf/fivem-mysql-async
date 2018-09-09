@@ -38,9 +38,22 @@ The following additional options are available in the `server.cfg` which you exe
 * `set mysql_use_boolean 1`: Converts the results of `TINYINT(1)` into true / false. This option is recommended for running lua scripts, as `if (0)` returns true.
 
 ## API
+
+This resource is solely exposed via exports. For the scripting languages C# and Lua, you can use both synchronous and asynchronous, for javascript you can only use asynchronous methods. For the execute export you call in e.g. lua
+```lua
+exports.ghmattimysql:execute(parameters)
+```
+with the relevant parameters. Henceforth we will drop the `exports.ghmattimysql:` part and will refer to just the export name.
+
+Why do we prefer exports instead of the `lib/MySQL.lua`? The answer is simple, `mysql-async` only works for lua, while *ghmattimysql* works for any language you want to script with.
+
 ### execute
 
-This is called in lua via `exports.ghmattimysql:execute(query: String, parameters: Object | Array | undefined, callback: function | undefined)` and answers according to whether a select or other sql-command was issued. The select commands answers with an array containing row objects. The other commands will be answered by an object that looks like this, but with different values:
+This is the universal function which will handle most of your requests. The syntax is
+```js
+execute(query: String, parameters: Object | Array | undefined, callback: function | undefined)
+```
+You can leave parameters out if you so desire and use the second argument as a callback function. For a select statement `execute` will answer with an array containing the rows of the statement. For anything else, meaning `INSERT`, `UPDATE`, `DELETE`, etc. the response will look like this.
 ```js
 { fieldCount: 0,
   affectedRows: 1,
@@ -50,10 +63,15 @@ This is called in lua via `exports.ghmattimysql:execute(query: String, parameter
   warningStatus: 0,
   changedRows: 0 }
   ```
+  Theses results are passed to the callback function as its first and only parameter.
 
 ### scalar
 
-This works exactly the same as execute, it even executes the same logic, but returns but a singular value. The first value of the first row of the select.
+You use this function when you want only a singular value returned. This means you can call it when when selecting exactly one row and one column.
+```js
+scalar(query: String, parameters: Object | Array | undefined, callback: function | undefined)
+```
+It works internally the same as execute, and if this fails, so does execute. It just extracts the first column of the first response row.
 
 ### transaction
 
@@ -65,10 +83,10 @@ Alternatively transactions can be written with 3 parameters: An array of strings
 
 Sync variants exist of the three methods above, called `executeSync`, `scalarSync`, and `transactionSync`. Their use is discouraged as they are just a wrapper for the async-methods written in lua.
 
+## Examples
+
 ### parameters
 
 The parameters parameter can be either an object or an array depending on the query the values should be inserted. The two variants look as follows:
 * `select * from users where id < ?`: here the parameters will be an array containing the id e.g. `[3]`, the array contents will be inserted in order of occurance.
 * `select * from users where id < @id`: here the parameters will be an object containing the id e.g. `{ id: 3 }`.
-
-## Examples
