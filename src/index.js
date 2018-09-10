@@ -8,15 +8,18 @@ const pool = mysql.createPool(config || configString);
 
 function prepareLegacyQuery(query, parameters) {
   let sql = query;
-  if (parameters !== null && typeof parameters === 'object') {
+  let params = parameters;
+  if (parameters !== null && typeof params === 'object' && !Array.isArray(params)) {
+    params = [];
     sql = query.replace(/@(\w+)/g, (txt, key) => {
       if (Object.prototype.hasOwnProperty.call(parameters, key)) {
-        return mysql.escape(parameters[key]);
+        params.push(parameters[key]);
+        return '?';
       }
       return txt;
     });
   }
-  return sql;
+  return [sql, params];
 }
 
 function transformToBoolean(fields, result) {
@@ -41,8 +44,8 @@ function sanitizeInput(query, parameters, callback) {
   if (typeof parameters === 'function') {
     cb = parameters;
   }
-  sql = prepareLegacyQuery(query, parameters);
-  if (!Array.isArray(parameters)) {
+  [sql, params] = prepareLegacyQuery(query, params);
+  if (!Array.isArray(params)) {
     params = [];
   }
   return [sql, params, cb];
@@ -115,9 +118,10 @@ global.exports('transaction', (querys, parameters, callback) => {
   }
   // build the actual queries
   sqls.forEach((element, index) => {
+    const [stmt, stmtParams] = prepareLegacyQuery(element.query, element.parameters);
     sqls[index] = {
-      query: prepareLegacyQuery(element.query, element.parameters),
-      parameters: (Array.isArray(element.parameters)) ? element.parameters : [],
+      query: stmt,
+      parameters: (Array.isArray(stmtParams)) ? stmtParams : [],
     };
   });
   // the real transaction can begin
