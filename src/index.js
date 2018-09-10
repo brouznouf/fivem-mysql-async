@@ -74,7 +74,7 @@ global.exports('scalar', (query, parameters, callback) => {
   [sql, params, cb] = sanitizeInput(sql, params, cb);
 
   execute(sql, params).then((result) => {
-    safeInvoke(cb, Object.values(result[0])[0]);
+    safeInvoke(cb, Object.values(result[0] || [])[0]);
   });
 });
 
