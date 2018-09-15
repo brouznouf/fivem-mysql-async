@@ -24,6 +24,8 @@ server_script '@mysql-async/lib/MySQL.lua'
 
 On Linux servers, users need to stick with the old mysql-async 2.x at least for the moment, due to some issues the linux server has with v8/javascript.
 
+It can be downloaded from https://github.com/brouznouf/fivem-mysql-async/tree/2.0 or the release section. Note that the connection_string is different for 3.0.0 and 2.x.
+
 ## Configuration
 
 Add this convar to your server configuration and change the values according to your MySQL installation:
