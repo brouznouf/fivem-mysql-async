@@ -9,9 +9,9 @@ const pool = mysql.createPool(config || configString);
 function prepareLegacyQuery(query, parameters) {
   let sql = query;
   let params = parameters;
-  if (parameters !== null && typeof params === 'object' && !Array.isArray(params)) {
+  if (params !== null && typeof params === 'object' && !Array.isArray(params)) {
     params = [];
-    sql = query.replace(/@(\w+)/g, (txt, key) => {
+    sql = sql.replace(/@(\w+)/g, (txt, key) => {
       if (Object.prototype.hasOwnProperty.call(parameters, key)) {
         params.push(parameters[key]);
         return '?';
