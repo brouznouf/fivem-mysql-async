@@ -130,10 +130,10 @@ global.on('onServerResourceStart', (resourcename) => {
         config = parseConnectingString(connectionString);
         debug = global.GetConvarInt('mysql_debug', 0);
         pool = mysql.createPool(config);
-        global.emit('onMySQLReady');
+        global.emit('onMySQLReady'); // avoid ESX bugs
         isReady = true;
     }
     if (isReady) {
-        // global.emit('onMySQLReady');
+        global.emit('MySQLReady'); // avoid ESX bugs
     }
 });
