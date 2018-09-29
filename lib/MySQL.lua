@@ -194,12 +194,15 @@ MySQL.Threaded.insert = MySQL.Sync.insert
 
 local isReady = false
 local callbackDictionary = {}
+local callbackConsumed = {}
 
 AddEventHandler('MySQLReady', function ()
     isReady = true
     for i, cb in ipairs(callbackDictionary) do
-        callbackDictionary[i] = nil
-        cb()
+        if not callbackConsumed[i] then
+            callbackConsumed[i] = true
+            cb()
+        end
     end
 end)
 
@@ -208,5 +211,6 @@ function MySQL.ready (callback)
         callback()
     else
         table.insert(callbackDictionary, callback)
+        table.insert(callbackConsumed, false)
     end
 end
