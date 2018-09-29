@@ -106,7 +106,7 @@ function parseConnectingString(connectionString) {
         const password = (matches) ? matches[1] || matches[2] : '';
         matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
         const database = (matches) ? matches[1] || matches[2] : '';
-        return { host, port, user, password, database, dateStrings: true };
+        return { host, port, user, password, database, dateStrings: true, supportBigNumbers: true, multipleStatements: true };
 
     } else if(/mysql:\/\//gi.test(connectionString)) {
 
