@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="CitizenFX.Core">
-      <HintPath>D:\FXServer\citizen\clr2\lib\mono\4.5\CitizenFX.Core.dll</HintPath>
+      <HintPath>E:\fivem-test-server\citizen\clr2\lib\mono\4.5\CitizenFX.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="MySqlConnector, Version=0.28.2.0, Culture=neutral, processorArchitecture=MSIL">
