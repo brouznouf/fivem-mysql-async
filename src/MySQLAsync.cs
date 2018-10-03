@@ -17,9 +17,9 @@ namespace MySQLAsync
         {
             Exports.Add("mysql_configure", new Action(() =>
             {
-                Configure(
-                    Function.Call<string>(Hash.GET_CONVAR, "mysql_connection_string"),
-                    Function.Call<string>(Hash.GET_CONVAR, "mysql_debug") == "true"
+            Configure(
+                    API.GetConvar("mysql_connection_string", ""),
+                    API.GetConvar("mysql_debug", "false") == "true"
                 );
             }));
 
