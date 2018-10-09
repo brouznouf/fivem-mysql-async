@@ -5041,13 +5041,38 @@ async function safeInvoke(callback, args) {
 }
 
 // transform tinyint(1) to boolean
-function useBoolean(fields, results) {
+function convertDataTypes(fields, results) {
     if (fields) {
         fields.forEach(field => {
             // found a column with tinyint(1)
             if (field.type === 1 && field.length === 1) {
                 results.forEach((_, index) => {
                     results[index][field.name] = (results[index][field.name] !== 0);
+                });
+            }
+            if (field.type === 7) { // timestamp
+                results.forEach((_, index) => {
+                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
+                        // is ms, lua expects seconds
+                        results[index][field.name] = results[index][field.name].getTime() / 1000;
+                    }
+                });
+            }
+            if ((field.type >= 10 && field.type <= 14) || // normal date format
+                (field.type >= 17 && field.type <= 19)) { // date with fractional seconds
+
+                results.forEach((_, index) => {
+                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
+                        results[index][field.name] = {
+                            Year: results[index][field.name].getFullYear(),
+                            Month: results[index][field.name].getMonth(),
+                            Day: results[index][field.name].getDate(),
+                            Hour: results[index][field.name].getHours(),
+                            Minute: results[index][field.name].getMinutes(),
+                            Second: results[index][field.name].getSeconds(),
+                            Millisecond: results[index][field.name].getMilliseconds(),
+                        };
+                    }
                 });
             }
         });
@@ -5069,7 +5094,7 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
     let start = process.hrtime();
     pool.query(sql, (error, results, fields) => {
         writeDebug(process.hrtime(start), sql, error);
-        results = useBoolean(fields, results);
+        results = convertDataTypes(fields, results);
         safeInvoke(callback, results);
     });
 });
@@ -5079,7 +5104,7 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
     let start = process.hrtime();
     pool.query(sql, (error, results, fields) => {
         writeDebug(process.hrtime(start), sql, error);
-        results = useBoolean(fields, results);
+        results = convertDataTypes(fields, results);
         safeInvoke(callback, (results) ? Object.values(results[0])[0] : null);
     });
 });
@@ -5116,7 +5141,7 @@ function parseConnectingString(connectionString) {
         const password = (matches) ? matches[1] || matches[2] : '';
         matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
         const database = (matches) ? matches[1] || matches[2] : '';
-        return { host, port, user, password, database, dateStrings: true, supportBigNumbers: true, multipleStatements: true };
+        return { host, port, user, password, database, supportBigNumbers: true, multipleStatements: true };
 
     } else if(/mysql:\/\//gi.test(connectionString)) {
 
