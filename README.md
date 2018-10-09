@@ -30,9 +30,12 @@ It can be downloaded from https://github.com/brouznouf/fivem-mysql-async/tree/2.
 
 Add this convar to your server configuration and change the values according to your MySQL installation:
 
-`set mysql_connection_string "mysql://username:password@host/database?dateStrings=true"`
+`set mysql_connection_string "server=localhost;uid=mysqluser;password=password;database=fivem"`
 
-Further options can be found under https://github.com/mysqljs/mysql#connection-options
+### Alternatively mysql.js connection string
+`set mysql_connection_string "mysql://username:password@host/database"`
+
+Further options can be found under https://github.com/mysqljs/mysql#connection-options for the mysql.js connection string
 
 ## Usage
 
