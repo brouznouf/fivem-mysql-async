@@ -5050,7 +5050,8 @@ function convertDataTypes(fields, results) {
                     results[index][field.name] = (results[index][field.name] !== 0);
                 });
             }
-            if (field.type === 7) { // timestamp
+            if (field.type === 7 || field.type === 12 || field.type === 17
+                || field.type === 18) { // timestamp(2) or datetime(2)
                 results.forEach((_, index) => {
                     if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
                         // is ms, lua expects seconds
@@ -5058,8 +5059,8 @@ function convertDataTypes(fields, results) {
                     }
                 });
             }
-            if ((field.type >= 10 && field.type <= 14) || // normal date format
-                (field.type >= 17 && field.type <= 19)) { // date with fractional seconds
+            else if ((field.type >= 10 && field.type <= 14) || // normal date format (date, time, year, newdate)
+                (field.type === 19)) { // time with fractional seconds
 
                 results.forEach((_, index) => {
                     if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
