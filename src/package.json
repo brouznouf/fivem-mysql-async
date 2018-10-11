@@ -1,6 +1,6 @@
 {
   "name": "mysql-async",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "fivem-mysql-async",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mysql": "^2.16.0"
+    "mysql": "^2.15.0"
   },
   "devDependencies": {
     "eslint": "^5.6.1",
