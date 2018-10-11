@@ -40,32 +40,40 @@ function convertDataTypes(fields, results) {
                     results[index][field.name] = (results[index][field.name] !== 0);
                 });
             }
-            if (field.type === 7 || field.type === 12 || field.type === 17
-                || field.type === 18) { // timestamp(2) or datetime(2)
+            /* For timestamp, timestamp2, datetime, datetime2, date
+             * year and newdate, we will return unix milliseconds
+             * for time, time2 we will return an object
+             */
+            if (field.type === 7 || field.type === 10 || (field.type > 11 && field.type < 15)
+                || field.type === 17 || field.type === 18) {
                 results.forEach((_, index) => {
                     if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
-                        // is ms, lua expects seconds
-                        results[index][field.name] = results[index][field.name].getTime() / 1000;
+                        // c# returns ms
+                        results[index][field.name] = results[index][field.name].getTime();
                     }
                 });
             }
-            else if ((field.type >= 10 && field.type <= 14) || // normal date format (date, time, year, newdate)
-                (field.type === 19)) { // time with fractional seconds
+            // Time works differently fix that at some other point, dead code
+            /* else if (field.type === 11 || field.type === 19) { // time with fractional seconds
 
                 results.forEach((_, index) => {
                     if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
+                        const totalTime = results[index][field.name].getTime();
                         results[index][field.name] = {
-                            Year: results[index][field.name].getFullYear(),
-                            Month: results[index][field.name].getMonth(),
-                            Day: results[index][field.name].getDate(),
-                            Hour: results[index][field.name].getHours(),
-                            Minute: results[index][field.name].getMinutes(),
-                            Second: results[index][field.name].getSeconds(),
-                            Millisecond: results[index][field.name].getMilliseconds(),
+                            TotalDays: totalTime,
+                            TotalSeconds: totalTime / 1000,
+                            TotalHours: totalTime / 1000 / 60 / 60,
+                            TotalMilliseconds: totalTime,
+                            TotalMinutes: totalTime / 1000 / 60,
+                            Days: 0,
+                            Hours: results[index][field.name].getHours(),
+                            Minutes: results[index][field.name].getMinutes(),
+                            Seconds: results[index][field.name].getSeconds(),
+                            Milliseconds: results[index][field.name].getMilliseconds(),
                         };
                     }
                 });
-            }
+            } */
         });
     }
     return results;
