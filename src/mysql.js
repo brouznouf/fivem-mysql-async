@@ -19,9 +19,9 @@ function prepareQuery(query, parameters) {
     return sql;
 }
 
-function writeDebug(time, sql, error) {
+function writeDebug(time, sql, error, resource) {
     if (error) console.log(`[ERROR] [MySQL] An error happens on MySQL for query "${sql}": ${error.message}`)
-    if (debug) console.log(`[MySQL] [${(time[0]*1e3+time[1]*1e-6).toFixed()}ms] ${sql}`);
+    if (debug) console.log(`[MySQL] [${resource}] [${(time[0]*1e3+time[1]*1e-6).toFixed()}ms] ${sql}`);
 }
 
 async function safeInvoke(callback, args) {
@@ -80,39 +80,43 @@ function convertDataTypes(fields, results) {
 }
 
 global.exports('mysql_execute', (query, parameters, callback) => {
+    const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
     pool.query(sql, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error);
+        writeDebug(process.hrtime(start), sql, error, invokingResource);
         safeInvoke(callback, (results) ? results.affectedRows : 0);
     });
 });
 
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
+    const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
     pool.query(sql, (error, results, fields) => {
-        writeDebug(process.hrtime(start), sql, error);
+        writeDebug(process.hrtime(start), sql, error, invokingResource);
         results = convertDataTypes(fields, results);
         safeInvoke(callback, results);
     });
 });
 
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
+    const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
     pool.query(sql, (error, results, fields) => {
-        writeDebug(process.hrtime(start), sql, error);
+        writeDebug(process.hrtime(start), sql, error, invokingResource);
         results = convertDataTypes(fields, results);
         safeInvoke(callback, (results) ? Object.values(results[0])[0] : null);
     });
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
+    const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
     pool.query(sql, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error);
+        writeDebug(process.hrtime(start), sql, error, invokingResource);
         safeInvoke(callback, (results) ? results.insertId : 0);
     });
 });
