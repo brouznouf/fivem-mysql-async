@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+const mysql = require('mysql');
 
 const config = JSON.parse(global.LoadResourceFile('ghmattimysql', 'config.json'));
 const configString = global.GetConvar('mysql_connection_string', 'mysql://localhost/fivem');
@@ -62,7 +62,7 @@ async function safeInvoke(callback, args) {
 function execute(sql, params, connection) {
   const orm = connection || pool;
   return new Promise((resolve, reject) => {
-    orm[(params.length) ? 'execute' : 'query'](sql, params, (error, result, fields) => {
+    orm.query(sql, params, (error, result, fields) => {
       if (showDebug) console.log(`[MySQL] ${sql} : ${JSON.stringify(params)}`);
       if (error) reject(error);
       resolve((useBoolean) ? transformToBoolean(fields, result) : result);
