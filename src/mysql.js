@@ -34,46 +34,48 @@ async function safeInvoke(callback, args) {
 function convertDataTypes(fields, results) {
     if (fields) {
         fields.forEach(field => {
-            // found a column with tinyint(1)
-            if (field.type === 1 && field.length === 1) {
-                results.forEach((_, index) => {
-                    results[index][field.name] = (results[index][field.name] !== 0);
-                });
-            }
-            /* For timestamp, timestamp2, datetime, datetime2, date
-             * year and newdate, we will return unix milliseconds
-             * for time, time2 we will return an object
-             */
-            if (field.type === 7 || field.type === 10 || (field.type > 11 && field.type < 15)
-                || field.type === 17 || field.type === 18) {
-                results.forEach((_, index) => {
-                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
-                        // c# returns ms
-                        results[index][field.name] = results[index][field.name].getTime();
-                    }
-                });
-            }
-            // Time works differently fix that at some other point, dead code
-            /* else if (field.type === 11 || field.type === 19) { // time with fractional seconds
+            if (field) {
+                // found a column with tinyint(1)
+                if (field.type === 1 && field.length === 1) {
+                    results.forEach((_, index) => {
+                        results[index][field.name] = (results[index][field.name] !== 0);
+                    });
+                }
+                /* For timestamp, timestamp2, datetime, datetime2, date
+                 * year and newdate, we will return unix milliseconds
+                 * for time, time2 we will return an object
+                 */
+                if (field.type === 7 || field.type === 10 || (field.type > 11 && field.type < 15)
+                    || field.type === 17 || field.type === 18) {
+                    results.forEach((_, index) => {
+                        if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
+                            // c# returns ms
+                            results[index][field.name] = results[index][field.name].getTime();
+                        }
+                    });
+                }
+                // Time works differently fix that at some other point, dead code
+                /* else if (field.type === 11 || field.type === 19) { // time with fractional seconds
 
-                results.forEach((_, index) => {
-                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
-                        const totalTime = results[index][field.name].getTime();
-                        results[index][field.name] = {
-                            TotalDays: totalTime,
-                            TotalSeconds: totalTime / 1000,
-                            TotalHours: totalTime / 1000 / 60 / 60,
-                            TotalMilliseconds: totalTime,
-                            TotalMinutes: totalTime / 1000 / 60,
-                            Days: 0,
-                            Hours: results[index][field.name].getHours(),
-                            Minutes: results[index][field.name].getMinutes(),
-                            Seconds: results[index][field.name].getSeconds(),
-                            Milliseconds: results[index][field.name].getMilliseconds(),
-                        };
-                    }
-                });
-            } */
+                    results.forEach((_, index) => {
+                        if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
+                            const totalTime = results[index][field.name].getTime();
+                            results[index][field.name] = {
+                                TotalDays: totalTime,
+                                TotalSeconds: totalTime / 1000,
+                                TotalHours: totalTime / 1000 / 60 / 60,
+                                TotalMilliseconds: totalTime,
+                                TotalMinutes: totalTime / 1000 / 60,
+                                Days: 0,
+                                Hours: results[index][field.name].getHours(),
+                                Minutes: results[index][field.name].getMinutes(),
+                                Seconds: results[index][field.name].getSeconds(),
+                                Milliseconds: results[index][field.name].getMilliseconds(),
+                            };
+                        }
+                    });
+                } */
+            }
         });
     }
     return results;
