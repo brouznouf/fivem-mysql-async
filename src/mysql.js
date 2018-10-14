@@ -19,6 +19,28 @@ function prepareQuery(query, parameters) {
     return sql;
 }
 
+function typeCast(field, next) {
+    let dateString = '';
+    switch(field.type) {
+        case 'DATETIME':
+        case 'DATETIME2':
+        case 'TIMESTAMP':
+        case 'TIMESTAMP2':
+        case 'NEWDATE':
+        case 'DATE':
+            dateString = field.string();
+            if (field.type === 'DATE') dateString += ' 00:00:00';
+            return (new Date(dateString)).getTime();
+        case 'TINY':
+            if (field.length === 1) {
+                return (field.string() !== '0');
+            }
+            return next();
+        default:
+            return next();
+    }
+}
+
 function writeDebug(time, sql, error, resource) {
     if (error) console.log(`[ERROR] [MySQL] An error happens on MySQL for query "${sql}": ${error.message}`)
     if (debug) console.log(`[MySQL] [${resource}] [${(time[0]*1e3+time[1]*1e-6).toFixed()}ms] ${sql}`);
@@ -28,55 +50,6 @@ async function safeInvoke(callback, args) {
     if (typeof callback === 'function') setImmediate(() => {
         callback(args);
     });
-}
-
-// transform tinyint(1) to boolean
-function convertDataTypes(fields, results) {
-    if (fields) {
-        fields.forEach(field => {
-            // found a column with tinyint(1)
-            if (field.type === 1 && field.length === 1) {
-                results.forEach((_, index) => {
-                    results[index][field.name] = (results[index][field.name] !== 0);
-                });
-            }
-            /* For timestamp, timestamp2, datetime, datetime2, date
-             * year and newdate, we will return unix milliseconds
-             * for time, time2 we will return an object
-             */
-            if (field.type === 7 || field.type === 10 || (field.type > 11 && field.type < 15)
-                || field.type === 17 || field.type === 18) {
-                results.forEach((_, index) => {
-                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
-                        // c# returns ms
-                        results[index][field.name] = results[index][field.name].getTime();
-                    }
-                });
-            }
-            // Time works differently fix that at some other point, dead code
-            /* else if (field.type === 11 || field.type === 19) { // time with fractional seconds
-
-                results.forEach((_, index) => {
-                    if (Object.prototype.toString.call(results[index][field.name]) === '[object Date]') {
-                        const totalTime = results[index][field.name].getTime();
-                        results[index][field.name] = {
-                            TotalDays: totalTime,
-                            TotalSeconds: totalTime / 1000,
-                            TotalHours: totalTime / 1000 / 60 / 60,
-                            TotalMilliseconds: totalTime,
-                            TotalMinutes: totalTime / 1000 / 60,
-                            Days: 0,
-                            Hours: results[index][field.name].getHours(),
-                            Minutes: results[index][field.name].getMinutes(),
-                            Seconds: results[index][field.name].getSeconds(),
-                            Milliseconds: results[index][field.name].getMilliseconds(),
-                        };
-                    }
-                });
-            } */
-        });
-    }
-    return results;
 }
 
 global.exports('mysql_execute', (query, parameters, callback) => {
@@ -93,9 +66,8 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
-    pool.query(sql, (error, results, fields) => {
+    pool.query({ sql, typeCast }, (error, results) => {
         writeDebug(process.hrtime(start), sql, error, invokingResource);
-        results = convertDataTypes(fields, results);
         safeInvoke(callback, results);
     });
 });
@@ -104,9 +76,8 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     let start = process.hrtime();
-    pool.query(sql, (error, results, fields) => {
+    pool.query({ sql, typeCast }, (error, results) => {
         writeDebug(process.hrtime(start), sql, error, invokingResource);
-        results = convertDataTypes(fields, results);
         safeInvoke(callback, (results) ? Object.values(results[0])[0] : null);
     });
 });
