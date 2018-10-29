@@ -99,6 +99,12 @@ global.exports('mysql_insert', (query, parameters, callback) => {
     });
 });
 
+global.exports('mysql_reset_pool', () => {
+    const oldPool = pool;
+    pool = mysql.createPool(config);
+    setTimeout(() => { oldPool.end(); }, 1000);
+});
+
 function parseOptions(config, options) {
     const cfg = config;
     const opts = options.split('&');
@@ -142,7 +148,9 @@ function parseConnectingString(connectionString) {
 let isReady = false;
 global.on('onServerResourceStart', (resourcename) => {
     if (resourcename == 'mysql-async') {
-        const connectionString = global.GetConvar('mysql_connection_string', 'mysql://localhost/?');
+        // maybe default to addr=localhost;pwd=;database=essentialmode;uid=root
+        const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
+        if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
         config = parseConnectingString(connectionString);
         debug = global.GetConvarInt('mysql_debug', 0);
         pool = mysql.createPool(config);
