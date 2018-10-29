@@ -20,12 +20,6 @@ Once installed, you will need to add this line of code in the resource file of e
 server_script '@mysql-async/lib/MySQL.lua'
 ```
 
-### Warning
-
-On Linux servers, users need to stick with the old mysql-async 2.x at least for the moment, due to some issues the linux server has with v8/javascript.
-
-It can be downloaded from https://github.com/brouznouf/fivem-mysql-async/tree/2.0 or the release section. Note that the connection_string is different for 3.0.0 and 2.x.
-
 ## Configuration
 
 Add this convar to your server configuration and change the values according to your MySQL installation:
@@ -33,6 +27,9 @@ Add this convar to your server configuration and change the values according to 
 `set mysql_connection_string "server=localhost;uid=mysqluser;password=password;database=fivem"`
 
 ### Alternatively mysql.js connection string
+
+Support for this connection string will be dropped if 3.2 hits.
+
 `set mysql_connection_string "mysql://username:password@host/database"`
 
 Further options can be found under https://github.com/mysqljs/mysql#connection-options for the mysql.js connection string
@@ -122,8 +119,3 @@ local countPlayer = MySQL.Sync.fetchScalar("SELECT COUNT(1) FROM players")
  * It uses the https://github.com/mysqljs/mysql library to provide a connection to your mysql server.
  * Create and close a connection for each query, the underlying library use a connection pool so only the
 mysql auth is done each time, old tcp connections are keeped in memory for performance reasons
-
-## Credits
-
-Some parts of this library, and also my understanding were directly inspired by "Essential Mode", thanks to
-them to have begin to work on this, which allows guy like me to not start from scratch every time...
