@@ -3,6 +3,7 @@ const mysql = require('mysql');
 const Promise = global.Promise;
 let config = {};
 let debug = 0;
+let slowQueryWarning = 500;
 let pool;
 
 function prepareQuery(query, parameters) {
@@ -43,7 +44,11 @@ function typeCast(field, next) {
 }
 
 function writeDebug(time, sql, resource) {
-    if (debug) console.log(`[MySQL] [${resource}] [${(time[0]*1e3+time[1]*1e-6).toFixed()}ms] ${sql}`);
+    const executionTime = time[0]*1e3+time[1]*1e-6;
+    if (slowQueryWarning && !debug && executionTime > slowQueryWarning) {
+        console.log(`[MySQL] [Slow Query Warning] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
+    }
+    if (debug) console.log(`[MySQL] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
 }
 
 function safeInvoke(callback, args) {
@@ -99,6 +104,7 @@ global.exports('mysql_insert', (query, parameters, callback) => {
     });
 });
 
+// maybe remove this again
 global.exports('mysql_reset_pool', () => {
     const oldPool = pool;
     pool = mysql.createPool(config);
@@ -153,6 +159,7 @@ global.on('onServerResourceStart', (resourcename) => {
         if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
         config = parseConnectingString(connectionString);
         debug = global.GetConvarInt('mysql_debug', 0);
+        slowQueryWarning = global.GetConvarInt('mysql_slow_query_warning', 500);
         pool = mysql.createPool(config);
         global.emit('onMySQLReady'); // avoid ESX bugs
         isReady = true;

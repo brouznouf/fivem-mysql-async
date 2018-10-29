@@ -4904,8 +4904,10 @@ PoolSelector.ORDER = function PoolSelectorOrder() {
 
 const mysql = __webpack_require__(14);
 
+const Promise = global.Promise;
 let config = {};
 let debug = 0;
+let slowQueryWarning = 500;
 let pool;
 
 function prepareQuery(query, parameters) {
@@ -4945,55 +4947,72 @@ function typeCast(field, next) {
     }
 }
 
-function writeDebug(time, sql, error, resource) {
-    if (error) console.log(`[ERROR] [MySQL] An error happens on MySQL for query "${sql}": ${error.message}`)
-    if (debug) console.log(`[MySQL] [${resource}] [${(time[0]*1e3+time[1]*1e-6).toFixed()}ms] ${sql}`);
+function writeDebug(time, sql, resource) {
+    const executionTime = time[0]*1e3+time[1]*1e-6;
+    if (slowQueryWarning && !debug && executionTime > slowQueryWarning) {
+        console.log(`[MySQL] [Slow Query Warning] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
+    }
+    if (debug) console.log(`[MySQL] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
 }
 
-async function safeInvoke(callback, args) {
+function safeInvoke(callback, args) {
     if (typeof callback === 'function') setImmediate(() => {
         callback(args);
     });
 }
 
+function execute(sql, invokingResource) {
+    const queryPromise = new Promise((resolve, reject) => {
+        let start = process.hrtime();
+        pool.query(sql, (error, result) => {
+            writeDebug(process.hrtime(start), sql.sql, invokingResource);
+            if (error) reject(error);
+            resolve(result);
+        });
+    });
+    queryPromise.catch((error) => {
+        console.log(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql}": ${error.message}`);
+    });
+    return queryPromise;
+}
+
 global.exports('mysql_execute', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
-    let start = process.hrtime();
-    pool.query(sql, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error, invokingResource);
-        safeInvoke(callback, (results) ? results.affectedRows : 0);
+    execute({ sql, typeCast }, invokingResource).then((result) => {
+        safeInvoke(callback, (result) ? result.affectedRows : 0);
     });
 });
 
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
-    let start = process.hrtime();
-    pool.query({ sql, typeCast }, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error, invokingResource);
-        safeInvoke(callback, results);
+    execute({ sql, typeCast }, invokingResource).then((result) => {
+        safeInvoke(callback, result);
     });
 });
 
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
-    let start = process.hrtime();
-    pool.query({ sql, typeCast }, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error, invokingResource);
-        safeInvoke(callback, (results) ? Object.values(results[0])[0] : null);
+    execute({ sql, typeCast }, invokingResource).then((result) => {
+        safeInvoke(callback, (result) ? Object.values(result[0])[0] : null);
     });
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
-    let start = process.hrtime();
-    pool.query(sql, (error, results) => {
-        writeDebug(process.hrtime(start), sql, error, invokingResource);
-        safeInvoke(callback, (results) ? results.insertId : 0);
+    execute({ sql, typeCast }, invokingResource).then((result) => {
+        safeInvoke(callback, (result) ? result.insertId : 0);
     });
+});
+
+// maybe remove this again
+global.exports('mysql_reset_pool', () => {
+    const oldPool = pool;
+    pool = mysql.createPool(config);
+    setTimeout(() => { oldPool.end(); }, 1000);
 });
 
 function parseOptions(config, options) {
@@ -5039,9 +5058,12 @@ function parseConnectingString(connectionString) {
 let isReady = false;
 global.on('onServerResourceStart', (resourcename) => {
     if (resourcename == 'mysql-async') {
-        const connectionString = global.GetConvar('mysql_connection_string', 'mysql://localhost/');
+        // maybe default to addr=localhost;pwd=;database=essentialmode;uid=root
+        const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
+        if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
         config = parseConnectingString(connectionString);
         debug = global.GetConvarInt('mysql_debug', 0);
+        slowQueryWarning = global.GetConvarInt('mysql_slow_query_warning', 500);
         pool = mysql.createPool(config);
         global.emit('onMySQLReady'); // avoid ESX bugs
         isReady = true;
