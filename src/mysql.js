@@ -38,6 +38,8 @@ function typeCast(field, next) {
                 return (field.string() !== '0');
             }
             return next();
+        case 'BIT':
+            return Number(field.buffer()[0]);
         default:
             return next();
     }
@@ -57,10 +59,11 @@ function safeInvoke(callback, args) {
     });
 }
 
-function execute(sql, invokingResource) {
+function execute(sql, invokingResource, connection) {
     const queryPromise = new Promise((resolve, reject) => {
         let start = process.hrtime();
-        pool.query(sql, (error, result) => {
+        const db = connection || pool;
+        db.query(sql, (error, result) => {
             writeDebug(process.hrtime(start), sql.sql, invokingResource);
             if (error) reject(error);
             resolve(result);
