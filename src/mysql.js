@@ -166,8 +166,15 @@ global.on('onServerResourceStart', (resourcename) => {
         pool = mysql.createPool(config);
         global.emit('onMySQLReady'); // avoid ESX bugs
         isReady = true;
+        keepAlive();
     }
     if (isReady) {
         global.emit('MySQLReady'); // avoid ESX bugs
     }
 });
+
+function keepAlive(){
+    execute({ sql: 'SHOW TABLES', typeCast }, 'keepAlive').then((result) => {
+        setTimeout(keepAlive, 10000);
+    });
+}
