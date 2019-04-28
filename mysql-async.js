@@ -5247,7 +5247,7 @@ global.on('onServerResourceStart', (resourcename) => {
         global.emit('onMySQLReady'); // avoid ESX bugs
         isReady = true;
 
-        if(global.GetConvar('mysql_keep_alive', false)){
+        if(global.GetConvar('mysql_keep_alive', false) === 'true'){
             console.log('[MySQL] Enabling keep alive queries')
             keepAlive();
         }
