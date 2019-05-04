@@ -12,8 +12,8 @@ function prepareLegacyQuery(query, parameters) {
   if (params !== null && typeof params === 'object' && !Array.isArray(params)) {
     params = [];
     sql = sql.replace(/@(\w+)/g, (txt, key) => {
-      if (Object.prototype.hasOwnProperty.call(parameters, key)) {
-        params.push(parameters[key]);
+      if (Object.prototype.hasOwnProperty.call(parameters, txt)) {
+        params.push(parameters[txt]);
         return '?';
       }
       return txt;
