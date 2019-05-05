@@ -5175,7 +5175,7 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
     const invokingResource = global.GetInvokingResource();
     let sql = prepareQuery(query, parameters);
     execute({ sql, typeCast }, invokingResource).then((result) => {
-        safeInvoke(callback, (result) ? Object.values(result[0])[0] : null);
+        safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
     });
 });
 
