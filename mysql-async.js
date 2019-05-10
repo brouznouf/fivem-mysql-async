@@ -5080,7 +5080,7 @@ PoolSelector.ORDER = function PoolSelectorOrder() {
 
 const mysql = __webpack_require__(14);
 
-const { Promise } = global.Promise;
+const { Promise } = global;
 let config = {};
 let debug = 0;
 let slowQueryWarning = 500;
@@ -5153,7 +5153,7 @@ function execute(sql, invokingResource, connection) {
     });
   });
   queryPromise.catch((error) => {
-    console.log(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql}": ${error.message}`);
+    console.log(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql.sql}": ${error.message}`);
   });
   return queryPromise;
 }
