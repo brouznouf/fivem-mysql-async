@@ -5,7 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 
 const serverConfig = {
-  entry: './entry/main.js',
+  entry: './entry/server.js',
   target: 'node',
   mode: 'production',
   output: {
@@ -31,7 +31,7 @@ const clientConfig = {
 };
 
 const nuiConfig = {
-  entry: './entry/ui.js',
+  entry: './entry/nui.js',
   target: 'node',
   mode: 'production',
   output: {
