@@ -5,8 +5,10 @@ class MySQL {
     this.pool = null;
     this.profiler = profiler;
     this.logger = logger;
-    if (typeof mysqlConfig === 'string' || typeof mysqlConfig === 'object') {
+    if (typeof mysqlConfig === 'object') {
       this.pool = mysql.createPool(mysqlConfig);
+    } else {
+      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
     }
   }
 

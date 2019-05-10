@@ -358,7 +358,7 @@ module.exports = require("events");
 
 /*<replacement>*/
 
-var pna = __webpack_require__(10);
+var pna = __webpack_require__(11);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -594,7 +594,7 @@ var Crypto           = __webpack_require__(15);
 var Events           = __webpack_require__(4);
 var Net              = __webpack_require__(33);
 var tls              = __webpack_require__(34);
-var ConnectionConfig = __webpack_require__(12);
+var ConnectionConfig = __webpack_require__(9);
 var Protocol         = __webpack_require__(37);
 var SqlString        = __webpack_require__(27);
 var Query            = __webpack_require__(19);
@@ -1122,260 +1122,10 @@ function wrapToDomain(ee, fn) {
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports) {
-
-// Manually extracted from mysql-5.5.23/include/mysql_com.h
-exports.CLIENT_LONG_PASSWORD     = 1; /* new more secure passwords */
-exports.CLIENT_FOUND_ROWS        = 2; /* Found instead of affected rows */
-exports.CLIENT_LONG_FLAG         = 4; /* Get all column flags */
-exports.CLIENT_CONNECT_WITH_DB   = 8; /* One can specify db on connect */
-exports.CLIENT_NO_SCHEMA         = 16; /* Don't allow database.table.column */
-exports.CLIENT_COMPRESS          = 32; /* Can use compression protocol */
-exports.CLIENT_ODBC              = 64; /* Odbc client */
-exports.CLIENT_LOCAL_FILES       = 128; /* Can use LOAD DATA LOCAL */
-exports.CLIENT_IGNORE_SPACE      = 256; /* Ignore spaces before '(' */
-exports.CLIENT_PROTOCOL_41       = 512; /* New 4.1 protocol */
-exports.CLIENT_INTERACTIVE       = 1024; /* This is an interactive client */
-exports.CLIENT_SSL               = 2048; /* Switch to SSL after handshake */
-exports.CLIENT_IGNORE_SIGPIPE    = 4096;    /* IGNORE sigpipes */
-exports.CLIENT_TRANSACTIONS      = 8192; /* Client knows about transactions */
-exports.CLIENT_RESERVED          = 16384;   /* Old flag for 4.1 protocol  */
-exports.CLIENT_SECURE_CONNECTION = 32768;  /* New 4.1 authentication */
-
-exports.CLIENT_MULTI_STATEMENTS = 65536; /* Enable/disable multi-stmt support */
-exports.CLIENT_MULTI_RESULTS    = 131072; /* Enable/disable multi-results */
-exports.CLIENT_PS_MULTI_RESULTS = 262144; /* Multi-results in PS-protocol */
-
-exports.CLIENT_PLUGIN_AUTH = 524288; /* Client supports plugin authentication */
-
-exports.CLIENT_SSL_VERIFY_SERVER_CERT = 1073741824;
-exports.CLIENT_REMEMBER_OPTIONS       = 2147483648;
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-if (!process.version ||
-    process.version.indexOf('v0.') === 0 ||
-    process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
-  module.exports = { nextTick: nextTick };
-} else {
-  module.exports = process
-}
-
-function nextTick(fn, arg1, arg2, arg3) {
-  if (typeof fn !== 'function') {
-    throw new TypeError('"callback" argument must be a function');
-  }
-  var len = arguments.length;
-  var args, i;
-  switch (len) {
-  case 0:
-  case 1:
-    return process.nextTick(fn);
-  case 2:
-    return process.nextTick(function afterTickOne() {
-      fn.call(null, arg1);
-    });
-  case 3:
-    return process.nextTick(function afterTickTwo() {
-      fn.call(null, arg1, arg2);
-    });
-  case 4:
-    return process.nextTick(function afterTickThree() {
-      fn.call(null, arg1, arg2, arg3);
-    });
-  default:
-    args = new Array(len - 1);
-    i = 0;
-    while (i < args.length) {
-      args[i++] = arguments[i];
-    }
-    return process.nextTick(function afterTick() {
-      fn.apply(null, args);
-    });
-  }
-}
-
-
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Classes = Object.create(null);
-
-/**
- * Create a new Connection instance.
- * @param {object|string} config Configuration or connection string for new MySQL connection
- * @return {Connection} A new MySQL connection
- * @public
- */
-exports.createConnection = function createConnection(config) {
-  var Connection       = loadClass('Connection');
-  var ConnectionConfig = loadClass('ConnectionConfig');
-
-  return new Connection({config: new ConnectionConfig(config)});
-};
-
-/**
- * Create a new Pool instance.
- * @param {object|string} config Configuration or connection string for new MySQL connections
- * @return {Pool} A new MySQL pool
- * @public
- */
-exports.createPool = function createPool(config) {
-  var Pool       = loadClass('Pool');
-  var PoolConfig = loadClass('PoolConfig');
-
-  return new Pool({config: new PoolConfig(config)});
-};
-
-/**
- * Create a new PoolCluster instance.
- * @param {object} [config] Configuration for pool cluster
- * @return {PoolCluster} New MySQL pool cluster
- * @public
- */
-exports.createPoolCluster = function createPoolCluster(config) {
-  var PoolCluster = loadClass('PoolCluster');
-
-  return new PoolCluster(config);
-};
-
-/**
- * Create a new Query instance.
- * @param {string} sql The SQL for the query
- * @param {array} [values] Any values to insert into placeholders in sql
- * @param {function} [callback] The callback to use when query is complete
- * @return {Query} New query object
- * @public
- */
-exports.createQuery = function createQuery(sql, values, callback) {
-  var Connection = loadClass('Connection');
-
-  return Connection.createQuery(sql, values, callback);
-};
-
-/**
- * Escape a value for SQL.
- * @param {*} value The value to escape
- * @param {boolean} [stringifyObjects=false] Setting if objects should be stringified
- * @param {string} [timeZone=local] Setting for time zone to use for Date conversion
- * @return {string} Escaped string value
- * @public
- */
-exports.escape = function escape(value, stringifyObjects, timeZone) {
-  var SqlString = loadClass('SqlString');
-
-  return SqlString.escape(value, stringifyObjects, timeZone);
-};
-
-/**
- * Escape an identifier for SQL.
- * @param {*} value The value to escape
- * @param {boolean} [forbidQualified=false] Setting to treat '.' as part of identifier
- * @return {string} Escaped string value
- * @public
- */
-exports.escapeId = function escapeId(value, forbidQualified) {
-  var SqlString = loadClass('SqlString');
-
-  return SqlString.escapeId(value, forbidQualified);
-};
-
-/**
- * Format SQL and replacement values into a SQL string.
- * @param {string} sql The SQL for the query
- * @param {array} [values] Any values to insert into placeholders in sql
- * @param {boolean} [stringifyObjects=false] Setting if objects should be stringified
- * @param {string} [timeZone=local] Setting for time zone to use for Date conversion
- * @return {string} Formatted SQL string
- * @public
- */
-exports.format = function format(sql, values, stringifyObjects, timeZone) {
-  var SqlString = loadClass('SqlString');
-
-  return SqlString.format(sql, values, stringifyObjects, timeZone);
-};
-
-/**
- * Wrap raw SQL strings from escape overriding.
- * @param {string} sql The raw SQL
- * @return {object} Wrapped object
- * @public
- */
-exports.raw = function raw(sql) {
-  var SqlString = loadClass('SqlString');
-
-  return SqlString.raw(sql);
-};
-
-/**
- * The type constants.
- * @public
- */
-Object.defineProperty(exports, 'Types', {
-  get: loadClass.bind(null, 'Types')
-});
-
-/**
- * Load the given class.
- * @param {string} className Name of class to default
- * @return {function|object} Class constructor or exports
- * @private
- */
-function loadClass(className) {
-  var Class = Classes[className];
-
-  if (Class !== undefined) {
-    return Class;
-  }
-
-  // This uses a switch for static require analysis
-  switch (className) {
-    case 'Connection':
-      Class = __webpack_require__(8);
-      break;
-    case 'ConnectionConfig':
-      Class = __webpack_require__(12);
-      break;
-    case 'Pool':
-      Class = __webpack_require__(28);
-      break;
-    case 'PoolCluster':
-      Class = __webpack_require__(85);
-      break;
-    case 'PoolConfig':
-      Class = __webpack_require__(29);
-      break;
-    case 'SqlString':
-      Class = __webpack_require__(27);
-      break;
-    case 'Types':
-      Class = __webpack_require__(13);
-      break;
-    default:
-      throw new Error('Cannot find class \'' + className + '\'');
-  }
-
-  // Store to prevent invoking require()
-  Classes[className] = Class;
-
-  return Class;
-}
-
-
-/***/ }),
-/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var urlParse        = __webpack_require__(35).parse;
-var ClientConstants = __webpack_require__(9);
+var ClientConstants = __webpack_require__(10);
 var Charsets        = __webpack_require__(16);
 var SSLProfiles     = null;
 
@@ -1575,6 +1325,256 @@ ConnectionConfig.parseUrl = function(url) {
 
   return options;
 };
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+// Manually extracted from mysql-5.5.23/include/mysql_com.h
+exports.CLIENT_LONG_PASSWORD     = 1; /* new more secure passwords */
+exports.CLIENT_FOUND_ROWS        = 2; /* Found instead of affected rows */
+exports.CLIENT_LONG_FLAG         = 4; /* Get all column flags */
+exports.CLIENT_CONNECT_WITH_DB   = 8; /* One can specify db on connect */
+exports.CLIENT_NO_SCHEMA         = 16; /* Don't allow database.table.column */
+exports.CLIENT_COMPRESS          = 32; /* Can use compression protocol */
+exports.CLIENT_ODBC              = 64; /* Odbc client */
+exports.CLIENT_LOCAL_FILES       = 128; /* Can use LOAD DATA LOCAL */
+exports.CLIENT_IGNORE_SPACE      = 256; /* Ignore spaces before '(' */
+exports.CLIENT_PROTOCOL_41       = 512; /* New 4.1 protocol */
+exports.CLIENT_INTERACTIVE       = 1024; /* This is an interactive client */
+exports.CLIENT_SSL               = 2048; /* Switch to SSL after handshake */
+exports.CLIENT_IGNORE_SIGPIPE    = 4096;    /* IGNORE sigpipes */
+exports.CLIENT_TRANSACTIONS      = 8192; /* Client knows about transactions */
+exports.CLIENT_RESERVED          = 16384;   /* Old flag for 4.1 protocol  */
+exports.CLIENT_SECURE_CONNECTION = 32768;  /* New 4.1 authentication */
+
+exports.CLIENT_MULTI_STATEMENTS = 65536; /* Enable/disable multi-stmt support */
+exports.CLIENT_MULTI_RESULTS    = 131072; /* Enable/disable multi-results */
+exports.CLIENT_PS_MULTI_RESULTS = 262144; /* Multi-results in PS-protocol */
+
+exports.CLIENT_PLUGIN_AUTH = 524288; /* Client supports plugin authentication */
+
+exports.CLIENT_SSL_VERIFY_SERVER_CERT = 1073741824;
+exports.CLIENT_REMEMBER_OPTIONS       = 2147483648;
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+if (!process.version ||
+    process.version.indexOf('v0.') === 0 ||
+    process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
+  module.exports = { nextTick: nextTick };
+} else {
+  module.exports = process
+}
+
+function nextTick(fn, arg1, arg2, arg3) {
+  if (typeof fn !== 'function') {
+    throw new TypeError('"callback" argument must be a function');
+  }
+  var len = arguments.length;
+  var args, i;
+  switch (len) {
+  case 0:
+  case 1:
+    return process.nextTick(fn);
+  case 2:
+    return process.nextTick(function afterTickOne() {
+      fn.call(null, arg1);
+    });
+  case 3:
+    return process.nextTick(function afterTickTwo() {
+      fn.call(null, arg1, arg2);
+    });
+  case 4:
+    return process.nextTick(function afterTickThree() {
+      fn.call(null, arg1, arg2, arg3);
+    });
+  default:
+    args = new Array(len - 1);
+    i = 0;
+    while (i < args.length) {
+      args[i++] = arguments[i];
+    }
+    return process.nextTick(function afterTick() {
+      fn.apply(null, args);
+    });
+  }
+}
+
+
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Classes = Object.create(null);
+
+/**
+ * Create a new Connection instance.
+ * @param {object|string} config Configuration or connection string for new MySQL connection
+ * @return {Connection} A new MySQL connection
+ * @public
+ */
+exports.createConnection = function createConnection(config) {
+  var Connection       = loadClass('Connection');
+  var ConnectionConfig = loadClass('ConnectionConfig');
+
+  return new Connection({config: new ConnectionConfig(config)});
+};
+
+/**
+ * Create a new Pool instance.
+ * @param {object|string} config Configuration or connection string for new MySQL connections
+ * @return {Pool} A new MySQL pool
+ * @public
+ */
+exports.createPool = function createPool(config) {
+  var Pool       = loadClass('Pool');
+  var PoolConfig = loadClass('PoolConfig');
+
+  return new Pool({config: new PoolConfig(config)});
+};
+
+/**
+ * Create a new PoolCluster instance.
+ * @param {object} [config] Configuration for pool cluster
+ * @return {PoolCluster} New MySQL pool cluster
+ * @public
+ */
+exports.createPoolCluster = function createPoolCluster(config) {
+  var PoolCluster = loadClass('PoolCluster');
+
+  return new PoolCluster(config);
+};
+
+/**
+ * Create a new Query instance.
+ * @param {string} sql The SQL for the query
+ * @param {array} [values] Any values to insert into placeholders in sql
+ * @param {function} [callback] The callback to use when query is complete
+ * @return {Query} New query object
+ * @public
+ */
+exports.createQuery = function createQuery(sql, values, callback) {
+  var Connection = loadClass('Connection');
+
+  return Connection.createQuery(sql, values, callback);
+};
+
+/**
+ * Escape a value for SQL.
+ * @param {*} value The value to escape
+ * @param {boolean} [stringifyObjects=false] Setting if objects should be stringified
+ * @param {string} [timeZone=local] Setting for time zone to use for Date conversion
+ * @return {string} Escaped string value
+ * @public
+ */
+exports.escape = function escape(value, stringifyObjects, timeZone) {
+  var SqlString = loadClass('SqlString');
+
+  return SqlString.escape(value, stringifyObjects, timeZone);
+};
+
+/**
+ * Escape an identifier for SQL.
+ * @param {*} value The value to escape
+ * @param {boolean} [forbidQualified=false] Setting to treat '.' as part of identifier
+ * @return {string} Escaped string value
+ * @public
+ */
+exports.escapeId = function escapeId(value, forbidQualified) {
+  var SqlString = loadClass('SqlString');
+
+  return SqlString.escapeId(value, forbidQualified);
+};
+
+/**
+ * Format SQL and replacement values into a SQL string.
+ * @param {string} sql The SQL for the query
+ * @param {array} [values] Any values to insert into placeholders in sql
+ * @param {boolean} [stringifyObjects=false] Setting if objects should be stringified
+ * @param {string} [timeZone=local] Setting for time zone to use for Date conversion
+ * @return {string} Formatted SQL string
+ * @public
+ */
+exports.format = function format(sql, values, stringifyObjects, timeZone) {
+  var SqlString = loadClass('SqlString');
+
+  return SqlString.format(sql, values, stringifyObjects, timeZone);
+};
+
+/**
+ * Wrap raw SQL strings from escape overriding.
+ * @param {string} sql The raw SQL
+ * @return {object} Wrapped object
+ * @public
+ */
+exports.raw = function raw(sql) {
+  var SqlString = loadClass('SqlString');
+
+  return SqlString.raw(sql);
+};
+
+/**
+ * The type constants.
+ * @public
+ */
+Object.defineProperty(exports, 'Types', {
+  get: loadClass.bind(null, 'Types')
+});
+
+/**
+ * Load the given class.
+ * @param {string} className Name of class to default
+ * @return {function|object} Class constructor or exports
+ * @private
+ */
+function loadClass(className) {
+  var Class = Classes[className];
+
+  if (Class !== undefined) {
+    return Class;
+  }
+
+  // This uses a switch for static require analysis
+  switch (className) {
+    case 'Connection':
+      Class = __webpack_require__(8);
+      break;
+    case 'ConnectionConfig':
+      Class = __webpack_require__(9);
+      break;
+    case 'Pool':
+      Class = __webpack_require__(28);
+      break;
+    case 'PoolCluster':
+      Class = __webpack_require__(85);
+      break;
+    case 'PoolConfig':
+      Class = __webpack_require__(29);
+      break;
+    case 'SqlString':
+      Class = __webpack_require__(27);
+      break;
+    case 'Types':
+      Class = __webpack_require__(13);
+      break;
+    default:
+      throw new Error('Cannot find class \'' + className + '\'');
+  }
+
+  // Store to prevent invoking require()
+  Classes[className] = Class;
+
+  return Class;
+}
 
 
 /***/ }),
@@ -2401,7 +2401,7 @@ module.exports = require("fs");
 
 /*<replacement>*/
 
-var pna = __webpack_require__(10);
+var pna = __webpack_require__(11);
 /*</replacement>*/
 
 module.exports = Readable;
@@ -3412,7 +3412,7 @@ module.exports = __webpack_require__(14);
 
 /*<replacement>*/
 
-var pna = __webpack_require__(10);
+var pna = __webpack_require__(11);
 /*</replacement>*/
 
 // undocumented cb() API, needed for core, not for public API
@@ -3517,7 +3517,7 @@ module.exports = {
 
 /*<replacement>*/
 
-var pna = __webpack_require__(10);
+var pna = __webpack_require__(11);
 /*</replacement>*/
 
 module.exports = Writable;
@@ -4709,7 +4709,7 @@ module.exports = __webpack_require__(82);
 /* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var mysql          = __webpack_require__(11);
+var mysql          = __webpack_require__(12);
 var Connection     = __webpack_require__(8);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Util           = __webpack_require__(0);
@@ -5010,7 +5010,7 @@ function spliceConnection(array, connection) {
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var ConnectionConfig = __webpack_require__(12);
+var ConnectionConfig = __webpack_require__(9);
 
 module.exports = PoolConfig;
 function PoolConfig(options) {
@@ -5087,7 +5087,8 @@ PoolSelector.ORDER = function PoolSelectorOrder() {
 const MySQL = __webpack_require__(32);
 const Logger = __webpack_require__(87);
 const Profiler = __webpack_require__(88);
-const { prepareQuery, typeCast, safeInvoke } = __webpack_require__(89);
+const parseSettings = __webpack_require__(89);
+const { prepareQuery, typeCast, safeInvoke } = __webpack_require__(90);
 
 let logger = null;
 let profiler = null;
@@ -5126,55 +5127,6 @@ global.exports('mysql_insert', (query, parameters, callback) => {
   });
 });
 
-function parseOptions(settings, options) {
-  const cfg = settings;
-  const opts = options.split('&');
-  opts.forEach((o) => {
-    const keyValue = o.split('=');
-    [, cfg[keyValue[0]]] = keyValue;
-  });
-  return cfg;
-}
-
-function parseConnectingString(connectionString) {
-  let cfg = null;
-  if (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.test(connectionString)) {
-    let matches = (/(?:host|server|data\s?source|addr(?:ess)?)=(?:(.*?);|(.*))/gi.exec(connectionString));
-    const host = (matches) ? matches[1] || matches[2] : 'localhost';
-    matches = (/(?:Port)=(?:(.*?);|(.*))/gi.exec(connectionString));
-    const port = (matches) ? matches[1] || matches[2] : 3306;
-    matches = (/(?:user\s?(?:id|name)?|uid)=(?:(.*?);|(.*))/gi.exec(connectionString));
-    const user = (matches) ? matches[1] || matches[2] : 'root';
-    matches = (/(?:password|pwd)=(?:(.*?);|(.*))/gi.exec(connectionString));
-    const password = (matches) ? matches[1] || matches[2] : '';
-    matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
-    const database = (matches) ? matches[1] || matches[2] : '';
-    cfg = {
-      host,
-      port,
-      user,
-      password,
-      database,
-      supportBigNumbers: true,
-      multipleStatements: true,
-    };
-  } else if (/mysql:\/\//gi.test(connectionString)) {
-    const matches = /mysql:\/\/(.*?)(?::|@)(?:(.*)@)?(.*?)(?::(\d{1,5}))?\/(.*?)\?(.*)/gi.exec(connectionString);
-    const host = (matches[3]) ? matches[3] : 'localhost';
-    const port = (matches[4]) ? matches[4] : 3306;
-    const user = (matches[1]) ? matches[1] : 'root';
-    const password = (matches[2]) ? matches[2] : '';
-    const database = (matches[5]) ? matches[5] : '';
-    const settings = {
-      host, port, user, password, database,
-    };
-    const options = matches[6];
-    cfg = parseOptions(settings, options);
-  } else throw new Error('No valid connection string found');
-
-  return cfg;
-}
-
 let isReady = false;
 global.on('onServerResourceStart', (resourcename) => {
   if (resourcename === 'mysql-async') {
@@ -5186,8 +5138,11 @@ global.on('onServerResourceStart', (resourcename) => {
 
     // needs to move to a new file
     const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
-    if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
-    config = parseConnectingString(connectionString);
+    if (connectionString === 'Empty') {
+      logger.Error('Empty mysql_connection_string detected.');
+      throw new Error('Empty mysql_connection_string detected.');
+    }
+    config = parseSettings(connectionString);
 
     mysql = new MySQL(config, logger, profiler);
     global.emit('onMySQLReady'); // avoid ESX bugs
@@ -5203,15 +5158,17 @@ global.on('onServerResourceStart', (resourcename) => {
 /* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const mysql = __webpack_require__(11);
+const mysql = __webpack_require__(12);
 
 class MySQL {
   constructor(mysqlConfig, logger, profiler) {
     this.pool = null;
     this.profiler = profiler;
     this.logger = logger;
-    if (typeof mysqlConfig === 'string' || typeof mysqlConfig === 'object') {
+    if (typeof mysqlConfig === 'object') {
       this.pool = mysql.createPool(mysqlConfig);
+    } else {
+      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
     }
   }
 
@@ -10305,7 +10262,7 @@ FieldPacket.prototype.write = function(writer) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(1).Buffer;
-var Client = __webpack_require__(9);
+var Client = __webpack_require__(10);
 
 module.exports = HandshakeInitializationPacket;
 function HandshakeInitializationPacket(options) {
@@ -10674,7 +10631,7 @@ function typeMatch(type, list) {
 // http://dev.mysql.com/doc/internals/en/ssl.html
 // http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::SSLRequest
 
-var ClientConstants = __webpack_require__(9);
+var ClientConstants = __webpack_require__(10);
 
 module.exports = SSLRequestPacket;
 
@@ -13221,7 +13178,7 @@ var Sequence        = __webpack_require__(3);
 var Util            = __webpack_require__(0);
 var Packets         = __webpack_require__(2);
 var Auth            = __webpack_require__(18);
-var ClientConstants = __webpack_require__(9);
+var ClientConstants = __webpack_require__(10);
 
 module.exports = Handshake;
 Util.inherits(Handshake, Sequence);
@@ -14840,7 +14797,46 @@ module.exports = Profiler;
 /* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const mysql = __webpack_require__(11);
+const { parseUrl } = __webpack_require__(9);
+
+// add some more functionality and improve the C# connection string parsing
+function parseConnectingString(connectionString) {
+  let cfg = null;
+  if (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.test(connectionString)) {
+    let matches = (/(?:host|server|data\s?source|addr(?:ess)?)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const host = (matches) ? matches[1] || matches[2] : 'localhost';
+    matches = (/(?:Port)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const port = (matches) ? matches[1] || matches[2] : 3306;
+    matches = (/(?:user\s?(?:id|name)?|uid)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const user = (matches) ? matches[1] || matches[2] : 'root';
+    matches = (/(?:password|pwd)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const password = (matches) ? matches[1] || matches[2] : '';
+    matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const database = (matches) ? matches[1] || matches[2] : '';
+    cfg = {
+      host,
+      port,
+      user,
+      password,
+      database,
+      supportBigNumbers: true,
+      multipleStatements: true,
+    };
+  } else if (/mysql:\/\//gi.test(connectionString)) {
+    cfg = parseUrl(connectionString);
+  } else throw new Error('No valid connection string found');
+
+  return cfg;
+}
+
+module.exports = parseConnectingString;
+
+
+/***/ }),
+/* 90 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const mysql = __webpack_require__(12);
 
 function safeInvoke(callback, args) {
   if (typeof callback === 'function') {
