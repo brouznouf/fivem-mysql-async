@@ -1,8 +1,8 @@
-const MySQL = require('./mysql.js');
-const Logger = require('./logger.js');
-const Profiler = require('./profiler.js');
-const parseSettings = require('./settings.js');
-const { prepareQuery, typeCast, safeInvoke } = require('./utils.js');
+const MySQL = require('../server/mysql.js');
+const Logger = require('../server/logger.js');
+const Profiler = require('../server/profiler.js');
+const parseSettings = require('../server/settings.js');
+const { prepareQuery, typeCast, safeInvoke } = require('../server/utils.js');
 
 let logger = null;
 let profiler = null;
