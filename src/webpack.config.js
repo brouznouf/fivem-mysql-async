@@ -1,7 +1,7 @@
 const path = require('path');
 
-module.exports = {
-  entry: './mysql.js',
+const serverConfig = {
+  entry: './main.js',
   target: 'node',
   mode: 'production',
   output: {
@@ -12,3 +12,18 @@ module.exports = {
     minimize: false,
   },
 };
+
+const clientConfig = {
+  entry: './client.js',
+  target: 'node',
+  mode: 'production',
+  output: {
+    filename: 'mysql-async-client.js',
+    path: path.resolve(__dirname, '..'),
+  },
+  optimization: {
+    minimize: false,
+  },
+};
+
+module.exports = [serverConfig, clientConfig];
