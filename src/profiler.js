@@ -5,23 +5,19 @@ const profilerDefaultConfig = {
   timeInterval: 60000,
 };
 
-function calcAvgExecutionTime(oldAverage, oldCount, newTime) {
-  return (oldAverage * oldCount + newTime) / (oldCount + 1);
-}
-
 function updateExecutionTimes(object, queryTime) {
   let returnObj = null;
 
   if (object) {
-    const { avgExecutionTime, queryCount } = object;
+    const { totalExecutionTime, queryCount } = object;
 
     returnObj = {
-      avgExecutionTime: calcAvgExecutionTime(avgExecutionTime, queryCount, queryTime),
+      totalExecutionTime: totalExecutionTime + queryTime,
       queryCount: queryCount + 1,
     };
   } else {
     returnObj = {
-      avgExecutionTime: queryTime,
+      totalExecutionTime: queryTime,
       queryCount: 1,
     };
   }
