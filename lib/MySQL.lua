@@ -1,7 +1,6 @@
 MySQL = {
     Async = {},
     Sync = {},
-	Threaded = {} -- remove in the next big version
 }
 
 local function safeParameters(params)
@@ -182,15 +181,6 @@ end
 --
 --    return exports['mysql-async']:mysql_transaction(querys, safeParameters(params), func)
 --end
-
---
--- Remove in the next big update
---
-MySQL.Threaded.execute = MySQL.Sync.execute
-MySQL.Threaded.fetchAll = MySQL.Sync.fetchAll
-MySQL.Threaded.fetchScalar = MySQL.Sync.fetchScalar
-MySQL.Threaded.insert = MySQL.Sync.insert
-
 
 local isReady = false
 local callbackDictionary = {}

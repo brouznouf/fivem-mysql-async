@@ -70,7 +70,7 @@ class Profiler {
       this.logger.error(`[MySQL] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
 
-    if (this.trace) {
+    if (this.config.trace) {
       this.logger.log(`[MySQL] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
   }

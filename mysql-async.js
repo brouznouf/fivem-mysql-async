@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 30);
+/******/ 	return __webpack_require__(__webpack_require__.s = 31);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -95,7 +95,7 @@ module.exports = require("util");
 /***/ (function(module, exports, __webpack_require__) {
 
 /* eslint-disable node/no-deprecated-api */
-var buffer = __webpack_require__(39)
+var buffer = __webpack_require__(41)
 var Buffer = buffer.Buffer
 
 // alternative to using Object.keys for old browsers
@@ -162,28 +162,28 @@ SafeBuffer.allocUnsafeSlow = function (size) {
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.AuthSwitchRequestPacket = __webpack_require__(43);
-exports.AuthSwitchResponsePacket = __webpack_require__(44);
-exports.ClientAuthenticationPacket = __webpack_require__(45);
-exports.ComChangeUserPacket = __webpack_require__(46);
-exports.ComPingPacket = __webpack_require__(47);
-exports.ComQueryPacket = __webpack_require__(48);
-exports.ComQuitPacket = __webpack_require__(49);
-exports.ComStatisticsPacket = __webpack_require__(50);
-exports.EmptyPacket = __webpack_require__(51);
-exports.EofPacket = __webpack_require__(52);
-exports.ErrorPacket = __webpack_require__(53);
+exports.AuthSwitchRequestPacket = __webpack_require__(45);
+exports.AuthSwitchResponsePacket = __webpack_require__(46);
+exports.ClientAuthenticationPacket = __webpack_require__(47);
+exports.ComChangeUserPacket = __webpack_require__(48);
+exports.ComPingPacket = __webpack_require__(49);
+exports.ComQueryPacket = __webpack_require__(50);
+exports.ComQuitPacket = __webpack_require__(51);
+exports.ComStatisticsPacket = __webpack_require__(52);
+exports.EmptyPacket = __webpack_require__(53);
+exports.EofPacket = __webpack_require__(54);
+exports.ErrorPacket = __webpack_require__(55);
 exports.Field = __webpack_require__(17);
-exports.FieldPacket = __webpack_require__(54);
-exports.HandshakeInitializationPacket = __webpack_require__(55);
-exports.LocalDataFilePacket = __webpack_require__(56);
-exports.OkPacket = __webpack_require__(57);
-exports.OldPasswordPacket = __webpack_require__(58);
-exports.ResultSetHeaderPacket = __webpack_require__(59);
-exports.RowDataPacket = __webpack_require__(60);
-exports.SSLRequestPacket = __webpack_require__(61);
-exports.StatisticsPacket = __webpack_require__(62);
-exports.UseOldPasswordPacket = __webpack_require__(63);
+exports.FieldPacket = __webpack_require__(56);
+exports.HandshakeInitializationPacket = __webpack_require__(57);
+exports.LocalDataFilePacket = __webpack_require__(58);
+exports.OkPacket = __webpack_require__(59);
+exports.OldPasswordPacket = __webpack_require__(60);
+exports.ResultSetHeaderPacket = __webpack_require__(61);
+exports.RowDataPacket = __webpack_require__(62);
+exports.SSLRequestPacket = __webpack_require__(63);
+exports.StatisticsPacket = __webpack_require__(64);
+exports.UseOldPasswordPacket = __webpack_require__(65);
 
 
 /***/ }),
@@ -193,8 +193,8 @@ exports.UseOldPasswordPacket = __webpack_require__(63);
 var Util           = __webpack_require__(0);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Packets        = __webpack_require__(2);
-var ErrorConstants = __webpack_require__(64);
-var Timer          = __webpack_require__(65);
+var ErrorConstants = __webpack_require__(66);
+var Timer          = __webpack_require__(67);
 
 // istanbul ignore next: Node.js < 0.10 not covered
 var listenerCount = EventEmitter.listenerCount
@@ -377,8 +377,8 @@ var util = __webpack_require__(6);
 util.inherits = __webpack_require__(7);
 /*</replacement>*/
 
-var Readable = __webpack_require__(20);
-var Writable = __webpack_require__(23);
+var Readable = __webpack_require__(21);
+var Writable = __webpack_require__(24);
 
 util.inherits(Duplex, Readable);
 
@@ -582,7 +582,7 @@ try {
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
-  module.exports = __webpack_require__(74);
+  module.exports = __webpack_require__(75);
 }
 
 
@@ -592,11 +592,11 @@ try {
 
 var Crypto           = __webpack_require__(15);
 var Events           = __webpack_require__(4);
-var Net              = __webpack_require__(31);
-var tls              = __webpack_require__(32);
-var ConnectionConfig = __webpack_require__(11);
-var Protocol         = __webpack_require__(35);
-var SqlString        = __webpack_require__(26);
+var Net              = __webpack_require__(33);
+var tls              = __webpack_require__(34);
+var ConnectionConfig = __webpack_require__(12);
+var Protocol         = __webpack_require__(37);
+var SqlString        = __webpack_require__(27);
 var Query            = __webpack_require__(19);
 var Util             = __webpack_require__(0);
 
@@ -1207,297 +1207,6 @@ function nextTick(fn, arg1, arg2, arg3) {
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var urlParse        = __webpack_require__(33).parse;
-var ClientConstants = __webpack_require__(9);
-var Charsets        = __webpack_require__(16);
-var SSLProfiles     = null;
-
-module.exports = ConnectionConfig;
-function ConnectionConfig(options) {
-  if (typeof options === 'string') {
-    options = ConnectionConfig.parseUrl(options);
-  }
-
-  this.host               = options.host || 'localhost';
-  this.port               = options.port || 3306;
-  this.localAddress       = options.localAddress;
-  this.socketPath         = options.socketPath;
-  this.user               = options.user || undefined;
-  this.password           = options.password || undefined;
-  this.database           = options.database;
-  this.connectTimeout     = (options.connectTimeout === undefined)
-    ? (10 * 1000)
-    : options.connectTimeout;
-  this.insecureAuth       = options.insecureAuth || false;
-  this.supportBigNumbers  = options.supportBigNumbers || false;
-  this.bigNumberStrings   = options.bigNumberStrings || false;
-  this.dateStrings        = options.dateStrings || false;
-  this.debug              = options.debug;
-  this.trace              = options.trace !== false;
-  this.stringifyObjects   = options.stringifyObjects || false;
-  this.timezone           = options.timezone || 'local';
-  this.flags              = options.flags || '';
-  this.queryFormat        = options.queryFormat;
-  this.pool               = options.pool || undefined;
-  this.ssl                = (typeof options.ssl === 'string')
-    ? ConnectionConfig.getSSLProfile(options.ssl)
-    : (options.ssl || false);
-  this.multipleStatements = options.multipleStatements || false;
-  this.typeCast           = (options.typeCast === undefined)
-    ? true
-    : options.typeCast;
-
-  if (this.timezone[0] === ' ') {
-    // "+" is a url encoded char for space so it
-    // gets translated to space when giving a
-    // connection string..
-    this.timezone = '+' + this.timezone.substr(1);
-  }
-
-  if (this.ssl) {
-    // Default rejectUnauthorized to true
-    this.ssl.rejectUnauthorized = this.ssl.rejectUnauthorized !== false;
-  }
-
-  this.maxPacketSize = 0;
-  this.charsetNumber = (options.charset)
-    ? ConnectionConfig.getCharsetNumber(options.charset)
-    : options.charsetNumber || Charsets.UTF8_GENERAL_CI;
-
-  // Set the client flags
-  var defaultFlags = ConnectionConfig.getDefaultFlags(options);
-  this.clientFlags = ConnectionConfig.mergeFlags(defaultFlags, options.flags);
-}
-
-ConnectionConfig.mergeFlags = function mergeFlags(defaultFlags, userFlags) {
-  var allFlags = ConnectionConfig.parseFlagList(defaultFlags);
-  var newFlags = ConnectionConfig.parseFlagList(userFlags);
-
-  // Merge the new flags
-  for (var flag in newFlags) {
-    if (allFlags[flag] !== false) {
-      allFlags[flag] = newFlags[flag];
-    }
-  }
-
-  // Build flags
-  var flags = 0x0;
-  for (var flag in allFlags) {
-    if (allFlags[flag]) {
-      // TODO: Throw here on some future release
-      flags |= ClientConstants['CLIENT_' + flag] || 0x0;
-    }
-  }
-
-  return flags;
-};
-
-ConnectionConfig.getCharsetNumber = function getCharsetNumber(charset) {
-  var num = Charsets[charset.toUpperCase()];
-
-  if (num === undefined) {
-    throw new TypeError('Unknown charset \'' + charset + '\'');
-  }
-
-  return num;
-};
-
-ConnectionConfig.getDefaultFlags = function getDefaultFlags(options) {
-  var defaultFlags = [
-    '-COMPRESS',          // Compression protocol *NOT* supported
-    '-CONNECT_ATTRS',     // Does *NOT* send connection attributes in Protocol::HandshakeResponse41
-    '+CONNECT_WITH_DB',   // One can specify db on connect in Handshake Response Packet
-    '+FOUND_ROWS',        // Send found rows instead of affected rows
-    '+IGNORE_SIGPIPE',    // Don't issue SIGPIPE if network failures
-    '+IGNORE_SPACE',      // Let the parser ignore spaces before '('
-    '+LOCAL_FILES',       // Can use LOAD DATA LOCAL
-    '+LONG_FLAG',         // Longer flags in Protocol::ColumnDefinition320
-    '+LONG_PASSWORD',     // Use the improved version of Old Password Authentication
-    '+MULTI_RESULTS',     // Can handle multiple resultsets for COM_QUERY
-    '+ODBC',              // Special handling of ODBC behaviour
-    '-PLUGIN_AUTH',       // Does *NOT* support auth plugins
-    '+PROTOCOL_41',       // Uses the 4.1 protocol
-    '+PS_MULTI_RESULTS',  // Can handle multiple resultsets for COM_STMT_EXECUTE
-    '+RESERVED',          // Unused
-    '+SECURE_CONNECTION', // Supports Authentication::Native41
-    '+TRANSACTIONS'       // Expects status flags
-  ];
-
-  if (options && options.multipleStatements) {
-    // May send multiple statements per COM_QUERY and COM_STMT_PREPARE
-    defaultFlags.push('+MULTI_STATEMENTS');
-  }
-
-  return defaultFlags;
-};
-
-ConnectionConfig.getSSLProfile = function getSSLProfile(name) {
-  if (!SSLProfiles) {
-    SSLProfiles = __webpack_require__(34);
-  }
-
-  var ssl = SSLProfiles[name];
-
-  if (ssl === undefined) {
-    throw new TypeError('Unknown SSL profile \'' + name + '\'');
-  }
-
-  return ssl;
-};
-
-ConnectionConfig.parseFlagList = function parseFlagList(flagList) {
-  var allFlags = Object.create(null);
-
-  if (!flagList) {
-    return allFlags;
-  }
-
-  var flags = !Array.isArray(flagList)
-    ? String(flagList || '').toUpperCase().split(/\s*,+\s*/)
-    : flagList;
-
-  for (var i = 0; i < flags.length; i++) {
-    var flag   = flags[i];
-    var offset = 1;
-    var state  = flag[0];
-
-    if (state === undefined) {
-      // TODO: throw here on some future release
-      continue;
-    }
-
-    if (state !== '-' && state !== '+') {
-      offset = 0;
-      state  = '+';
-    }
-
-    allFlags[flag.substr(offset)] = state === '+';
-  }
-
-  return allFlags;
-};
-
-ConnectionConfig.parseUrl = function(url) {
-  url = urlParse(url, true);
-
-  var options = {
-    host     : url.hostname,
-    port     : url.port,
-    database : url.pathname.substr(1)
-  };
-
-  if (url.auth) {
-    var auth = url.auth.split(':');
-    options.user     = auth.shift();
-    options.password = auth.join(':');
-  }
-
-  if (url.query) {
-    for (var key in url.query) {
-      var value = url.query[key];
-
-      try {
-        // Try to parse this as a JSON expression first
-        options[key] = JSON.parse(value);
-      } catch (err) {
-        // Otherwise assume it is a plain string
-        options[key] = value;
-      }
-    }
-  }
-
-  return options;
-};
-
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports) {
-
-/**
- * MySQL type constants
- *
- * Extracted from version 5.7.19
- *
- * !! Generated by generate-type-constants.js, do not modify by hand !!
- */
-
-exports.DECIMAL     = 0;
-exports.TINY        = 1;
-exports.SHORT       = 2;
-exports.LONG        = 3;
-exports.FLOAT       = 4;
-exports.DOUBLE      = 5;
-exports.NULL        = 6;
-exports.TIMESTAMP   = 7;
-exports.LONGLONG    = 8;
-exports.INT24       = 9;
-exports.DATE        = 10;
-exports.TIME        = 11;
-exports.DATETIME    = 12;
-exports.YEAR        = 13;
-exports.NEWDATE     = 14;
-exports.VARCHAR     = 15;
-exports.BIT         = 16;
-exports.TIMESTAMP2  = 17;
-exports.DATETIME2   = 18;
-exports.TIME2       = 19;
-exports.JSON        = 245;
-exports.NEWDECIMAL  = 246;
-exports.ENUM        = 247;
-exports.SET         = 248;
-exports.TINY_BLOB   = 249;
-exports.MEDIUM_BLOB = 250;
-exports.LONG_BLOB   = 251;
-exports.BLOB        = 252;
-exports.VAR_STRING  = 253;
-exports.STRING      = 254;
-exports.GEOMETRY    = 255;
-
-// Lookup-by-number table
-exports[0]   = 'DECIMAL';
-exports[1]   = 'TINY';
-exports[2]   = 'SHORT';
-exports[3]   = 'LONG';
-exports[4]   = 'FLOAT';
-exports[5]   = 'DOUBLE';
-exports[6]   = 'NULL';
-exports[7]   = 'TIMESTAMP';
-exports[8]   = 'LONGLONG';
-exports[9]   = 'INT24';
-exports[10]  = 'DATE';
-exports[11]  = 'TIME';
-exports[12]  = 'DATETIME';
-exports[13]  = 'YEAR';
-exports[14]  = 'NEWDATE';
-exports[15]  = 'VARCHAR';
-exports[16]  = 'BIT';
-exports[17]  = 'TIMESTAMP2';
-exports[18]  = 'DATETIME2';
-exports[19]  = 'TIME2';
-exports[245] = 'JSON';
-exports[246] = 'NEWDECIMAL';
-exports[247] = 'ENUM';
-exports[248] = 'SET';
-exports[249] = 'TINY_BLOB';
-exports[250] = 'MEDIUM_BLOB';
-exports[251] = 'LONG_BLOB';
-exports[252] = 'BLOB';
-exports[253] = 'VAR_STRING';
-exports[254] = 'STRING';
-exports[255] = 'GEOMETRY';
-
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports) {
-
-module.exports = require("stream");
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var Classes = Object.create(null);
 
 /**
@@ -1633,22 +1342,22 @@ function loadClass(className) {
       Class = __webpack_require__(8);
       break;
     case 'ConnectionConfig':
-      Class = __webpack_require__(11);
+      Class = __webpack_require__(12);
       break;
     case 'Pool':
-      Class = __webpack_require__(27);
-      break;
-    case 'PoolCluster':
-      Class = __webpack_require__(84);
-      break;
-    case 'PoolConfig':
       Class = __webpack_require__(28);
       break;
+    case 'PoolCluster':
+      Class = __webpack_require__(85);
+      break;
+    case 'PoolConfig':
+      Class = __webpack_require__(29);
+      break;
     case 'SqlString':
-      Class = __webpack_require__(26);
+      Class = __webpack_require__(27);
       break;
     case 'Types':
-      Class = __webpack_require__(12);
+      Class = __webpack_require__(13);
       break;
     default:
       throw new Error('Cannot find class \'' + className + '\'');
@@ -1660,6 +1369,297 @@ function loadClass(className) {
   return Class;
 }
 
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var urlParse        = __webpack_require__(35).parse;
+var ClientConstants = __webpack_require__(9);
+var Charsets        = __webpack_require__(16);
+var SSLProfiles     = null;
+
+module.exports = ConnectionConfig;
+function ConnectionConfig(options) {
+  if (typeof options === 'string') {
+    options = ConnectionConfig.parseUrl(options);
+  }
+
+  this.host               = options.host || 'localhost';
+  this.port               = options.port || 3306;
+  this.localAddress       = options.localAddress;
+  this.socketPath         = options.socketPath;
+  this.user               = options.user || undefined;
+  this.password           = options.password || undefined;
+  this.database           = options.database;
+  this.connectTimeout     = (options.connectTimeout === undefined)
+    ? (10 * 1000)
+    : options.connectTimeout;
+  this.insecureAuth       = options.insecureAuth || false;
+  this.supportBigNumbers  = options.supportBigNumbers || false;
+  this.bigNumberStrings   = options.bigNumberStrings || false;
+  this.dateStrings        = options.dateStrings || false;
+  this.debug              = options.debug;
+  this.trace              = options.trace !== false;
+  this.stringifyObjects   = options.stringifyObjects || false;
+  this.timezone           = options.timezone || 'local';
+  this.flags              = options.flags || '';
+  this.queryFormat        = options.queryFormat;
+  this.pool               = options.pool || undefined;
+  this.ssl                = (typeof options.ssl === 'string')
+    ? ConnectionConfig.getSSLProfile(options.ssl)
+    : (options.ssl || false);
+  this.multipleStatements = options.multipleStatements || false;
+  this.typeCast           = (options.typeCast === undefined)
+    ? true
+    : options.typeCast;
+
+  if (this.timezone[0] === ' ') {
+    // "+" is a url encoded char for space so it
+    // gets translated to space when giving a
+    // connection string..
+    this.timezone = '+' + this.timezone.substr(1);
+  }
+
+  if (this.ssl) {
+    // Default rejectUnauthorized to true
+    this.ssl.rejectUnauthorized = this.ssl.rejectUnauthorized !== false;
+  }
+
+  this.maxPacketSize = 0;
+  this.charsetNumber = (options.charset)
+    ? ConnectionConfig.getCharsetNumber(options.charset)
+    : options.charsetNumber || Charsets.UTF8_GENERAL_CI;
+
+  // Set the client flags
+  var defaultFlags = ConnectionConfig.getDefaultFlags(options);
+  this.clientFlags = ConnectionConfig.mergeFlags(defaultFlags, options.flags);
+}
+
+ConnectionConfig.mergeFlags = function mergeFlags(defaultFlags, userFlags) {
+  var allFlags = ConnectionConfig.parseFlagList(defaultFlags);
+  var newFlags = ConnectionConfig.parseFlagList(userFlags);
+
+  // Merge the new flags
+  for (var flag in newFlags) {
+    if (allFlags[flag] !== false) {
+      allFlags[flag] = newFlags[flag];
+    }
+  }
+
+  // Build flags
+  var flags = 0x0;
+  for (var flag in allFlags) {
+    if (allFlags[flag]) {
+      // TODO: Throw here on some future release
+      flags |= ClientConstants['CLIENT_' + flag] || 0x0;
+    }
+  }
+
+  return flags;
+};
+
+ConnectionConfig.getCharsetNumber = function getCharsetNumber(charset) {
+  var num = Charsets[charset.toUpperCase()];
+
+  if (num === undefined) {
+    throw new TypeError('Unknown charset \'' + charset + '\'');
+  }
+
+  return num;
+};
+
+ConnectionConfig.getDefaultFlags = function getDefaultFlags(options) {
+  var defaultFlags = [
+    '-COMPRESS',          // Compression protocol *NOT* supported
+    '-CONNECT_ATTRS',     // Does *NOT* send connection attributes in Protocol::HandshakeResponse41
+    '+CONNECT_WITH_DB',   // One can specify db on connect in Handshake Response Packet
+    '+FOUND_ROWS',        // Send found rows instead of affected rows
+    '+IGNORE_SIGPIPE',    // Don't issue SIGPIPE if network failures
+    '+IGNORE_SPACE',      // Let the parser ignore spaces before '('
+    '+LOCAL_FILES',       // Can use LOAD DATA LOCAL
+    '+LONG_FLAG',         // Longer flags in Protocol::ColumnDefinition320
+    '+LONG_PASSWORD',     // Use the improved version of Old Password Authentication
+    '+MULTI_RESULTS',     // Can handle multiple resultsets for COM_QUERY
+    '+ODBC',              // Special handling of ODBC behaviour
+    '-PLUGIN_AUTH',       // Does *NOT* support auth plugins
+    '+PROTOCOL_41',       // Uses the 4.1 protocol
+    '+PS_MULTI_RESULTS',  // Can handle multiple resultsets for COM_STMT_EXECUTE
+    '+RESERVED',          // Unused
+    '+SECURE_CONNECTION', // Supports Authentication::Native41
+    '+TRANSACTIONS'       // Expects status flags
+  ];
+
+  if (options && options.multipleStatements) {
+    // May send multiple statements per COM_QUERY and COM_STMT_PREPARE
+    defaultFlags.push('+MULTI_STATEMENTS');
+  }
+
+  return defaultFlags;
+};
+
+ConnectionConfig.getSSLProfile = function getSSLProfile(name) {
+  if (!SSLProfiles) {
+    SSLProfiles = __webpack_require__(36);
+  }
+
+  var ssl = SSLProfiles[name];
+
+  if (ssl === undefined) {
+    throw new TypeError('Unknown SSL profile \'' + name + '\'');
+  }
+
+  return ssl;
+};
+
+ConnectionConfig.parseFlagList = function parseFlagList(flagList) {
+  var allFlags = Object.create(null);
+
+  if (!flagList) {
+    return allFlags;
+  }
+
+  var flags = !Array.isArray(flagList)
+    ? String(flagList || '').toUpperCase().split(/\s*,+\s*/)
+    : flagList;
+
+  for (var i = 0; i < flags.length; i++) {
+    var flag   = flags[i];
+    var offset = 1;
+    var state  = flag[0];
+
+    if (state === undefined) {
+      // TODO: throw here on some future release
+      continue;
+    }
+
+    if (state !== '-' && state !== '+') {
+      offset = 0;
+      state  = '+';
+    }
+
+    allFlags[flag.substr(offset)] = state === '+';
+  }
+
+  return allFlags;
+};
+
+ConnectionConfig.parseUrl = function(url) {
+  url = urlParse(url, true);
+
+  var options = {
+    host     : url.hostname,
+    port     : url.port,
+    database : url.pathname.substr(1)
+  };
+
+  if (url.auth) {
+    var auth = url.auth.split(':');
+    options.user     = auth.shift();
+    options.password = auth.join(':');
+  }
+
+  if (url.query) {
+    for (var key in url.query) {
+      var value = url.query[key];
+
+      try {
+        // Try to parse this as a JSON expression first
+        options[key] = JSON.parse(value);
+      } catch (err) {
+        // Otherwise assume it is a plain string
+        options[key] = value;
+      }
+    }
+  }
+
+  return options;
+};
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+/**
+ * MySQL type constants
+ *
+ * Extracted from version 5.7.19
+ *
+ * !! Generated by generate-type-constants.js, do not modify by hand !!
+ */
+
+exports.DECIMAL     = 0;
+exports.TINY        = 1;
+exports.SHORT       = 2;
+exports.LONG        = 3;
+exports.FLOAT       = 4;
+exports.DOUBLE      = 5;
+exports.NULL        = 6;
+exports.TIMESTAMP   = 7;
+exports.LONGLONG    = 8;
+exports.INT24       = 9;
+exports.DATE        = 10;
+exports.TIME        = 11;
+exports.DATETIME    = 12;
+exports.YEAR        = 13;
+exports.NEWDATE     = 14;
+exports.VARCHAR     = 15;
+exports.BIT         = 16;
+exports.TIMESTAMP2  = 17;
+exports.DATETIME2   = 18;
+exports.TIME2       = 19;
+exports.JSON        = 245;
+exports.NEWDECIMAL  = 246;
+exports.ENUM        = 247;
+exports.SET         = 248;
+exports.TINY_BLOB   = 249;
+exports.MEDIUM_BLOB = 250;
+exports.LONG_BLOB   = 251;
+exports.BLOB        = 252;
+exports.VAR_STRING  = 253;
+exports.STRING      = 254;
+exports.GEOMETRY    = 255;
+
+// Lookup-by-number table
+exports[0]   = 'DECIMAL';
+exports[1]   = 'TINY';
+exports[2]   = 'SHORT';
+exports[3]   = 'LONG';
+exports[4]   = 'FLOAT';
+exports[5]   = 'DOUBLE';
+exports[6]   = 'NULL';
+exports[7]   = 'TIMESTAMP';
+exports[8]   = 'LONGLONG';
+exports[9]   = 'INT24';
+exports[10]  = 'DATE';
+exports[11]  = 'TIME';
+exports[12]  = 'DATETIME';
+exports[13]  = 'YEAR';
+exports[14]  = 'NEWDATE';
+exports[15]  = 'VARCHAR';
+exports[16]  = 'BIT';
+exports[17]  = 'TIMESTAMP2';
+exports[18]  = 'DATETIME2';
+exports[19]  = 'TIME2';
+exports[245] = 'JSON';
+exports[246] = 'NEWDECIMAL';
+exports[247] = 'ENUM';
+exports[248] = 'SET';
+exports[249] = 'TINY_BLOB';
+exports[250] = 'MEDIUM_BLOB';
+exports[251] = 'LONG_BLOB';
+exports[252] = 'BLOB';
+exports[253] = 'VAR_STRING';
+exports[254] = 'STRING';
+exports[255] = 'GEOMETRY';
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = require("stream");
 
 /***/ }),
 /* 15 */
@@ -1939,7 +1939,7 @@ exports.UTF32    = exports.UTF32_GENERAL_CI;
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Types = __webpack_require__(12);
+var Types = __webpack_require__(13);
 
 module.exports = Field;
 function Field(options) {
@@ -2148,10 +2148,10 @@ Auth.int32Read = function(buffer, offset){
 var Sequence     = __webpack_require__(3);
 var Util         = __webpack_require__(0);
 var Packets      = __webpack_require__(2);
-var ResultSet    = __webpack_require__(69);
-var ServerStatus = __webpack_require__(70);
-var fs           = __webpack_require__(71);
-var Readable     = __webpack_require__(72);
+var ResultSet    = __webpack_require__(71);
+var ServerStatus = __webpack_require__(72);
+var fs           = __webpack_require__(20);
+var Readable     = __webpack_require__(73);
 
 module.exports = Query;
 Util.inherits(Query, Sequence);
@@ -2367,6 +2367,12 @@ Query.prototype.stream = function(options) {
 
 /***/ }),
 /* 20 */
+/***/ (function(module, exports) {
+
+module.exports = require("fs");
+
+/***/ }),
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2401,7 +2407,7 @@ var pna = __webpack_require__(10);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(73);
+var isArray = __webpack_require__(74);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -2419,7 +2425,7 @@ var EElistenerCount = function (emitter, type) {
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream = __webpack_require__(21);
+var Stream = __webpack_require__(22);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -2450,8 +2456,8 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(75);
-var destroyImpl = __webpack_require__(22);
+var BufferList = __webpack_require__(76);
+var destroyImpl = __webpack_require__(23);
 var StringDecoder;
 
 util.inherits(Readable, Stream);
@@ -2541,7 +2547,7 @@ function ReadableState(options, stream) {
   this.decoder = null;
   this.encoding = null;
   if (options.encoding) {
-    if (!StringDecoder) StringDecoder = __webpack_require__(24).StringDecoder;
+    if (!StringDecoder) StringDecoder = __webpack_require__(25).StringDecoder;
     this.decoder = new StringDecoder(options.encoding);
     this.encoding = options.encoding;
   }
@@ -2697,7 +2703,7 @@ Readable.prototype.isPaused = function () {
 
 // backwards compatibility.
 Readable.prototype.setEncoding = function (enc) {
-  if (!StringDecoder) StringDecoder = __webpack_require__(24).StringDecoder;
+  if (!StringDecoder) StringDecoder = __webpack_require__(25).StringDecoder;
   this._readableState.decoder = new StringDecoder(enc);
   this._readableState.encoding = enc;
   return this;
@@ -3391,14 +3397,14 @@ function indexOf(xs, x) {
 }
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(13);
+module.exports = __webpack_require__(14);
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3478,7 +3484,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3554,12 +3560,12 @@ util.inherits = __webpack_require__(7);
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(76)
+  deprecate: __webpack_require__(77)
 };
 /*</replacement>*/
 
 /*<replacement>*/
-var Stream = __webpack_require__(21);
+var Stream = __webpack_require__(22);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -3575,7 +3581,7 @@ function _isUint8Array(obj) {
 
 /*</replacement>*/
 
-var destroyImpl = __webpack_require__(22);
+var destroyImpl = __webpack_require__(23);
 
 util.inherits(Writable, Stream);
 
@@ -4171,7 +4177,7 @@ Writable.prototype._destroy = function (err, cb) {
 };
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4473,7 +4479,7 @@ function simpleEnd(buf) {
 }
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4693,21 +4699,21 @@ function done(stream, er, data) {
 }
 
 /***/ }),
-/* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(81);
-
-
-/***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var mysql          = __webpack_require__(14);
+module.exports = __webpack_require__(82);
+
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var mysql          = __webpack_require__(11);
 var Connection     = __webpack_require__(8);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Util           = __webpack_require__(0);
-var PoolConnection = __webpack_require__(83);
+var PoolConnection = __webpack_require__(84);
 
 module.exports = Pool;
 
@@ -5000,11 +5006,11 @@ function spliceConnection(array, connection) {
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var ConnectionConfig = __webpack_require__(11);
+var ConnectionConfig = __webpack_require__(12);
 
 module.exports = PoolConfig;
 function PoolConfig(options) {
@@ -5038,7 +5044,7 @@ PoolConfig.prototype.newConnectionConfig = function newConnectionConfig() {
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 
@@ -5075,204 +5081,183 @@ PoolSelector.ORDER = function PoolSelectorOrder() {
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const mysql = __webpack_require__(14);
+const MySQL = __webpack_require__(32);
+const Logger = __webpack_require__(87);
+const Profiler = __webpack_require__(88);
+const { prepareQuery, typeCast, safeInvoke } = __webpack_require__(89);
 
-const Promise = global.Promise;
+let logger = null;
+let profiler = null;
+let mysql = null;
 let config = {};
-let debug = 0;
-let slowQueryWarning = 500;
-let pool;
-
-function prepareQuery(query, parameters) {
-    let sql = query;
-    if (parameters !== null && typeof parameters === 'object') {
-        sql = query.replace(/@(\w+)/g, (txt, key) => {
-            if (parameters.hasOwnProperty(key)) {
-                return mysql.escape(parameters[key]);
-            } else if (parameters.hasOwnProperty(`@${key}`)) {
-                return mysql.escape(parameters[`@${key}`]);
-            }
-            return txt;
-        });
-    }
-    return sql;
-}
-
-function typeCast(field, next) {
-    let dateString = '';
-    switch(field.type) {
-        case 'DATETIME':
-        case 'DATETIME2':
-        case 'TIMESTAMP':
-        case 'TIMESTAMP2':
-        case 'NEWDATE':
-        case 'DATE':
-            dateString = field.string();
-            if (field.type === 'DATE') dateString += ' 00:00:00';
-            return (new Date(dateString)).getTime();
-        case 'TINY':
-            if (field.length === 1) {
-                return (field.string() !== '0');
-            }
-            return next();
-        case 'BIT':
-            return Number(field.buffer()[0]);
-        default:
-            return next();
-    }
-}
-
-function writeDebug(time, sql, resource) {
-    const executionTime = time[0]*1e3+time[1]*1e-6;
-    if (slowQueryWarning && !debug && executionTime > slowQueryWarning) {
-        console.log(`[MySQL] [Slow Query Warning] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
-    }
-    if (debug) console.log(`[MySQL] [${resource}] [${executionTime.toFixed()}ms] ${sql}`);
-}
-
-function safeInvoke(callback, args) {
-    if (typeof callback === 'function') setImmediate(() => {
-        callback(args);
-    });
-}
-
-function execute(sql, invokingResource, connection) {
-    const queryPromise = new Promise((resolve, reject) => {
-        let start = process.hrtime();
-        const db = connection || pool;
-        db.query(sql, (error, result) => {
-            writeDebug(process.hrtime(start), sql.sql, invokingResource);
-            if (error) reject(error);
-            resolve(result);
-        });
-    });
-    queryPromise.catch((error) => {
-        console.log(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql}": ${error.message}`);
-    });
-    return queryPromise;
-}
 
 global.exports('mysql_execute', (query, parameters, callback) => {
-    const invokingResource = global.GetInvokingResource();
-    let sql = prepareQuery(query, parameters);
-    execute({ sql, typeCast }, invokingResource).then((result) => {
-        safeInvoke(callback, (result) ? result.affectedRows : 0);
-    });
+  const invokingResource = global.GetInvokingResource();
+  const sql = prepareQuery(query, parameters);
+  mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
+    safeInvoke(callback, (result) ? result.affectedRows : 0);
+  });
 });
 
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
-    const invokingResource = global.GetInvokingResource();
-    let sql = prepareQuery(query, parameters);
-    execute({ sql, typeCast }, invokingResource).then((result) => {
-        safeInvoke(callback, result);
-    });
+  const invokingResource = global.GetInvokingResource();
+  const sql = prepareQuery(query, parameters);
+  mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
+    safeInvoke(callback, result);
+  });
 });
 
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
-    const invokingResource = global.GetInvokingResource();
-    let sql = prepareQuery(query, parameters);
-    execute({ sql, typeCast }, invokingResource).then((result) => {
-        safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
-    });
+  const invokingResource = global.GetInvokingResource();
+  const sql = prepareQuery(query, parameters);
+  mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
+    safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
+  });
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
-    const invokingResource = global.GetInvokingResource();
-    let sql = prepareQuery(query, parameters);
-    execute({ sql, typeCast }, invokingResource).then((result) => {
-        safeInvoke(callback, (result) ? result.insertId : 0);
-    });
+  const invokingResource = global.GetInvokingResource();
+  const sql = prepareQuery(query, parameters);
+  mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
+    safeInvoke(callback, (result) ? result.insertId : 0);
+  });
 });
 
-// maybe remove this again
-global.exports('mysql_reset_pool', () => {
-    const oldPool = pool;
-    pool = mysql.createPool(config);
-    setTimeout(() => { oldPool.end(); }, 1000);
-});
-
-function parseOptions(config, options) {
-    const cfg = config;
-    const opts = options.split('&');
-    opts.forEach((o) => {
-        const keyValue = o.split('=');
-        cfg[keyValue[0]] = keyValue[1];
-    });
-    return cfg;
+function parseOptions(settings, options) {
+  const cfg = settings;
+  const opts = options.split('&');
+  opts.forEach((o) => {
+    const keyValue = o.split('=');
+    [, cfg[keyValue[0]]] = keyValue;
+  });
+  return cfg;
 }
 
 function parseConnectingString(connectionString) {
-    if(/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.test(connectionString)) {
+  let cfg = null;
+  if (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.test(connectionString)) {
+    let matches = (/(?:host|server|data\s?source|addr(?:ess)?)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const host = (matches) ? matches[1] || matches[2] : 'localhost';
+    matches = (/(?:Port)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const port = (matches) ? matches[1] || matches[2] : 3306;
+    matches = (/(?:user\s?(?:id|name)?|uid)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const user = (matches) ? matches[1] || matches[2] : 'root';
+    matches = (/(?:password|pwd)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const password = (matches) ? matches[1] || matches[2] : '';
+    matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
+    const database = (matches) ? matches[1] || matches[2] : '';
+    cfg = {
+      host,
+      port,
+      user,
+      password,
+      database,
+      supportBigNumbers: true,
+      multipleStatements: true,
+    };
+  } else if (/mysql:\/\//gi.test(connectionString)) {
+    const matches = /mysql:\/\/(.*?)(?::|@)(?:(.*)@)?(.*?)(?::(\d{1,5}))?\/(.*?)\?(.*)/gi.exec(connectionString);
+    const host = (matches[3]) ? matches[3] : 'localhost';
+    const port = (matches[4]) ? matches[4] : 3306;
+    const user = (matches[1]) ? matches[1] : 'root';
+    const password = (matches[2]) ? matches[2] : '';
+    const database = (matches[5]) ? matches[5] : '';
+    const settings = {
+      host, port, user, password, database,
+    };
+    const options = matches[6];
+    cfg = parseOptions(settings, options);
+  } else throw new Error('No valid connection string found');
 
-        let matches = (/(?:host|server|data\s?source|addr(?:ess)?)=(?:(.*?);|(.*))/gi.exec(connectionString));
-        const host = (matches) ? matches[1] || matches[2] : 'localhost';
-        matches = (/(?:Port)=(?:(.*?);|(.*))/gi.exec(connectionString));
-        const port = (matches) ? matches[1] || matches[2] : 3306;
-        matches = (/(?:user\s?(?:id|name)?|uid)=(?:(.*?);|(.*))/gi.exec(connectionString));
-        const user = (matches) ? matches[1] || matches[2] : 'root';
-        matches = (/(?:password|pwd)=(?:(.*?);|(.*))/gi.exec(connectionString));
-        const password = (matches) ? matches[1] || matches[2] : '';
-        matches = (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.exec(connectionString));
-        const database = (matches) ? matches[1] || matches[2] : '';
-        return { host, port, user, password, database, supportBigNumbers: true, multipleStatements: true };
-
-    } else if(/mysql:\/\//gi.test(connectionString)) {
-
-        let matches = /mysql:\/\/(.*?)(?::|@)(?:(.*)@)?(.*?)(?::(\d{1,5}))?\/(.*?)\?(.*)/gi.exec(connectionString);
-        const host = (matches[3]) ? matches[3] : 'localhost';
-        const port = (matches[4]) ? matches[4] : 3306;
-        const user = (matches[1]) ? matches[1] : 'root';
-        const password = (matches[2]) ? matches[2] : '';
-        const database = (matches[5]) ? matches[5] : '';
-        const config = { host, port, user, password, database };
-        const options = matches[6];
-        return parseOptions(config, options);
-
-    } else throw new Error('No valid connection string found');
+  return cfg;
 }
 
 let isReady = false;
 global.on('onServerResourceStart', (resourcename) => {
-    if (resourcename == 'mysql-async') {
-        // maybe default to addr=localhost;pwd=;database=essentialmode;uid=root
-        const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
-        if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
-        config = parseConnectingString(connectionString);
-        debug = global.GetConvarInt('mysql_debug', 0);
-        slowQueryWarning = global.GetConvarInt('mysql_slow_query_warning', 500);
-        pool = mysql.createPool(config);
-        global.emit('onMySQLReady'); // avoid ESX bugs
-        isReady = true;
-    }
-    if (isReady) {
-        global.emit('MySQLReady'); // avoid ESX bugs
-    }
+  if (resourcename === 'mysql-async') {
+    const trace = global.GetConvarInt('mysql_debug', 0);
+    const slowQueryWarningTime = global.GetConvarInt('mysql_slow_query_warning', 200);
+
+    logger = new Logger(global.GetConvar('mysql_debug_output', 'console'));
+    profiler = new Profiler(logger, { trace, slowQueryWarningTime });
+
+    // needs to move to a new file
+    const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
+    if (connectionString === 'Empty') throw new Error('Empty mysql_connection_string detected.');
+    config = parseConnectingString(connectionString);
+
+    mysql = new MySQL(config, logger, profiler);
+    global.emit('onMySQLReady'); // avoid ESX bugs
+    isReady = true;
+  }
+  if (isReady) {
+    global.emit('MySQLReady'); // avoid ESX bugs
+  }
 });
 
 
 /***/ }),
-/* 31 */
-/***/ (function(module, exports) {
-
-module.exports = require("net");
-
-/***/ }),
 /* 32 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = require("tls");
+const mysql = __webpack_require__(11);
+
+class MySQL {
+  constructor(mysqlConfig, logger, profiler) {
+    this.pool = null;
+    this.profiler = profiler;
+    this.logger = logger;
+    if (typeof mysqlConfig === 'string' || typeof mysqlConfig === 'object') {
+      this.pool = mysql.createPool(mysqlConfig);
+    }
+  }
+
+  execute(sql, invokingResource, connection) {
+    const queryPromise = new Promise((resolve, reject) => {
+      const start = process.hrtime();
+      const db = connection || this.pool;
+
+      db.query(sql, (error, result) => {
+        this.profiler.profile(process.hrtime(start), sql.sql, invokingResource);
+        if (error) reject(error);
+        resolve(result);
+      });
+    });
+
+    queryPromise.catch((error) => {
+      this.logger.error(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql.sql}": ${error.message}`);
+    });
+
+    return queryPromise;
+  }
+}
+
+module.exports = MySQL;
+
 
 /***/ }),
 /* 33 */
 /***/ (function(module, exports) {
 
-module.exports = require("url");
+module.exports = require("net");
 
 /***/ }),
 /* 34 */
+/***/ (function(module, exports) {
+
+module.exports = require("tls");
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports) {
+
+module.exports = require("url");
+
+/***/ }),
+/* 36 */
 /***/ (function(module, exports) {
 
 // Certificates for Amazon RDS
@@ -6018,15 +6003,15 @@ exports['Amazon RDS'] = {
 
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Parser       = __webpack_require__(36);
-var Sequences    = __webpack_require__(41);
+var Parser       = __webpack_require__(38);
+var Sequences    = __webpack_require__(43);
 var Packets      = __webpack_require__(2);
-var Stream       = __webpack_require__(13).Stream;
+var Stream       = __webpack_require__(14).Stream;
 var Util         = __webpack_require__(0);
-var PacketWriter = __webpack_require__(80);
+var PacketWriter = __webpack_require__(81);
 
 module.exports = Protocol;
 Util.inherits(Protocol, Stream);
@@ -6487,13 +6472,13 @@ Protocol.prototype._debugPacket = function(incoming, packet) {
 
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var PacketHeader = __webpack_require__(37);
-var BigNumber    = __webpack_require__(38);
+var PacketHeader = __webpack_require__(39);
+var BigNumber    = __webpack_require__(40);
 var Buffer       = __webpack_require__(1).Buffer;
-var BufferList   = __webpack_require__(40);
+var BufferList   = __webpack_require__(42);
 
 var MAX_PACKET_LENGTH    = Math.pow(2, 24) - 1;
 var MUL_32BIT            = Math.pow(2, 32);
@@ -6984,7 +6969,7 @@ Parser.prototype._advanceToNextPacket = function() {
 
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports) {
 
 module.exports = PacketHeader;
@@ -6995,7 +6980,7 @@ function PacketHeader(length, number) {
 
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9797,13 +9782,13 @@ var BigNumber = clone();
 
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports) {
 
 module.exports = require("buffer");
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports) {
 
 
@@ -9834,20 +9819,20 @@ BufferList.prototype.push = function push(buf) {
 
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.ChangeUser = __webpack_require__(42);
-exports.Handshake = __webpack_require__(67);
-exports.Ping = __webpack_require__(68);
+exports.ChangeUser = __webpack_require__(44);
+exports.Handshake = __webpack_require__(69);
+exports.Ping = __webpack_require__(70);
 exports.Query = __webpack_require__(19);
-exports.Quit = __webpack_require__(78);
+exports.Quit = __webpack_require__(79);
 exports.Sequence = __webpack_require__(3);
-exports.Statistics = __webpack_require__(79);
+exports.Statistics = __webpack_require__(80);
 
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -9920,7 +9905,7 @@ ChangeUser.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchRequestPacket;
@@ -9946,7 +9931,7 @@ AuthSwitchRequestPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports) {
 
 module.exports = AuthSwitchResponsePacket;
@@ -9966,7 +9951,7 @@ AuthSwitchResponsePacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(1).Buffer;
@@ -10026,7 +10011,7 @@ ClientAuthenticationPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, exports) {
 
 module.exports = ComChangeUserPacket;
@@ -10058,7 +10043,7 @@ ComChangeUserPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, exports) {
 
 module.exports = ComPingPacket;
@@ -10076,7 +10061,7 @@ ComPingPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = ComQueryPacket;
@@ -10097,7 +10082,7 @@ ComQueryPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, exports) {
 
 module.exports = ComQuitPacket;
@@ -10115,7 +10100,7 @@ ComQuitPacket.prototype.write = function write(writer) {
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, exports) {
 
 module.exports = ComStatisticsPacket;
@@ -10133,7 +10118,7 @@ ComStatisticsPacket.prototype.parse = function(parser) {
 
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, exports) {
 
 module.exports = EmptyPacket;
@@ -10145,7 +10130,7 @@ EmptyPacket.prototype.write = function write() {
 
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = EofPacket;
@@ -10176,7 +10161,7 @@ EofPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = ErrorPacket;
@@ -10217,7 +10202,7 @@ ErrorPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = FieldPacket;
@@ -10316,7 +10301,7 @@ FieldPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 55 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(1).Buffer;
@@ -10425,7 +10410,7 @@ HandshakeInitializationPacket.prototype.scrambleBuff = function() {
 
 
 /***/ }),
-/* 56 */
+/* 58 */
 /***/ (function(module, exports) {
 
 module.exports = LocalDataFilePacket;
@@ -10446,7 +10431,7 @@ LocalDataFilePacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 57 */
+/* 59 */
 /***/ (function(module, exports) {
 
 
@@ -10496,7 +10481,7 @@ OkPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 58 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = OldPasswordPacket;
@@ -10516,7 +10501,7 @@ OldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 59 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSetHeaderPacket;
@@ -10547,10 +10532,10 @@ ResultSetHeaderPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 60 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Types                        = __webpack_require__(12);
+var Types                        = __webpack_require__(13);
 var Charsets                     = __webpack_require__(16);
 var Field                        = __webpack_require__(17);
 var IEEE_754_BINARY_64_PRECISION = Math.pow(2, 53);
@@ -10683,7 +10668,7 @@ function typeMatch(type, list) {
 
 
 /***/ }),
-/* 61 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // http://dev.mysql.com/doc/internals/en/ssl.html
@@ -10716,7 +10701,7 @@ SSLRequestPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 62 */
+/* 64 */
 /***/ (function(module, exports) {
 
 module.exports = StatisticsPacket;
@@ -10742,7 +10727,7 @@ StatisticsPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 63 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = UseOldPasswordPacket;
@@ -10762,7 +10747,7 @@ UseOldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 64 */
+/* 66 */
 /***/ (function(module, exports) {
 
 /**
@@ -13184,10 +13169,10 @@ exports[3203] = 'ER_KEYRING_MIGRATION_STATUS';
 
 
 /***/ }),
-/* 65 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Timers = __webpack_require__(66);
+var Timers = __webpack_require__(68);
 
 module.exports = Timer;
 function Timer(object) {
@@ -13223,13 +13208,13 @@ Timer.prototype._onTimeout = function _onTimeout() {
 
 
 /***/ }),
-/* 66 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = require("timers");
 
 /***/ }),
-/* 67 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence        = __webpack_require__(3);
@@ -13361,7 +13346,7 @@ Handshake.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 68 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13386,7 +13371,7 @@ Ping.prototype.start = function() {
 
 
 /***/ }),
-/* 69 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSet;
@@ -13399,7 +13384,7 @@ function ResultSet(resultSetHeaderPacket) {
 
 
 /***/ }),
-/* 70 */
+/* 72 */
 /***/ (function(module, exports) {
 
 // Manually extracted from mysql-5.5.23/include/mysql_com.h
@@ -13444,16 +13429,10 @@ exports.SERVER_PS_OUT_PARAMS = 4096;
 
 
 /***/ }),
-/* 71 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Stream = __webpack_require__(13);
+var Stream = __webpack_require__(14);
 if (process.env.READABLE_STREAM === 'disable' && Stream) {
   module.exports = Stream;
   exports = module.exports = Stream.Readable;
@@ -13464,18 +13443,18 @@ if (process.env.READABLE_STREAM === 'disable' && Stream) {
   exports.PassThrough = Stream.PassThrough;
   exports.Stream = Stream;
 } else {
-  exports = module.exports = __webpack_require__(20);
+  exports = module.exports = __webpack_require__(21);
   exports.Stream = Stream || exports;
   exports.Readable = exports;
-  exports.Writable = __webpack_require__(23);
+  exports.Writable = __webpack_require__(24);
   exports.Duplex = __webpack_require__(5);
-  exports.Transform = __webpack_require__(25);
-  exports.PassThrough = __webpack_require__(77);
+  exports.Transform = __webpack_require__(26);
+  exports.PassThrough = __webpack_require__(78);
 }
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -13486,7 +13465,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -13515,7 +13494,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13600,7 +13579,7 @@ if (util && util.inspect && util.inspect.custom) {
 }
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -13612,7 +13591,7 @@ module.exports = __webpack_require__(0).deprecate;
 
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13645,7 +13624,7 @@ module.exports = __webpack_require__(0).deprecate;
 
 module.exports = PassThrough;
 
-var Transform = __webpack_require__(25);
+var Transform = __webpack_require__(26);
 
 /*<replacement>*/
 var util = __webpack_require__(6);
@@ -13665,7 +13644,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13711,7 +13690,7 @@ Quit.prototype.start = function() {
 
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13747,7 +13726,7 @@ Statistics.prototype.determinePacket = function determinePacket(firstByte) {
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BIT_16            = Math.pow(2, 16);
@@ -13964,14 +13943,14 @@ PacketWriter.prototype._allocate = function _allocate(bytes) {
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(82);
+module.exports = __webpack_require__(83);
 
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports) {
 
 var SqlString  = exports;
@@ -14214,7 +14193,7 @@ function convertTimezone(tz) {
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits   = __webpack_require__(0).inherits;
@@ -14285,13 +14264,13 @@ PoolConnection.prototype._removeFromPool = function _removeFromPool() {
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Pool          = __webpack_require__(27);
-var PoolConfig    = __webpack_require__(28);
-var PoolNamespace = __webpack_require__(85);
-var PoolSelector  = __webpack_require__(29);
+var Pool          = __webpack_require__(28);
+var PoolConfig    = __webpack_require__(29);
+var PoolNamespace = __webpack_require__(86);
+var PoolSelector  = __webpack_require__(30);
 var Util          = __webpack_require__(0);
 var EventEmitter  = __webpack_require__(4).EventEmitter;
 
@@ -14579,11 +14558,11 @@ function _noop() {}
 
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Connection   = __webpack_require__(8);
-var PoolSelector = __webpack_require__(29);
+var PoolSelector = __webpack_require__(30);
 
 module.exports = PoolNamespace;
 
@@ -14718,6 +14697,200 @@ PoolNamespace.prototype._getClusterNode = function _getClusterNode() {
     ? this._cluster._getNode(nodeId)
     : null;
 };
+
+
+/***/ }),
+/* 87 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const fs = __webpack_require__(20);
+
+function writeConsole(msg) {
+  console.log(msg);
+}
+
+class Logger {
+  constructor(output) {
+    this.output = output;
+    this.fileStream = null;
+    if (this.output === 'file' || this.output === 'both') {
+      this.fileStream = fs.createWriteStream('./mysql-async.log');
+    }
+    this.writeConsole = writeConsole;
+  }
+
+  writeFile(msg) {
+    this.fileStream.write(`${msg}\n`);
+  }
+
+  log(msg) {
+    switch (this.output) {
+      default:
+      case 'console':
+        this.writeConsole(msg);
+        break;
+      case 'file':
+        this.writeFile(msg);
+        break;
+      case 'both':
+        this.writeConsole(msg);
+        this.writeFile(msg);
+        break;
+    }
+  }
+
+  error(msg) {
+    let errorMsg = msg;
+    if (this.output === 'console') {
+      errorMsg = `\x1b[31m${msg}\x1b[0m`;
+    }
+    this.log(errorMsg);
+  }
+}
+
+module.exports = Logger;
+
+
+/***/ }),
+/* 88 */
+/***/ (function(module, exports) {
+
+const profilerDefaultConfig = {
+  trace: false,
+  slowQueryWarningTime: 200,
+  slowestQueries: 20,
+  timeInterval: 60000,
+};
+
+function updateExecutionTimes(object, queryTime) {
+  let returnObj = null;
+
+  if (object) {
+    const { totalExecutionTime, queryCount } = object;
+
+    returnObj = {
+      totalExecutionTime: totalExecutionTime + queryTime,
+      queryCount: queryCount + 1,
+    };
+  } else {
+    returnObj = {
+      totalExecutionTime: queryTime,
+      queryCount: 1,
+    };
+  }
+
+  return returnObj;
+}
+
+class Profiler {
+  constructor(logger, config) {
+    this.startTime = Date.now();
+    this.logger = logger;
+    this.config = Object.assign({}, profilerDefaultConfig, config);
+    this.profiles = {
+      executionTimes: [],
+      resources: {},
+      slowQueries: [],
+    };
+    this.slowQueryLimit = 0;
+  }
+
+  getFastestSlowQuery() {
+    return this.profiles.slowQueries.reduce((acc, cur) => ((cur < acc) ? cur : acc));
+  }
+
+  addSlowQuery(sql, resource, queryTime) {
+    this.profiles.slowQueries.push({ sql, resource, queryTime });
+    if (this.profiles.slowQueries.length > this.config.slowestQueries) {
+      const min = this.getFastestSlowQuery();
+      this.profiles.slowQueries = this.profiles.slowQueries.filter(el => el !== min);
+      this.slowQueryLimit = this.getFastestSlowQuery();
+    }
+  }
+
+  profile(time, sql, resource) {
+    const interval = Math.floor((Date.now() - this.startTime) / this.config.timeInterval);
+    const queryTime = time[0] * 1e3 + time[1] * 1e-6;
+
+    this.profiles.resources[resource] = updateExecutionTimes(
+      this.profiles.resources[resource], queryTime,
+    );
+    this.profiles.executionTimes[interval] = updateExecutionTimes(
+      this.profiles.executionTimes[interval], queryTime,
+    );
+
+    if (this.slowQueryLimit < queryTime) {
+      this.addSlowQuery(sql, resource, queryTime);
+    }
+
+    if (this.slowQueryWarningTime < queryTime) {
+      this.logger.error(`[MySQL] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+    }
+
+    if (this.config.trace) {
+      this.logger.log(`[MySQL] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+    }
+  }
+}
+
+module.exports = Profiler;
+
+
+/***/ }),
+/* 89 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const mysql = __webpack_require__(11);
+
+function safeInvoke(callback, args) {
+  if (typeof callback === 'function') {
+    setImmediate(() => {
+      callback(args);
+    });
+  }
+}
+
+function prepareQuery(query, parameters) {
+  let sql = query;
+  if (parameters !== null && typeof parameters === 'object') {
+    sql = query.replace(/@(\w+)/g, (txt, key) => {
+      let result = txt;
+      if (Object.prototype.hasOwnProperty.call(parameters, key)) {
+        result = mysql.escape(parameters[key]);
+      } else if (Object.prototype.hasOwnProperty.call(parameters, `@${key}`)) {
+        result = mysql.escape(parameters[`@${key}`]);
+      }
+      return result;
+    });
+  }
+  return sql;
+}
+
+function typeCast(field, next) {
+  let dateString = '';
+  switch (field.type) {
+    case 'DATETIME':
+    case 'DATETIME2':
+    case 'TIMESTAMP':
+    case 'TIMESTAMP2':
+    case 'NEWDATE':
+    case 'DATE':
+      dateString = field.string();
+      if (field.type === 'DATE') dateString += ' 00:00:00';
+      return (new Date(dateString)).getTime();
+    case 'TINY':
+      if (field.length === 1) {
+        return (field.string() !== '0');
+      }
+      return next();
+    case 'BIT':
+      return Number(field.buffer()[0]);
+    default:
+      return next();
+  }
+}
+
+module.exports = { safeInvoke, prepareQuery, typeCast };
 
 
 /***/ })
