@@ -3,6 +3,7 @@ const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 const serverConfig = {
   entry: './entry/server.js',
@@ -32,7 +33,6 @@ const clientConfig = {
 
 const nuiConfig = {
   entry: './entry/nui.js',
-  target: 'node',
   mode: 'production',
   output: {
     filename: 'app.js',
@@ -40,6 +40,9 @@ const nuiConfig = {
   },
   optimization: {
     minimize: true,
+  },
+  externals: {
+    moment: 'moment',
   },
   module: {
     rules: [
@@ -50,6 +53,10 @@ const nuiConfig = {
       {
         test: /\.css$/,
         loader: [MiniCssExtractPlugin.loader, 'css-loader'],
+      },
+      {
+        test: /\.styl(us)?$/,
+        loader: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader'],
       },
       {
         test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
@@ -92,6 +99,7 @@ const nuiConfig = {
         }],
       },
     }),
+    new VuetifyLoaderPlugin(),
   ],
 };
 

@@ -2,7 +2,7 @@ const profilerDefaultConfig = {
   trace: false,
   slowQueryWarningTime: 200,
   slowestQueries: 20,
-  timeInterval: 60000,
+  timeInterval: 300000,
 };
 
 function updateExecutionTimes(object, queryTime) {
