@@ -10,12 +10,13 @@ Chart.defaults.global.defaultFontFamily = "'Fira Sans', 'sans-serif'";
 export default {
   data() {
     return {
+      myChart: null,
     };
   },
   methods: {
     createChart(chartId) {
       const ctx = document.getElementById(chartId);
-      const myChart = new Chart(ctx, {
+      this.myChart = new Chart(ctx, {
         type: this.type,
         data: {
           labels: this.labels,
@@ -63,6 +64,20 @@ export default {
   },
   mounted() {
     this.createChart(this.id);
-  }
+  },
+  watch: {
+    datasets() {
+      if (this.myChart) {
+        this.myChart.data.datasets = this.datasets;
+        this.myChart.update();
+      }
+    },
+    labels() {
+      if (this.myChart) {
+        this.myChart.data.labels = this.labels;
+        this.myChart.update();
+      }
+    },
+  },
 }
 </script>

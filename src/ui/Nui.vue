@@ -8,7 +8,7 @@
               <v-system-bar window dark>
                 mysql-async Explorer
                 <v-spacer></v-spacer>
-                <v-icon>close</v-icon>
+                <v-icon @click="close()">close</v-icon>
               </v-system-bar>
               <v-tabs
                 v-model="active"
@@ -55,7 +55,7 @@
                       <template v-slot:items="props">
                         <td>{{ props.item.resource }}</td>
                         <td>{{ props.item.sql }}</td>
-                        <td>{{ props.item.time }}</td>
+                        <td>{{ props.item.queryTime }}</td>
                       </template>
                     </v-data-table>
                   </v-flex>
@@ -116,7 +116,7 @@ export default {
         {
           resource: 'memes',
           sql: 'SELECT * FROM memes',
-          time: 5000,
+          queryTime: 5000,
         },
       ],
       headers: [
@@ -131,7 +131,7 @@ export default {
         },
         { 
           text: 'Execution Time (ms)',
-          value: 'time',
+          value: 'queryTime',
         },
       ],
     };
@@ -148,7 +148,7 @@ export default {
         }),
       });
     },
-    toggleShow() {
+    onToggleShow() {
       this.showInterface = !this.showInterface;
     },
     onSlowQueryData({ slowQueries }) {
@@ -159,8 +159,8 @@ export default {
     onTimeData({ timeData }) {
       if (Array.isArray(timeData) && timeData.length === 3) {
         this.timeData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load' }, timeData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time' }, timeData[1]),
+          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, timeData[0]),
+          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, timeData[1]),
           Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, timeData[2]),
         ];
         let labels = [];
@@ -177,8 +177,8 @@ export default {
     onResourceData({ resourceData }) {
       if (Array.isArray(resourceData) && resourceData.length === 3) {
         this.resourceData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load' }, resourceData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time' }, resourceData[1]),
+          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, resourceData[0]),
+          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, resourceData[1]),
           Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, resourceData[2]),
         ];
       }

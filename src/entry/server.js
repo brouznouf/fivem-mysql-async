@@ -66,3 +66,12 @@ global.on('onServerResourceStart', (resourcename) => {
     global.emit('MySQLReady'); // avoid ESX bugs
   }
 });
+
+global.onNet('mysql-async:request-data', () => {
+  if (isReady) {
+    const src = global.source;
+    global.emitNet('mysql-async:update-resource-data', src, profiler.profiles.resources);
+    global.emitNet('mysql-async:update-time-data', src, profiler.profiles.executionTimes);
+    global.emitNet('mysql-async:update-slow-queries', src, profiler.profiles.slowQueries);
+  }
+});

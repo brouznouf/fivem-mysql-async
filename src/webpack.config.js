@@ -63,16 +63,6 @@ const nuiConfig = {
         loader: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader'],
       },
       {
-        test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
-        use: [{
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-            outputPath: './img',
-          },
-        }],
-      },
-      {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
         use: [{
           loader: 'file-loader',
