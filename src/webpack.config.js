@@ -44,6 +44,10 @@ const nuiConfig = {
   externals: {
     moment: 'moment',
   },
+  stats: {
+    children: false,
+    warnings: false,
+  },
   module: {
     rules: [
       {

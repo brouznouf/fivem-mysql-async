@@ -28,8 +28,8 @@
                   <v-flex xs12 pa-2 style="height: 480px;">
                     <m-chart
                       id="time-graph"
-                      :labels="cdata.labels" 
-                      :datasets="cdata.datasets"
+                      :labels="timeLabels" 
+                      :datasets="timeData"
                       height="540"
                     ></m-chart>
                   </v-flex>
@@ -38,8 +38,8 @@
                   <v-flex xs12 pa-2 style="height: 480px;">
                     <m-chart
                       id="resource-graph"
-                      :labels="cdata.labels"
-                      :datasets="cdata.datasets"
+                      :labels="resourceLabels"
+                      :datasets="resourceData"
                       height="540"
                     ></m-chart>
                   </v-flex>
@@ -73,7 +73,6 @@
 
 <script>
 import MChart from './components/MChart.vue';
-import mydata from './components/chart-data.js'
 
 export default {
   components: {
@@ -81,8 +80,7 @@ export default {
   },
   data() {
     return {
-      showInterface: true,
-      ratio: 496 / 1391,
+      showInterface: false,
       colorGraphLoad: {
         backgroundColor: [
           'rgba(54, 73, 93, 0.5)',
@@ -103,19 +101,22 @@ export default {
       },
       colorGraphCount: {
         backgroundColor: [
-          'rgba(54,73,93,.5)',
+          'rgba(62, 128, 113, 0.5)',
         ],
         borderColor: [
-          '#36495d',
+          '#3e8071',
         ],
         borderWidth: 3,
       },
-      cdata: mydata.data,
+      resourceData: [],
+      resourceLabels: [],
+      timeLabels: [],
+      timeData: [],
       slowqueries: [
         {
-          resource: 'es_extended',
-          sql: 'SELECT * FROM items',
-          time: 512,
+          resource: 'memes',
+          sql: 'SELECT * FROM memes',
+          time: 5000,
         },
       ],
       headers: [
@@ -134,6 +135,63 @@ export default {
         },
       ],
     };
+  },
+  destroyed() {
+    window.removeEventListener('message', this.listener);
+  },
+  methods: {
+    close() {
+      fetch('http://mysql-async/close-explorer', {
+        method: 'post',
+        body: JSON.stringify({
+          close: true,
+        }),
+      });
+    },
+    toggleShow() {
+      this.showInterface = !this.showInterface;
+    },
+    onSlowQueryData({ slowQueries }) {
+      if (Array.isArray(slowQueries)) {
+        this.slowqueries = slowQueries;
+      }
+    },
+    onTimeData({ timeData }) {
+      if (Array.isArray(timeData) && timeData.length === 3) {
+        this.timeData = [
+          Object.assign({}, this.colorGraphLoad, { label: 'Server Load' }, timeData[0]),
+          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time' }, timeData[1]),
+          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, timeData[2]),
+        ];
+        let labels = [];
+        for (let i = timeData[0].length - 1; i > -1; i -= 1) {
+          if (i !== 0) {
+            labels.push(`-${i*5}min`);
+          } else {
+            labels.push('now');
+          }
+        }
+        this.timeLabels = labels;
+      }
+    },
+    onResourceData({ resourceData }) {
+      if (Array.isArray(resourceData) && resourceData.length === 3) {
+        this.resourceData = [
+          Object.assign({}, this.colorGraphLoad, { label: 'Server Load' }, resourceData[0]),
+          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time' }, resourceData[1]),
+          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, resourceData[2]),
+        ];
+      }
+    },
+    onResourceLabels({ resourceLabels }) {
+      this.resourceLabels = resourceLabels;
+    },
+  },
+  mounted() {
+    this.listener = window.addEventListener('message', (event) => {
+      const item = event.data || event.detail;
+      if (this[item.type]) this[item.type](item);
+    });
   },
   name: 'app',
 }
