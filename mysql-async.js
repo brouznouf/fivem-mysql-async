@@ -14715,7 +14715,7 @@ module.exports = Logger;
 const profilerDefaultConfig = {
   trace: false,
   slowQueryWarningTime: 200,
-  slowestQueries: 20,
+  slowestQueries: 21,
   timeInterval: 300000,
 };
 
