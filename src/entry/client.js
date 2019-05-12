@@ -64,7 +64,7 @@ window.onNet('mysql-async:update-resource-data', (resourceData) => {
           data: arrayToSortAndMap.map(el => el.queryTime),
         },
         {
-          data: arrayToSortAndMap.map(el => el.queryTime / el.count),
+          data: arrayToSortAndMap.map(el => ((el.count > 0) ? el.queryTime / el.count : 0)),
         },
         {
           data: arrayToSortAndMap.map(el => el.count),
@@ -88,7 +88,8 @@ window.onNet('mysql-async:update-time-data', (timeData) => {
           data: timeArray.map(el => el.totalExecutionTime),
         },
         {
-          data: timeArray.map(el => el.totalExecutionTime / el.queryCount),
+          data: timeArray.map(el => ((el.queryCount > 0) ? el.totalExecutionTime / el.queryCount
+            : 0)),
         },
         {
           data: timeArray.map(el => el.queryCount),

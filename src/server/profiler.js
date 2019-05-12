@@ -61,6 +61,15 @@ class Profiler {
     this.profiles.executionTimes[interval] = updateExecutionTimes(
       this.profiles.executionTimes[interval], queryTime,
     );
+    // fix execution times manually
+    for (let i = 0; i < interval; i += 1) {
+      if (!this.profiles.executionTimes[i]) {
+        this.profiles.executionTimes[i] = {
+          totalExecutionTime: 0,
+          queryCount: 0,
+        };
+      }
+    }
 
     if (this.slowQueryLimit < queryTime) {
       this.addSlowQuery(sql, resource, queryTime);
