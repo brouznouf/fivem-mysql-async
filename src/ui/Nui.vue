@@ -163,8 +163,8 @@ export default {
           Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, timeData[1]),
           Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, timeData[2]),
         ];
-        let labels = [];
-        for (let i = timeData[0].length - 1; i > -1; i -= 1) {
+        const labels = [];
+        for (let i = timeData[0].data.length - 1; i > -1; i -= 1) {
           if (i !== 0) {
             labels.push(`-${i*5}min`);
           } else {
