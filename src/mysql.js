@@ -167,6 +167,8 @@ function parseConnectingString(connectionString) {
 }
 
 let isReady = false;
+let keepAliveSeconds = 0;
+
 global.on('onServerResourceStart', (resourcename) => {
   if (resourcename === 'mysql-async') {
     // maybe default to addr=localhost;pwd=;database=essentialmode;uid=root
@@ -178,8 +180,22 @@ global.on('onServerResourceStart', (resourcename) => {
     pool = mysql.createPool(config);
     global.emit('onMySQLReady'); // avoid ESX bugs
     isReady = true;
+
+    keepAliveSeconds = global.GetConvarInt('mysql_keep_alive_seconds', 0);
+    if (keepAliveSeconds > 0) {
+      console.log('[MySQL] Enabling keep alive queries');
+      keepAlive();
+    }
   }
   if (isReady) {
     global.emit('MySQLReady'); // avoid ESX bugs
   }
 });
+
+function keepAlive() {
+  if (!keepAliveSeconds || keepAliveSeconds <= 0) return; // Safeguard to stop when disabled
+
+  execute({ sql: 'SHOW TABLES', typeCast }, 'keepAlive').then((result) => {
+    setTimeout(keepAlive, keepAliveSeconds * 1000);
+  });
+}

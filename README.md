@@ -24,7 +24,16 @@ server_script '@mysql-async/lib/MySQL.lua'
 
 Add this convar to your server configuration and change the values according to your MySQL installation:
 
-`set mysql_connection_string "server=localhost;uid=mysqluser;password=password;database=fivem"`
+```
+set mysql_connection_string "server=localhost;uid=mysqluser;password=password;database=fivem"
+```
+
+### Keep alive
+In order to enable a keep alive query, add the following convar to your server configuration. This will execute a query on the given interval. By default this is disabled. If enabling, recommended is doing this every 60 seconds. Setting it to `0` will explicitely disable this feature.
+
+```
+set mysql_keep_alive_seconds 60
+``` 
 
 ### Alternatively mysql.js connection string
 
