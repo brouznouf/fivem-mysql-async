@@ -123,7 +123,7 @@ window.setInterval(() => {
   if (isNuiActive) {
     window.emitNet('mysql-async:request-data');
   }
-}, 30000);
+}, 300000);
 
 window.onNet('mysql-async:update-resource-data', (resourceData) => {
   let arrayToSortAndMap = [];
