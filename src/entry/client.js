@@ -1,5 +1,5 @@
 let isNuiActive = false;
-const currentResourceName = global.GetCurrentResourceName();
+const currentResourceName = window.GetCurrentResourceName();
 
 function NuiMessage(msg) {
   window.SendNuiMessage(JSON.stringify(msg));

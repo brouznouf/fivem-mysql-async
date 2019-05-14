@@ -5,7 +5,7 @@ server_scripts {
   'ghmattimysql-server.lua',
 }
 
-client_scripts 'ghmattimysql-client.js'
+client_script 'ghmattimysql-client.js'
 
 files {
   'ui/index.html',
@@ -25,3 +25,5 @@ files {
   'ui/fonts/MaterialIcons-Regular.woff',
   'ui/fonts/MaterialIcons-Regular.woff2',
 }
+
+ui_page 'ui/index.html'
