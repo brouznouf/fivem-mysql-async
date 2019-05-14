@@ -25,17 +25,18 @@ Browse to `/resources/ghmattimysql/` and open the `config.json` file. This shows
 
 ### Configuration via `mysql_connection_string`
 
-For this to work you need to delete the `config.json` file in your `/resources/ghmattimysql/` folder. Then the `server.cfg` needs to be modified by adding `set mysql_connection_string "mysql://mysqluser:password@localhost/database?dateStrings=true"` before the `start ghmattimysql` line. As an example it can look like this:
+For this to work you need to delete the `config.json` file in your `/resources/ghmattimysql/` folder. Then the `server.cfg` needs to be modified by adding `set mysql_connection_string "mysql://mysqluser:password@localhost/database"` before the `start ghmattimysql` line. As an example it can look like this:
 
 ```
-set mysql_connection_string "mysql://mysqluser:password@localhost/database?dateStrings=true"
+set mysql_connection_string "mysql://mysqluser:password@localhost/database"
 start ghmattimysql
 ```
 
 ### Additional Configuration Options
 The following additional options are available in the `server.cfg` which you execute. These have also to be set before `start ghmattimysql`
 * `set mysql_debug 1`: Prints out the actual consumed query.
-* `set mysql_use_boolean 1`: Converts the results of `TINYINT(1)` into true / false. This option is recommended for running lua scripts, as `if (0)` returns true.
+* `set mysql_debug_output "console"`: Select where to output the log, accepts `console`, `file`, and `both`. In case of `both` and `file` a file named `ghmattimysql.log` in your main server folder will be created.
+* `set mysql_slow_query_warning 100`: Sets a limit in ms, queries slower than this limit will be displayed with a warning at the specified location of `mysql_debug_output`, see above.
 
 ## API
 

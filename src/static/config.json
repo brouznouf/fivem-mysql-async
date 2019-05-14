@@ -3,6 +3,5 @@
     "password": "password",
     "host": "localhost",
     "port": 3306,
-    "database": "test",
-    "dateStrings": true
+    "database": "test"
 }
