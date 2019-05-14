@@ -103,12 +103,14 @@ function NuiCallback(name, callback) {
 }
 
 function setNuiActive(boolean = true) {
-  if (boolean) {
-    window.emitNet('mysql-async:request-data');
+  if (boolean !== isNuiActive) {
+    if (boolean) {
+      window.emitNet('mysql-async:request-data');
+    }
+    isNuiActive = boolean;
+    NuiMessage({ type: 'onToggleShow' });
+    window.SetNuiFocus(boolean, boolean);
   }
-  isNuiActive = boolean;
-  NuiMessage({ type: 'onToggleShow' });
-  window.SetNuiFocus(boolean, boolean);
 }
 
 window.RegisterCommand('mysql', () => {
