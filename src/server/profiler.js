@@ -1,6 +1,6 @@
 const profilerDefaultConfig = {
   trace: false,
-  slowQueryWarningTime: 200,
+  slowQueryWarningTime: 100,
   slowestQueries: 21,
   timeInterval: 300000,
 };
