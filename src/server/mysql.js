@@ -10,6 +10,20 @@ class MySQL {
     } else {
       this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
     }
+
+    this.pool.query('SELECT VERSION()', (error, result) => {
+      let versionPrefix = 'MariaDB';
+      if (!error) {
+        const version = result[0]['VERSION()'];
+        if (version[0] === '5' || version[0] === '8') {
+          versionPrefix = 'MySQL';
+        }
+        profiler.setVersion(`${versionPrefix}-${version}`);
+        logger.log('\x1b[32m[mysql-async]\x1b[0m Database server connection established.');
+      } else {
+        logger.error(`[ERROR] ${error.message}`);
+      }
+    });
   }
 
   execute(sql, invokingResource, connection) {

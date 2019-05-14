@@ -27,6 +27,7 @@ function updateExecutionTimes(object, queryTime) {
 
 class Profiler {
   constructor(logger, config) {
+    this.version = 'MySQL';
     this.startTime = Date.now();
     this.logger = logger;
     this.config = Object.assign({}, profilerDefaultConfig, config);
@@ -49,6 +50,10 @@ class Profiler {
       this.profiles.slowQueries = this.profiles.slowQueries.filter(el => el !== min);
       this.slowQueryLimit = this.getFastestSlowQuery();
     }
+  }
+
+  setVersion(version) {
+    this.version = version;
   }
 
   profile(time, sql, resource) {
@@ -76,11 +81,11 @@ class Profiler {
     }
 
     if (this.slowQueryWarningTime < queryTime) {
-      this.logger.error(`[MySQL] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+      this.logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
 
     if (this.config.trace) {
-      this.logger.log(`[MySQL] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+      this.logger.log(`[${this.version}] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
   }
 }
