@@ -195,7 +195,7 @@ global.on('onServerResourceStart', (resourcename) => {
 function keepAlive() {
   if (!keepAliveSeconds || keepAliveSeconds <= 0) return; // Safeguard to stop when disabled
 
-  execute({ sql: 'SHOW TABLES', typeCast }, 'keepAlive').then((result) => {
+  execute({ sql: 'SELECT 1', typeCast }, 'keepAlive').then(() => {
     setTimeout(keepAlive, keepAliveSeconds * 1000);
   });
 }

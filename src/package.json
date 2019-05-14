@@ -1,6 +1,6 @@
 {
   "name": "mysql-async",
-  "version": "3.0.11",
+  "version": "3.0.12",
   "description": "fivem-mysql-async",
   "private": true,
   "scripts": {
