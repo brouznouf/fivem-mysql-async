@@ -11,7 +11,7 @@ exports('executeSync', function (query, parameters)
   exports.ghmattimysql:execute(query, safeParameters(parameters), function (result)
     res = result
     finishedQuery = true
-  end)
+  end, GetInvokingResource())
   repeat Citizen.Wait(0) until finishedQuery == true
   return res
 end)
@@ -22,7 +22,7 @@ exports('scalarSync', function (query, parameters)
   exports.ghmattimysql:scalar(query, safeParameters(parameters), function (result)
     res = result
     finishedQuery = true
-  end)
+  end, GetInvokingResource())
   repeat Citizen.Wait(0) until finishedQuery == true
   return res
 end)
@@ -33,7 +33,7 @@ exports('transactionSync', function (query, parameters)
   exports.ghmattimysql:transaction(query, safeParameters(parameters), function (result)
     res = result
     finishedTransaction = true
-  end)
+  end, GetInvokingResource())
   repeat Citizen.Wait(0) until finishedTransaction == true
   return res
 end)

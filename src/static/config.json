@@ -4,6 +4,5 @@
     "host": "localhost",
     "port": 3306,
     "database": "test",
-    "connectionLimit": 10,
     "dateStrings": true
 }
