@@ -14837,8 +14837,8 @@ module.exports = Profiler;
 const { parseUrl } = __webpack_require__(9);
 
 const defaultCfg = {
-  host: 'localhost',
-  username: 'root',
+  host: '127.0.0.1',
+  user: 'root',
   database: 'fivem',
   supportBigNumbers: true,
   multipleStatements: true,
