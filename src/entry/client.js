@@ -14,12 +14,14 @@ function NuiCallback(name, callback) {
 }
 
 function setNuiActive(boolean = true) {
-  if (boolean) {
-    window.emitNet(`${currentResourceName}:request-data`);
+  if (boolean !== isNuiActive) {
+    if (boolean) {
+      window.emitNet(`${currentResourceName}:request-data`);
+    }
+    isNuiActive = boolean;
+    NuiMessage({ type: 'onToggleShow' });
+    window.SetNuiFocus(boolean, boolean);
   }
-  isNuiActive = boolean;
-  NuiMessage({ type: 'onToggleShow' });
-  window.SetNuiFocus(boolean, boolean);
 }
 
 window.RegisterCommand('mysql', () => {
@@ -51,9 +53,20 @@ window.onNet(`${currentResourceName}:update-resource-data`, (resourceData) => {
     }
   }
   if (arrayToSortAndMap.length > 0) {
-    arrayToSortAndMap.sort((a, b) => a.totalExecutionTime - b.totalExecutionTime);
+    arrayToSortAndMap.sort((a, b) => a.queryTime - b.queryTime);
     const len = arrayToSortAndMap.length;
     arrayToSortAndMap = arrayToSortAndMap.filter((_, index) => index > len - 31);
+    arrayToSortAndMap.sort((a, b) => {
+      const resourceA = a.resource.toLowerCase();
+      const resourceB = b.resource.toLowerCase();
+      let result = 0;
+      if (resourceA < resourceB) {
+        result = -1;
+      } else if (resourceA > resourceB) {
+        result = 1;
+      }
+      return result;
+    });
     NuiMessage({
       type: 'onResourceLabels',
       resourceLabels: arrayToSortAndMap.map(el => el.resource),
