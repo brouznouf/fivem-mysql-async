@@ -24,6 +24,23 @@ class MySQL {
         logger.error(`[ERROR] ${error.message}`);
       }
     });
+
+    // for people with faulty network configurations, to keep the handle for timing out
+    // might be some tcp / udp issue
+    if (mysqlConfig.keepAlive) {
+      this.ping(Number(mysqlConfig.keepAlive));
+    }
+  }
+
+  // for people with faulty network configurations, to keep the handle for timing out
+  // might be some tcp / udp issue
+  // actual function that keeps the connection alive
+  ping(keepAliveTimeout) {
+    if (keepAliveTimeout && keepAliveTimeout > 0) {
+      this.execute({ sql: 'SELECT 1' }, 'mysql-async:keepAlive').then(() => {
+        setTimeout(() => this.ping(keepAliveTimeout), keepAliveTimeout * 1000);
+      });
+    }
   }
 
   execute(sql, invokingResource, connection) {

@@ -8,7 +8,7 @@ const defaultCfg = {
   multipleStatements: true,
 };
 
-// add some more functionality and improve the C# connection string parsing
+
 function parseConnectingString(connectionString) {
   let cfg = {};
   if (/(?:database|initial\scatalog)=(?:(.*?);|(.*))/gi.test(connectionString)) {
