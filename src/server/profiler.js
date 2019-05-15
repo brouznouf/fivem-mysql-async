@@ -75,6 +75,7 @@ class Profiler {
         };
       }
     }
+    // todo: cull old intervals
 
     if (this.slowQueryLimit < queryTime) {
       this.addSlowQuery(sql, resource, queryTime);
