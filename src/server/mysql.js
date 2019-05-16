@@ -18,7 +18,7 @@ class MySQL {
         if (version[0] === '5' || version[0] === '8') {
           versionPrefix = 'MySQL';
         }
-        profiler.setVersion(`${versionPrefix}-${version}`);
+        profiler.setVersion(`${versionPrefix}:${version}`);
         logger.log('\x1b[32m[mysql-async]\x1b[0m Database server connection established.');
       } else {
         logger.error(`[ERROR] ${error.message}`);
