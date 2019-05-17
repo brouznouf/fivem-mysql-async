@@ -5139,7 +5139,7 @@ global.on('onServerResourceStart', (resourcename) => {
     // needs to move to a new file
     const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
     if (connectionString === 'Empty') {
-      logger.Error('Empty mysql_connection_string detected.');
+      logger.error('Empty mysql_connection_string detected.');
       throw new Error('Empty mysql_connection_string detected.');
     }
     config = parseSettings(connectionString);
