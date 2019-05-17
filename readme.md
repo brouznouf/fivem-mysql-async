@@ -8,6 +8,7 @@ A mysql middleware for [FiveM](https://fivem.net)
   * [Configuration via `config.json`](#configuration-via-configjson)
   * [Configuration via `mysql_connection_string`](#configuration-via-mysql_connection_string)
   * [Additional Configuration Options](#additional-configuration-options)
+* [GUI](#gui)
 * [API](#api)
   * [execute](#execute)
   * [scalar](#scalar)
@@ -37,6 +38,10 @@ The following additional options are available in the `server.cfg` which you exe
 * `set mysql_debug 1`: Prints out the actual consumed query.
 * `set mysql_debug_output "console"`: Select where to output the log, accepts `console`, `file`, and `both`. In case of `both` and `file` a file named `ghmattimysql.log` in your main server folder will be created.
 * `set mysql_slow_query_warning 100`: Sets a limit in ms, queries slower than this limit will be displayed with a warning at the specified location of `mysql_debug_output`, see above.
+
+## GUI
+
+Since the newest version, anyone with ace admin rights can open the GUI by typing `mysql` in the F8 console. This opens a profiling view of the data collected by this middleware, that might help you optimize resources and queries. You can disable the viewing of certain data by clicking on the respective entry in the legends, and can browse a table of the 21 slowest performing queries.
 
 ## API
 
