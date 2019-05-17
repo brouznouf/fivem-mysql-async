@@ -5234,14 +5234,6 @@ class MySQL {
 
 module.exports = MySQL;
 
-function keepAlive() {
-  if (!keepAliveSeconds || keepAliveSeconds <= 0) return; // Safeguard to stop when disabled
-
-  execute({ sql: 'SELECT 1', typeCast }, 'keepAlive').then(() => {
-    setTimeout(keepAlive, keepAliveSeconds * 1000);
-  });
-}
-
 
 /***/ }),
 /* 33 */
