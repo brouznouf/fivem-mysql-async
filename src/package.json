@@ -1,10 +1,10 @@
 {
   "name": "mysql-async",
-  "version": "3.0.12",
+  "version": "3.1.0",
   "description": "fivem-mysql-async",
   "private": true,
   "scripts": {
-    "build": "webpack"
+    "build": "webpack --progress"
   },
   "contributors": [
     "Joel Wurtz",
@@ -12,10 +12,28 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "mysql": "^2.17.1"
+    "chart.js": "^2.8.0",
+    "material-design-icons-iconfont": "^5.0.1",
+    "mysql": "^2.17.1",
+    "vue": "^2.6.10",
+    "vuetify": "^1.5.14"
   },
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "@intervolga/optimize-cssnano-plugin": "^1.0.6",
+    "@vue/cli-plugin-eslint": "^3.7.0",
+    "@vue/cli-service": "^3.7.0",
+    "@vue/eslint-config-airbnb": "^4.0.0",
+    "babel-eslint": "^10.0.1",
+    "css-loader": "^2.1.1",
+    "eslint": "^4.19.1",
+    "file-loader": "^3.0.1",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.6.0",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue-loader": "^15.7.0",
+    "vue-template-compiler": "^2.6.10",
+    "vuetify-loader": "^1.2.2",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.2"
   }
