@@ -53,9 +53,7 @@ class MySQL {
         if (error) reject(error);
         resolve(result);
       });
-    });
-
-    queryPromise.catch((error) => {
+    }).catch((error) => {
       this.logger.error(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql.sql}": ${error.message}`);
     });
 
