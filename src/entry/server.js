@@ -14,7 +14,7 @@ global.exports('mysql_execute', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result) ? result.affectedRows : 0);
-  });
+  }).catch(() => {});
 });
 
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
@@ -22,7 +22,7 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, result);
-  });
+  }).catch(() => {});
 });
 
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
@@ -30,7 +30,7 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
-  });
+  }).catch(() => {});
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
@@ -38,10 +38,12 @@ global.exports('mysql_insert', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result) ? result.insertId : 0);
-  });
+  }).catch(() => {});
 });
 
 let isReady = false;
+global.exports('is_ready', () => isReady);
+
 global.on('onServerResourceStart', (resourcename) => {
   if (resourcename === 'mysql-async') {
     const trace = global.GetConvarInt('mysql_debug', 0);
@@ -54,16 +56,13 @@ global.on('onServerResourceStart', (resourcename) => {
     const connectionString = global.GetConvar('mysql_connection_string', 'Empty');
     if (connectionString === 'Empty') {
       logger.error('Empty mysql_connection_string detected.');
-      throw new Error('Empty mysql_connection_string detected.');
-    }
-    config = parseSettings(connectionString);
+    } else {
+      config = parseSettings(connectionString);
 
-    mysql = new MySQL(config, logger, profiler);
-    global.emit('onMySQLReady'); // avoid ESX bugs
-    isReady = true;
-  }
-  if (isReady) {
-    global.emit('MySQLReady'); // avoid ESX bugs
+      mysql = new MySQL(config, logger, profiler);
+      global.emit('onMySQLReady'); // avoid old ESX bugs
+      isReady = true;
+    }
   }
 });
 
