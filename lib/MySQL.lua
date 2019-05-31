@@ -182,25 +182,15 @@ end
 --    return exports['mysql-async']:mysql_transaction(querys, safeParameters(params), func)
 --end
 
-local isReady = false
-local callbackDictionary = {}
-local callbackConsumed = {}
-
-AddEventHandler('MySQLReady', function ()
-    isReady = true
-    for i, cb in ipairs(callbackDictionary) do
-        if not callbackConsumed[i] then
-            callbackConsumed[i] = true
-            cb()
-        end
-    end
-end)
-
 function MySQL.ready (callback)
-    if isReady then
+    Citizen.CreateThread(function ()
+        -- add some more error handling
+        while GetResourceState('mysql-async') ~= 'started' do
+            Citizen.Wait(0)
+        end
+        while not exports['mysql-async']:is_ready() do
+            Citizen.Wait(0)
+        end
         callback()
-    else
-        table.insert(callbackDictionary, callback)
-        table.insert(callbackConsumed, false)
-    end
+    end)
 end
