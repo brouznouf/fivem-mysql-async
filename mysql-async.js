@@ -5116,7 +5116,7 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
-  });
+  }).catch(() => {});
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
