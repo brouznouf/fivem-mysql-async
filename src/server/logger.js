@@ -1,9 +1,5 @@
 const fs = require('fs');
 
-function writeConsole(msg) {
-  console.log(msg);
-}
-
 class Logger {
   constructor(output) {
     this.output = output;
@@ -11,7 +7,7 @@ class Logger {
     if (this.output === 'file' || this.output === 'both') {
       this.fileStream = fs.createWriteStream('./mysql-async.log');
     }
-    this.writeConsole = writeConsole;
+    this.writeConsole = msg => console.log(msg);
   }
 
   writeFile(msg) {
