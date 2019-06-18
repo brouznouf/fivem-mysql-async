@@ -190,7 +190,9 @@ export default {
   mounted() {
     this.listener = window.addEventListener('message', (event) => {
       const item = event.data || event.detail;
-      if (this[item.type]) this[item.type](item);
+      if (item.type) {
+        if (this[item.type]) this[item.type](item);
+      }
     });
   },
   name: 'app',
@@ -198,12 +200,6 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Fira Sans', sans-serif !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 ::-webkit-scrollbar {
   width: 0;
   display: inline !important;
@@ -241,13 +237,5 @@ export default {
   src: local('Fira Sans Bold'), local('FiraSans-Bold'),
        url('./assets/fonts/fira-sans-v9-latin-700.woff2') format('woff2'),
        url('./assets/fonts/fira-sans-v9-latin-700.woff') format('woff');
-}
-
-* {
-  font-family: 'Fira Sans', 'sans-serif';
-}
-
-.display-1, .display-2, .headline, .title, .subheading {
-  font-family: 'Alegreya Sans', 'sans-serif'!important;
 }
 </style>
