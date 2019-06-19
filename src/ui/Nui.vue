@@ -199,43 +199,28 @@ export default {
 }
 </script>
 
-<style>
-::-webkit-scrollbar {
-  width: 0;
-  display: inline !important;
-}
+<style lang="stylus">
+$body-font-family = 'Fira Sans', sans-serif;
+@require '~vuetify/src/stylus/app.styl';
 
-.app-background, .theme--light.application {
-  background: rgb(0, 0, 0, 0.5) !important;
-}
+html
+  overflow-y auto
 
-/* fira-sans-regular - latin */
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Fira Sans Regular'), local('FiraSans-Regular'),
-       url('./assets/fonts/fira-sans-v9-latin-regular.woff2') format('woff2'),
-       url('./assets/fonts/fira-sans-v9-latin-regular.woff') format('woff');
-}
+.app-background, .theme--light.application
+  background rgba(0, 0, 0, 0.5) !important
 
-/* fira-sans-italic - latin */
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: italic;
-  font-weight: 400;
-  src: local('Fira Sans Italic'), local('FiraSans-Italic'),
-       url('./assets/fonts/fira-sans-v9-latin-italic.woff2') format('woff2'),
-       url('./assets/fonts/fira-sans-v9-latin-italic.woff') format('woff');
-}
+font-url(file)
+  return './assets/fonts/' + file
 
-/* fira-sans-700 - latin */
-@font-face {
-  font-family: 'Fira Sans';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Fira Sans Bold'), local('FiraSans-Bold'),
-       url('./assets/fonts/fira-sans-v9-latin-700.woff2') format('woff2'),
-       url('./assets/fonts/fira-sans-v9-latin-700.woff') format('woff');
-}
+webfont(family, file, style = 'normal', weight = 400)
+  @font-face
+    font-family family
+    font-style style
+    font-weight weight 
+    src url(font-url(file + '.woff2')) format('woff2'),
+        url(font-url(file + '.woff')) format('woff')
+
+webfont('Fira Sans', 'fira-sans-v9-latin-regular')
+webfont('Fira Sans', 'fira-sans-v9-latin-italic', italic)
+webfont('Fira Sans', 'fira-sans-v9-latin-700', normal, 700)
 </style>
