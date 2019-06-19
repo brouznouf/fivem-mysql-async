@@ -32,7 +32,7 @@ class Logger {
 
   error(msg) {
     let errorMsg = msg;
-    if (this.output === 'console') {
+    if (this.output !== 'file') {
       errorMsg = `\x1b[31m${msg}\x1b[0m`;
     }
     this.log(errorMsg);
