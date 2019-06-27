@@ -22,18 +22,24 @@ function typeCast(field, next) {
   }
 }
 
+function mysqlConvertLegacyFormat(query, parameters) {
+  let sql = query;
+  const params = [];
+  sql = sql.replace(/@(\w+)/g, (txt) => {
+    if (Object.prototype.hasOwnProperty.call(parameters, txt)) {
+      params.push(parameters[txt]);
+      return '?';
+    }
+    return txt;
+  });
+  return { sql, params };
+}
+
 function prepareLegacyQuery(query, parameters) {
   let sql = query;
   let params = parameters;
   if (params !== null && typeof params === 'object' && !Array.isArray(params)) {
-    params = [];
-    sql = sql.replace(/@(\w+)/g, (txt) => {
-      if (Object.prototype.hasOwnProperty.call(parameters, txt)) {
-        params.push(parameters[txt]);
-        return '?';
-      }
-      return txt;
-    });
+    ({ sql, params } = mysqlConvertLegacyFormat(sql, params));
   }
   return [sql, params];
 }
