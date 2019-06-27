@@ -196,67 +196,29 @@ export default {
 }
 </script>
 
-<style>
-::-webkit-scrollbar {
-  width: 0;
-  display: inline !important;
-}
+<style lang="stylus">
+$body-font-family =  'Alegreya Sans', sans-serif;
+@require '~vuetify/src/stylus/app.styl';
 
-.app-background, .theme--light.application {
-  background: rgb(0, 0, 0, 0.5) !important;
-}
+html
+  overflow-y auto
 
-/* alegreya-sans-300 - latin */
-@font-face {
-  font-family: 'Alegreya Sans';
-  font-style: normal;
-  font-weight: 300;
-  src: local('Alegreya Sans Light'), local('AlegreyaSans-Light'),
-       url('../assets/fonts/alegreya-sans-v9-latin-300.woff2') format('woff2'),
-       url('../assets/fonts/alegreya-sans-v9-latin-300.woff') format('woff');
-}
+.app-background, .theme--light.application
+  background rgba(0, 0, 0, 0.5) !important
 
-/* alegreya-sans-regular - latin */
-@font-face {
-  font-family: 'Alegreya Sans';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Alegreya Sans Regular'), local('AlegreyaSans-Regular'),
-       url('../assets/fonts/alegreya-sans-v9-latin-regular.woff2') format('woff2'),
-       url('../assets/fonts/alegreya-sans-v9-latin-regular.woff') format('woff');
-}
+font-url(file)
+  return '../assets/fonts/' + file
 
-/* alegreya-sans-500 - latin */
-@font-face {
-  font-family: 'Alegreya Sans';
-  font-style: normal;
-  font-weight: 500;
-  src: local('Alegreya Sans Medium'), local('AlegreyaSans-Medium'),
-       url('../assets/fonts/alegreya-sans-v9-latin-500.woff2') format('woff2'),
-       url('../assets/fonts/alegreya-sans-v9-latin-500.woff') format('woff');
-}
+webfont(family, file, style = 'normal', weight = 400)
+  @font-face
+    font-family family
+    font-style style
+    font-weight weight 
+    src url(font-url(file + '.woff2')) format('woff2'),
+        url(font-url(file + '.woff')) format('woff')
 
-/* alegreya-sans-700 - latin */
-@font-face {
-  font-family: 'Alegreya Sans';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Alegreya Sans Bold'), local('AlegreyaSans-Bold'),
-       url('../assets/fonts/alegreya-sans-v9-latin-700.woff2') format('woff2'),
-       url('../assets/fonts/alegreya-sans-v9-latin-700.woff') format('woff');
-}
-
-* {
-  font-family: 'Alegreya Sans', 'sans-serif';
-}
-
-.display-1, .display-2, .headline, .title, .subheading {
-  font-family: 'Alegreya Sans', 'sans-serif'!important;
-}
-
-#app {
-  font-family: 'Alegreya Sans', sans-serif !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+webfont('Alegreya Sans', 'alegreya-sans-v9-latin-300', normal, 300)
+webfont('Alegreya Sans', 'alegreya-sans-v9-latin-regular')
+webfont('Alegreya Sans', 'alegreya-sans-v9-latin-500', normal, 500)
+webfont('Alegreya Sans', 'alegreya-sans-v9-latin-700', normal, 700)
 </style>
