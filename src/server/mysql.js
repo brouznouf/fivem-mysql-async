@@ -43,9 +43,7 @@ class MySQL {
         if (error) reject(error);
         resolve(result);
       });
-    });
-
-    queryPromise.catch((error) => {
+    }).catch((error) => {
       this.logger.error(`[ERROR] [${this.profiler.version}] [${invokingResource}] An error happens on MySQL for query "${this.formatQuery(sql)}": ${error.message}`);
     });
 

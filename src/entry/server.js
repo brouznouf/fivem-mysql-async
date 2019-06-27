@@ -28,7 +28,7 @@ global.exports('scalar', (query, parameters, callback, resource) => {
 
   mysql.execute({ sql, values, typeCast }, invokingResource).then((result) => {
     safeInvoke(cb, (result && result[0]) ? Object.values(result[0])[0] : null);
-  });
+  }).catch(() => {});
 });
 
 global.exports('execute', (query, parameters, callback, resource) => {
@@ -40,7 +40,7 @@ global.exports('execute', (query, parameters, callback, resource) => {
 
   mysql.execute({ sql, values, typeCast }, invokingResource).then((result) => {
     safeInvoke(cb, result);
-  });
+  }).catch(() => {});
 });
 
 function onTransactionError(error, connection, callback) {
