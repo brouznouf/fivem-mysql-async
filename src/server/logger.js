@@ -9,7 +9,7 @@ class Logger {
       this.fileStream = createWriteStream(`./${global.GetCurrentResourceName()}.log`);
     }
 
-    this.writeConsole = (msg) => { console.log(msg); };
+    this.writeConsole = msg => console.log(msg);
   }
 
   writeFile(msg) {
@@ -34,7 +34,7 @@ class Logger {
 
   error(msg) {
     let errorMsg = msg;
-    if (this.output === 'console') {
+    if (this.output !== 'file') {
       errorMsg = `\x1b[31m${msg}\x1b[0m`;
     }
     this.log(errorMsg);
