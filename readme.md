@@ -1,5 +1,7 @@
 # ghmattimysql
 
+[![codebeat badge](https://codebeat.co/badges/8ddf346a-1c1a-47a3-8aa6-be8d6e6cb952)](https://codebeat.co/projects/github-com-ghmatti-ghmattimysql-master)
+
 A mysql middleware for [FiveM](https://fivem.net)
 
 ## Table of Contents
