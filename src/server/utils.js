@@ -8,18 +8,20 @@ function safeInvoke(callback, args) {
   }
 }
 
+function mysqlEscape(parameters, text, key) {
+  let result = text;
+  if (Object.prototype.hasOwnProperty.call(parameters, key)) {
+    result = mysql.escape(parameters[key]);
+  } else if (Object.prototype.hasOwnProperty.call(parameters, `@${key}`)) {
+    result = mysql.escape(parameters[`@${key}`]);
+  }
+  return result;
+}
+
 function prepareQuery(query, parameters) {
   let sql = query;
   if (parameters !== null && typeof parameters === 'object') {
-    sql = query.replace(/@(\w+)/g, (txt, key) => {
-      let result = txt;
-      if (Object.prototype.hasOwnProperty.call(parameters, key)) {
-        result = mysql.escape(parameters[key]);
-      } else if (Object.prototype.hasOwnProperty.call(parameters, `@${key}`)) {
-        result = mysql.escape(parameters[`@${key}`]);
-      }
-      return result;
-    });
+    sql = query.replace(/@(\w+)/g, (txt, key) => mysqlEscape(parameters, txt, key));
   }
   return sql;
 }

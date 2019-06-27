@@ -1,5 +1,14 @@
 const mysql = require('mysql');
 
+function formatVersion(versionString) {
+  let versionPrefix = 'MariaDB';
+  const version = versionString;
+  if (version[0] === '5' || version[0] === '8') {
+    versionPrefix = 'MySQL';
+  }
+  return { versionPrefix, version };
+}
+
 class MySQL {
   constructor(mysqlConfig, logger, profiler) {
     this.pool = null;
@@ -12,12 +21,8 @@ class MySQL {
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
-      let versionPrefix = 'MariaDB';
       if (!error) {
-        const version = result[0]['VERSION()'];
-        if (version[0] === '5' || version[0] === '8') {
-          versionPrefix = 'MySQL';
-        }
+        const { versionPrefix, version } = formatVersion(result[0]['VERSION()']);
         profiler.setVersion(`${versionPrefix}:${version}`);
         logger.log('\x1b[32m[mysql-async]\x1b[0m Database server connection established.');
       } else {
