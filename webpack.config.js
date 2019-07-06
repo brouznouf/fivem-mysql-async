@@ -65,11 +65,32 @@ const serverConfig = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: 'src/static' },
+      { from: 'src/static/ghmattimysql.lua', to: '__resource.lua' },
+      { from: 'src/static/ghmattimysql-server.lua', to: 'ghmattimysql-server.lua' },
+      { from: 'src/static/config.json', to: 'config.json' },
     ]),
   ],
   module: modules,
 };
+
+/* const testConfig = {
+  entry: './src/entry/test.js',
+  target: 'node',
+  mode: 'production',
+  output: {
+    filename: 'test-server.js',
+    path: path.resolve(__dirname, 'dist/ghmattimysql-test'),
+  },
+  optimization: {
+    minimize: false,
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: 'src/static/ghmattimysql-test.lua', to: '__resource.lua' },
+    ]),
+  ],
+  module: modules,
+}; */
 
 const clientConfig = {
   entry: './src/entry/client.js',
@@ -126,4 +147,6 @@ const nuiConfig = {
   ],
 };
 
-module.exports = [serverConfig, clientConfig, nuiConfig];
+module.exports = [
+  serverConfig, clientConfig, nuiConfig, // testConfig,
+];
