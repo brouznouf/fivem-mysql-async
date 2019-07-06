@@ -25,12 +25,16 @@ function typeCast(field, next) {
 function mysqlConvertLegacyFormat(query, parameters) {
   let sql = query;
   const params = [];
-  sql = sql.replace(/@(\w+)/g, (txt) => {
+  sql = sql.replace(/@(\w+)/g, (txt, match) => {
+    let returnValue = txt;
     if (Object.prototype.hasOwnProperty.call(parameters, txt)) {
       params.push(parameters[txt]);
-      return '?';
+      returnValue = '?';
+    } else if (Object.prototype.hasOwnProperty.call(parameters, match)) {
+      params.push(parameters[match]);
+      returnValue = '?';
     }
-    return txt;
+    return returnValue;
   });
   return { sql, params };
 }
@@ -67,6 +71,37 @@ function safeInvoke(callback, args) {
   }
 }
 
+function prepareTransactionLegacyQuery(querys) {
+  const sqls = querys;
+  sqls.forEach((element, index) => {
+    const [query, values] = prepareLegacyQuery(element.query, element.values);
+    sqls[index] = {
+      query,
+      values: (Array.isArray(values)) ? values : [],
+    };
+  });
+  return sqls;
+}
+
+function sanitizeTransactionInput(querys, params, callback) {
+  let sqls = [];
+  let cb = callback;
+  // start by type-checking and sorting the data
+  if (!querys.every(element => typeof element === 'string')) sqls = querys;
+  else {
+    const values = (typeof params === 'function') ? [] : params;
+    querys.forEach((element) => {
+      sqls.push({ query: element, values });
+    });
+  }
+  if (typeof params === 'function') cb = params;
+  sqls = prepareTransactionLegacyQuery(sqls);
+  return [sqls, cb];
+}
+
 module.exports = {
-  typeCast, prepareLegacyQuery, safeInvoke, sanitizeInput,
+  typeCast,
+  safeInvoke,
+  sanitizeInput,
+  sanitizeTransactionInput,
 };

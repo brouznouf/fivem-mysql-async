@@ -3,7 +3,7 @@ const Profiler = require('../server/profiler.js');
 const Logger = require('../server/logger.js');
 const MySQL = require('../server/mysql.js');
 const {
-  typeCast, safeInvoke, prepareLegacyQuery, sanitizeInput,
+  typeCast, safeInvoke, sanitizeInput, sanitizeTransactionInput,
 } = require('../server/utils.js');
 
 const logger = new Logger(global.GetConvar('mysql_debug_output', 'console'));
@@ -45,70 +45,26 @@ global.exports('execute', (query, parameters, callback, resource) => {
   }).catch(() => false);
 });
 
-function onTransactionError(error, connection, callback) {
-  connection.rollback(() => {
-    logger.error(error.message);
-    safeInvoke(callback, false);
-  });
-}
-
-global.exports('transaction', (querys, parameters, callback, resource) => {
+global.exports('transaction', (querys, values, callback, resource) => {
   const invokingResource = resource || global.GetInvokingResource();
   let sqls = [];
-  let params = parameters;
   let cb = callback;
   // start by type-checking and sorting the data
-  if (!querys.every(element => typeof element === 'string')) {
-    sqls = querys;
-    if (typeof parameters === 'function') cb = parameters;
-  } else {
-    if (typeof parameters === 'function') {
-      cb = parameters;
-      params = [];
-    }
-    querys.forEach((element) => {
-      sqls.push({ query: element, parameters: params });
-    });
-  }
-  // build the actual queries
-  sqls.forEach((element, index) => {
-    const [stmt, stmtParams] = prepareLegacyQuery(element.query, element.parameters);
-    sqls[index] = {
-      query: stmt,
-      parameters: (Array.isArray(stmtParams)) ? stmtParams : [],
-    };
-  });
+  [sqls, cb] = sanitizeTransactionInput(querys, values, cb);
   // the real transaction can begin
-  mysql.pool.getConnection((connectionError, connection) => {
-    if (connectionError) {
-      logger.error(connectionError.message);
-      safeInvoke(cb, false);
-      return;
-    }
-    connection.beginTransaction((transactionError) => {
-      if (transactionError) {
-        onTransactionError(transactionError, connection, callback);
-        return;
-      }
-      const promises = [];
-      // execute each query on the connection
-      sqls.forEach((element) => {
-        promises.push(mysql.execute({
-          sql: element.query,
-          values: element.parameters,
-        }, invokingResource, connection));
-      });
-      // If all have resolved, then commit
-      Promise.all(promises).then(() => {
-        connection.commit((commitError) => {
-          if (commitError) {
-            onTransactionError(commitError, connection, callback);
-          } else safeInvoke(cb, true);
-        });
-        // Otherwise catch the error from the execution
-      }).catch((executeError) => {
-        onTransactionError(executeError, connection, callback);
-      });
+  mysql.beginTransaction((connection) => {
+    if (!connection) safeInvoke(cb, false);
+    const promises = [];
+    // execute each query on the connection
+    sqls.forEach((element) => {
+      promises.push(mysql.execute({
+        sql: element.query,
+        values: element.values,
+      }, invokingResource, connection));
+    });
+    // commit transaction
+    mysql.commitTransaction(promises, connection, (result) => {
+      safeInvoke(cb, result);
     });
   });
 });
