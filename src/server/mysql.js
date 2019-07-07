@@ -64,6 +64,39 @@ class MySQL {
 
     return queryPromise;
   }
+
+  onTransactionError(error, connection, callback) {
+    connection.rollback(() => {
+      this.logger.error(error.message);
+      callback(false);
+    });
+  }
+
+  beginTransaction(callback) {
+    this.pool.getConnection((connectionError, connection) => {
+      if (connectionError) {
+        this.logger.error(connectionError.message);
+        callback(false);
+        return;
+      }
+      connection.beginTransaction((transactionError) => {
+        if (transactionError) this.onTransactionError(transactionError, connection, callback);
+        else callback(connection);
+      });
+    });
+  }
+
+  commitTransaction(promises, connection, callback) {
+    Promise.all(promises).then(() => {
+      connection.commit((commitError) => {
+        if (commitError) this.onTransactionError(commitError, connection, callback);
+        else callback(true);
+      });
+      // Otherwise catch the error from the execution
+    }).catch((executeError) => {
+      this.onTransactionError(executeError, connection, callback);
+    });
+  }
 }
 
 module.exports = MySQL;
