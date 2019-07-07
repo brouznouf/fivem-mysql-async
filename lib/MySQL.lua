@@ -110,11 +110,16 @@ end
 --
 -- @return bool if the transaction was successful
 --
---function MySQL.Sync.transaction(querys, params)
---    assert(type(querys) == "table", "The SQL Query must be a table of strings")
---
---    return exports['mysql-async']:mysql_sync_transaction(querys, safeParameters(params))
---end
+function MySQL.Sync.transaction(querys, params)
+    local res = 0
+    local finishedQuery = false
+    exports['mysql-async']:mysql_transaction(query, params, function (result)
+        res = result
+        finishedQuery = true
+    end)
+    repeat Citizen.Wait(0) until finishedQuery == true
+    return res
+end
 
 ---
 -- Execute a query with no result required, async version
@@ -176,11 +181,9 @@ end
 -- @param params
 -- @param func(bool)
 --
---function MySQL.Async.transaction(querys, params, func)
---    assert(type(querys) == "table", "The SQL Query must be a table of strings")
---
---    return exports['mysql-async']:mysql_transaction(querys, safeParameters(params), func)
---end
+function MySQL.Async.transaction(querys, params, func)
+    return exports['mysql-async']:mysql_transaction(querys, params, func)
+end
 
 function MySQL.ready (callback)
     Citizen.CreateThread(function ()

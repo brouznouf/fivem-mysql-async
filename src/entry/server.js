@@ -2,7 +2,9 @@ const MySQL = require('../server/mysql.js');
 const Logger = require('../server/logger.js');
 const Profiler = require('../server/profiler.js');
 const parseSettings = require('../server/settings.js');
-const { prepareQuery, typeCast, safeInvoke } = require('../server/utils.js');
+const {
+  prepareQuery, typeCast, safeInvoke, sanitizeTransactionInput,
+} = require('../server/utils.js');
 
 let logger = null;
 let profiler = null;
@@ -14,7 +16,8 @@ global.exports('mysql_execute', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result) ? result.affectedRows : 0);
-  }).catch(() => {});
+    return true;
+  }).catch(() => false);
 });
 
 global.exports('mysql_fetch_all', (query, parameters, callback) => {
@@ -22,7 +25,8 @@ global.exports('mysql_fetch_all', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, result);
-  }).catch(() => {});
+    return true;
+  }).catch(() => false);
 });
 
 global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
@@ -30,7 +34,8 @@ global.exports('mysql_fetch_scalar', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result && result[0]) ? Object.values(result[0])[0] : null);
-  }).catch(() => {});
+    return true;
+  }).catch(() => false);
 });
 
 global.exports('mysql_insert', (query, parameters, callback) => {
@@ -38,7 +43,25 @@ global.exports('mysql_insert', (query, parameters, callback) => {
   const sql = prepareQuery(query, parameters);
   mysql.execute({ sql, typeCast }, invokingResource).then((result) => {
     safeInvoke(callback, (result) ? result.insertId : 0);
-  }).catch(() => {});
+    return true;
+  }).catch(() => false);
+});
+
+global.exports('mysql_transaction', (querys, values, callback) => {
+  const invokingResource = global.GetInvokingResource();
+  let sqls = [];
+  let cb = callback;
+  [sqls, cb] = sanitizeTransactionInput(querys, values, cb);
+  mysql.beginTransaction((connection) => {
+    if (!connection) safeInvoke(cb, false);
+    const promises = [];
+    sqls.forEach((sql) => {
+      promises.push(mysql.execute({ sql }, invokingResource, connection));
+    });
+    mysql.commitTransaction(promises, connection, (result) => {
+      safeInvoke(cb, result);
+    });
+  });
 });
 
 let isReady = false;
