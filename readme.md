@@ -59,7 +59,7 @@ Why do we prefer exports instead of the `lib/MySQL.lua`? The answer is simple, `
 
 This is the universal function which will handle most of your requests. The syntax is
 ```js
-execute(query: String, parameters: Object | Array | undefined, callback: function | undefined)
+execute(query: String, [optional: parameters: Object | Array | undefined], callback: function | undefined)
 ```
 You can leave parameters out if you so desire and use the second argument as a callback function. For a select statement `execute` will answer with an array containing the rows of the statement. For anything else, meaning `INSERT`, `UPDATE`, `DELETE`, etc. the response will look like this.
 ```js
@@ -77,7 +77,7 @@ You can leave parameters out if you so desire and use the second argument as a c
 
 You use this function when you want only a singular value returned. This means you can call it when when selecting exactly one row and one column.
 ```js
-scalar(query: String, parameters: Object | Array | undefined, callback: function | undefined)
+scalar(query: String, [optional: parameters: Object | Array | undefined,] callback: function | undefined)
 ```
 It works internally the same as execute, and if this fails, so does execute. It just extracts the first column of the first response row.
 
@@ -89,9 +89,36 @@ Alternatively transactions can be written with 3 parameters: An array of strings
 
 ### Synchronous Methods
 
-Sync variants exist of the three methods above, called `executeSync`, `scalarSync`, and `transactionSync`. Their use is discouraged as they are just a wrapper for the async-methods written in lua.
+Sync variants exist of the three methods above, called `executeSync`, `scalarSync`, and `transactionSync`. Their use is discouraged as they are just a wrapper for the async-methods written in lua. They work with Lua and C#, but not in Javascript.
 
 ## Examples
+You can use two `??` to escape table names and column names and a single `?` to escape values. Table and column names should not be escaped unless they are in variables, unlike this example, to maintain a better code.
+### Inserting and fetching
+```js
+const db = exports.ghmattimysql;
+db.execute('insert into ?? (??, ??) values (?, ?)', ['users', 'name', 'identity', user.name, identity.toString()], (result) => {
+  db.execute('select * from users where id = ?', [result.insertId], (res) => {
+    console.log(JSON.stringify(res));
+  });
+});
+```
+
+### Legacy Parameters
+You can also use the C# legacy parameters which are a lot more inflexible, as they won't escape table and column names.
+```js
+const db = exports.ghmattimysql;
+db.execute('insert into users (username, identity) values (@user, @identity)', { user: user.name, identity: identity.toString() }, (result) => {
+  db.execute('select * from users where id = @id', { id: result.insertId }, (res) => {
+    console.log(JSON.stringify(res));
+  });
+});
+```
+or with additional @
+```js
+db.execute('select * from users where id = @id', { '@id': result.insertId } (res) => {
+  console.log(JSON.stringify(res));
+});
+```
 
 ### parameters
 
