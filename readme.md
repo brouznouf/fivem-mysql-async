@@ -96,7 +96,8 @@ You can use two `??` to escape table names and column names and a single `?` to 
 ### Inserting and fetching
 ```js
 const db = exports.ghmattimysql;
-db.execute('insert into ?? (??, ??) values (?, ?)', ['users', 'name', 'identity', user.name, identity.toString()], (result) => {
+db.execute('insert into ?? (??, ??) values (?, ?)',
+  ['users', 'name', 'identity', user.name, identity.toString()], (result) => {
   db.execute('select * from users where id = ?', [result.insertId], (res) => {
     console.log(JSON.stringify(res));
   });
@@ -107,7 +108,8 @@ db.execute('insert into ?? (??, ??) values (?, ?)', ['users', 'name', 'identity'
 You can also use the C# legacy parameters which are a lot more inflexible, as they won't escape table and column names.
 ```js
 const db = exports.ghmattimysql;
-db.execute('insert into users (username, identity) values (@user, @identity)', { user: user.name, identity: identity.toString() }, (result) => {
+db.execute('insert into users (username, identity) values (@user, @identity)',
+  { user: user.name, identity: identity.toString() }, (result) => {
   db.execute('select * from users where id = @id', { id: result.insertId }, (res) => {
     console.log(JSON.stringify(res));
   });
