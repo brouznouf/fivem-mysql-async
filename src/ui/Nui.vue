@@ -190,9 +190,7 @@ export default {
   mounted() {
     this.listener = window.addEventListener('message', (event) => {
       const item = event.data || event.detail;
-      if (item.type) {
-        if (this[item.type]) this[item.type](item);
-      }
+      if (item && this[item.type]) this[item.type](item);
     });
   },
   name: 'app',
