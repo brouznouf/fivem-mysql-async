@@ -68,19 +68,19 @@ window.onNet('mysql-async:update-resource-data', (resourceData) => {
     });
     NuiMessage({
       type: 'onResourceLabels',
-      resourceLabels: arrayToSortAndMap.map(el => el.resource),
+      resourceLabels: arrayToSortAndMap.map((el) => el.resource),
     });
     NuiMessage({
       type: 'onResourceData',
       resourceData: [
         {
-          data: arrayToSortAndMap.map(el => el.queryTime),
+          data: arrayToSortAndMap.map((el) => el.queryTime),
         },
         {
-          data: arrayToSortAndMap.map(el => ((el.count > 0) ? el.queryTime / el.count : 0)),
+          data: arrayToSortAndMap.map((el) => ((el.count > 0) ? el.queryTime / el.count : 0)),
         },
         {
-          data: arrayToSortAndMap.map(el => el.count),
+          data: arrayToSortAndMap.map((el) => el.count),
         },
       ],
     });
@@ -98,14 +98,14 @@ window.onNet('mysql-async:update-time-data', (timeData) => {
       type: 'onTimeData',
       timeData: [
         {
-          data: timeArray.map(el => el.totalExecutionTime),
+          data: timeArray.map((el) => el.totalExecutionTime),
         },
         {
-          data: timeArray.map(el => ((el.queryCount > 0) ? el.totalExecutionTime / el.queryCount
+          data: timeArray.map((el) => ((el.queryCount > 0) ? el.totalExecutionTime / el.queryCount
             : 0)),
         },
         {
-          data: timeArray.map(el => el.queryCount),
+          data: timeArray.map((el) => el.queryCount),
         },
       ],
     });

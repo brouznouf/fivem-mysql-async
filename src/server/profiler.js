@@ -30,7 +30,7 @@ class Profiler {
     this.version = 'MySQL';
     this.startTime = Date.now();
     this.logger = logger;
-    this.config = Object.assign({}, profilerDefaultConfig, config);
+    this.config = { ...profilerDefaultConfig, ...config };
     this.profiles = {
       executionTimes: [],
       resources: {},
@@ -47,7 +47,7 @@ class Profiler {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter(el => el !== min);
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }

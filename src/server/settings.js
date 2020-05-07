@@ -29,7 +29,7 @@ function parseConnectingString(connectionString) {
     cfg = parseUrl(connectionString);
   } else throw new Error('No valid connection string found');
 
-  return Object.assign({}, defaultCfg, cfg);
+  return { ...defaultCfg, ...cfg };
 }
 
 module.exports = parseConnectingString;

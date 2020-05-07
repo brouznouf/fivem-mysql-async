@@ -1,0 +1,14 @@
+version: 2.1
+jobs:
+  build-and-lint:
+    docker:
+      - image: circleci/node:latest
+    steps:
+      - checkout
+      - run: cd src && npm install
+      - run: cd src && npm run lint
+      - run: cd src && npm run build
+workflows:
+  build-and-lint:
+    jobs:
+      - build-and-lint

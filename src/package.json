@@ -4,7 +4,8 @@
   "description": "fivem-mysql-async",
   "private": true,
   "scripts": {
-    "build": "webpack --progress"
+    "build": "webpack --progress",
+    "lint": "eslint '**/*.js'"
   },
   "contributors": [
     "Joel Wurtz",
