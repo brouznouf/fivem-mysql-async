@@ -1,7 +1,7 @@
 fx_version 'adamant'
 game 'common'
 
-version '3.2.0'
+version '3.2.1'
 
 server_script 'mysql-async.js'
 client_script 'mysql-async-client.js'

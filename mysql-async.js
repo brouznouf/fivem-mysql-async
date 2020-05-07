@@ -177,13 +177,14 @@ exports.Field = __webpack_require__(17);
 exports.FieldPacket = __webpack_require__(56);
 exports.HandshakeInitializationPacket = __webpack_require__(57);
 exports.LocalDataFilePacket = __webpack_require__(58);
-exports.OkPacket = __webpack_require__(59);
-exports.OldPasswordPacket = __webpack_require__(60);
-exports.ResultSetHeaderPacket = __webpack_require__(61);
-exports.RowDataPacket = __webpack_require__(62);
-exports.SSLRequestPacket = __webpack_require__(63);
-exports.StatisticsPacket = __webpack_require__(64);
-exports.UseOldPasswordPacket = __webpack_require__(65);
+exports.LocalInfileRequestPacket = __webpack_require__(59);
+exports.OkPacket = __webpack_require__(60);
+exports.OldPasswordPacket = __webpack_require__(61);
+exports.ResultSetHeaderPacket = __webpack_require__(62);
+exports.RowDataPacket = __webpack_require__(63);
+exports.SSLRequestPacket = __webpack_require__(64);
+exports.StatisticsPacket = __webpack_require__(65);
+exports.UseOldPasswordPacket = __webpack_require__(66);
 
 
 /***/ }),
@@ -193,8 +194,8 @@ exports.UseOldPasswordPacket = __webpack_require__(65);
 var Util           = __webpack_require__(0);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Packets        = __webpack_require__(2);
-var ErrorConstants = __webpack_require__(66);
-var Timer          = __webpack_require__(67);
+var ErrorConstants = __webpack_require__(67);
+var Timer          = __webpack_require__(68);
 
 // istanbul ignore next: Node.js < 0.10 not covered
 var listenerCount = EventEmitter.listenerCount
@@ -373,8 +374,8 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = __webpack_require__(6);
-util.inherits = __webpack_require__(7);
+var util = Object.create(__webpack_require__(7));
+util.inherits = __webpack_require__(8);
 /*</replacement>*/
 
 var Readable = __webpack_require__(21);
@@ -462,6 +463,38 @@ Duplex.prototype._destroy = function (err, cb) {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports) {
+
+// Manually extracted from mysql-5.5.23/include/mysql_com.h
+exports.CLIENT_LONG_PASSWORD     = 1; /* new more secure passwords */
+exports.CLIENT_FOUND_ROWS        = 2; /* Found instead of affected rows */
+exports.CLIENT_LONG_FLAG         = 4; /* Get all column flags */
+exports.CLIENT_CONNECT_WITH_DB   = 8; /* One can specify db on connect */
+exports.CLIENT_NO_SCHEMA         = 16; /* Don't allow database.table.column */
+exports.CLIENT_COMPRESS          = 32; /* Can use compression protocol */
+exports.CLIENT_ODBC              = 64; /* Odbc client */
+exports.CLIENT_LOCAL_FILES       = 128; /* Can use LOAD DATA LOCAL */
+exports.CLIENT_IGNORE_SPACE      = 256; /* Ignore spaces before '(' */
+exports.CLIENT_PROTOCOL_41       = 512; /* New 4.1 protocol */
+exports.CLIENT_INTERACTIVE       = 1024; /* This is an interactive client */
+exports.CLIENT_SSL               = 2048; /* Switch to SSL after handshake */
+exports.CLIENT_IGNORE_SIGPIPE    = 4096;    /* IGNORE sigpipes */
+exports.CLIENT_TRANSACTIONS      = 8192; /* Client knows about transactions */
+exports.CLIENT_RESERVED          = 16384;   /* Old flag for 4.1 protocol  */
+exports.CLIENT_SECURE_CONNECTION = 32768;  /* New 4.1 authentication */
+
+exports.CLIENT_MULTI_STATEMENTS = 65536; /* Enable/disable multi-stmt support */
+exports.CLIENT_MULTI_RESULTS    = 131072; /* Enable/disable multi-results */
+exports.CLIENT_PS_MULTI_RESULTS = 262144; /* Multi-results in PS-protocol */
+
+exports.CLIENT_PLUGIN_AUTH = 524288; /* Client supports plugin authentication */
+
+exports.CLIENT_SSL_VERIFY_SERVER_CERT = 1073741824;
+exports.CLIENT_REMEMBER_OPTIONS       = 2147483648;
+
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -574,7 +607,7 @@ function objectToString(o) {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 try {
@@ -582,19 +615,19 @@ try {
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
-  module.exports = __webpack_require__(75);
+  module.exports = __webpack_require__(76);
 }
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Crypto           = __webpack_require__(15);
 var Events           = __webpack_require__(4);
 var Net              = __webpack_require__(33);
 var tls              = __webpack_require__(34);
-var ConnectionConfig = __webpack_require__(9);
+var ConnectionConfig = __webpack_require__(10);
 var Protocol         = __webpack_require__(37);
 var SqlString        = __webpack_require__(27);
 var Query            = __webpack_require__(19);
@@ -619,38 +652,35 @@ Connection.createQuery = function createQuery(sql, values, callback) {
     return sql;
   }
 
-  var cb      = wrapCallbackInDomain(null, callback);
+  var cb      = callback;
   var options = {};
 
   if (typeof sql === 'function') {
-    cb = wrapCallbackInDomain(null, sql);
-    return new Query(options, cb);
-  }
-
-  if (typeof sql === 'object') {
-    for (var prop in sql) {
-      options[prop] = sql[prop];
-    }
+    cb = sql;
+  } else if (typeof sql === 'object') {
+    options = Object.create(sql);
 
     if (typeof values === 'function') {
-      cb = wrapCallbackInDomain(null, values);
+      cb = values;
+    } else if (values !== undefined) {
+      Object.defineProperty(options, 'values', { value: values });
+    }
+  } else {
+    options.sql = sql;
+
+    if (typeof values === 'function') {
+      cb = values;
     } else if (values !== undefined) {
       options.values = values;
     }
-
-    return new Query(options, cb);
   }
 
-  options.sql    = sql;
-  options.values = values;
+  if (cb !== undefined) {
+    cb = wrapCallbackInDomain(null, cb);
 
-  if (typeof values === 'function') {
-    cb = wrapCallbackInDomain(null, values);
-    options.values = undefined;
-  }
-
-  if (cb === undefined && callback !== undefined) {
-    throw new TypeError('argument callback must be a function when provided');
+    if (cb === undefined) {
+      throw new TypeError('argument callback must be a function when provided');
+    }
   }
 
   return new Query(options, cb);
@@ -1092,7 +1122,11 @@ function unwrapFromDomain(fn) {
 }
 
 function wrapCallbackInDomain(ee, fn) {
-  if (typeof fn !== 'function' || fn.domain) {
+  if (typeof fn !== 'function') {
+    return undefined;
+  }
+
+  if (fn.domain) {
     return fn;
   }
 
@@ -1121,11 +1155,11 @@ function wrapToDomain(ee, fn) {
 
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var urlParse        = __webpack_require__(35).parse;
-var ClientConstants = __webpack_require__(10);
+var ClientConstants = __webpack_require__(6);
 var Charsets        = __webpack_require__(16);
 var SSLProfiles     = null;
 
@@ -1159,6 +1193,9 @@ function ConnectionConfig(options) {
   this.ssl                = (typeof options.ssl === 'string')
     ? ConnectionConfig.getSSLProfile(options.ssl)
     : (options.ssl || false);
+  this.localInfile        = (options.localInfile === undefined)
+    ? true
+    : options.localInfile;
   this.multipleStatements = options.multipleStatements || false;
   this.typeCast           = (options.typeCast === undefined)
     ? true
@@ -1239,6 +1276,11 @@ ConnectionConfig.getDefaultFlags = function getDefaultFlags(options) {
     '+SECURE_CONNECTION', // Supports Authentication::Native41
     '+TRANSACTIONS'       // Expects status flags
   ];
+
+  if (options && options.localInfile !== undefined && !options.localInfile) {
+    // Disable LOCAL modifier for LOAD DATA INFILE
+    defaultFlags.push('-LOCAL_FILES');
+  }
 
   if (options && options.multipleStatements) {
     // May send multiple statements per COM_QUERY and COM_STMT_PREPARE
@@ -1325,38 +1367,6 @@ ConnectionConfig.parseUrl = function(url) {
 
   return options;
 };
-
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports) {
-
-// Manually extracted from mysql-5.5.23/include/mysql_com.h
-exports.CLIENT_LONG_PASSWORD     = 1; /* new more secure passwords */
-exports.CLIENT_FOUND_ROWS        = 2; /* Found instead of affected rows */
-exports.CLIENT_LONG_FLAG         = 4; /* Get all column flags */
-exports.CLIENT_CONNECT_WITH_DB   = 8; /* One can specify db on connect */
-exports.CLIENT_NO_SCHEMA         = 16; /* Don't allow database.table.column */
-exports.CLIENT_COMPRESS          = 32; /* Can use compression protocol */
-exports.CLIENT_ODBC              = 64; /* Odbc client */
-exports.CLIENT_LOCAL_FILES       = 128; /* Can use LOAD DATA LOCAL */
-exports.CLIENT_IGNORE_SPACE      = 256; /* Ignore spaces before '(' */
-exports.CLIENT_PROTOCOL_41       = 512; /* New 4.1 protocol */
-exports.CLIENT_INTERACTIVE       = 1024; /* This is an interactive client */
-exports.CLIENT_SSL               = 2048; /* Switch to SSL after handshake */
-exports.CLIENT_IGNORE_SIGPIPE    = 4096;    /* IGNORE sigpipes */
-exports.CLIENT_TRANSACTIONS      = 8192; /* Client knows about transactions */
-exports.CLIENT_RESERVED          = 16384;   /* Old flag for 4.1 protocol  */
-exports.CLIENT_SECURE_CONNECTION = 32768;  /* New 4.1 authentication */
-
-exports.CLIENT_MULTI_STATEMENTS = 65536; /* Enable/disable multi-stmt support */
-exports.CLIENT_MULTI_RESULTS    = 131072; /* Enable/disable multi-results */
-exports.CLIENT_PS_MULTI_RESULTS = 262144; /* Multi-results in PS-protocol */
-
-exports.CLIENT_PLUGIN_AUTH = 524288; /* Client supports plugin authentication */
-
-exports.CLIENT_SSL_VERIFY_SERVER_CERT = 1073741824;
-exports.CLIENT_REMEMBER_OPTIONS       = 2147483648;
 
 
 /***/ }),
@@ -1546,16 +1556,16 @@ function loadClass(className) {
   // This uses a switch for static require analysis
   switch (className) {
     case 'Connection':
-      Class = __webpack_require__(8);
+      Class = __webpack_require__(9);
       break;
     case 'ConnectionConfig':
-      Class = __webpack_require__(9);
+      Class = __webpack_require__(10);
       break;
     case 'Pool':
       Class = __webpack_require__(28);
       break;
     case 'PoolCluster':
-      Class = __webpack_require__(85);
+      Class = __webpack_require__(86);
       break;
     case 'PoolConfig':
       Class = __webpack_require__(29);
@@ -1584,7 +1594,7 @@ function loadClass(className) {
 /**
  * MySQL type constants
  *
- * Extracted from version 5.7.19
+ * Extracted from version 5.7.29
  *
  * !! Generated by generate-type-constants.js, do not modify by hand !!
  */
@@ -2145,13 +2155,14 @@ Auth.int32Read = function(buffer, offset){
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Sequence     = __webpack_require__(3);
-var Util         = __webpack_require__(0);
-var Packets      = __webpack_require__(2);
-var ResultSet    = __webpack_require__(71);
-var ServerStatus = __webpack_require__(72);
-var fs           = __webpack_require__(20);
-var Readable     = __webpack_require__(73);
+var ClientConstants = __webpack_require__(6);
+var fs              = __webpack_require__(20);
+var Packets         = __webpack_require__(2);
+var ResultSet       = __webpack_require__(72);
+var Sequence        = __webpack_require__(3);
+var ServerStatus    = __webpack_require__(73);
+var Readable        = __webpack_require__(74);
+var Util            = __webpack_require__(0);
 
 module.exports = Query;
 Util.inherits(Query, Sequence);
@@ -2182,6 +2193,7 @@ Query.prototype.determinePacket = function determinePacket(byte, parser) {
   if (!resultSet) {
     switch (byte) {
       case 0x00: return Packets.OkPacket;
+      case 0xfb: return Packets.LocalInfileRequestPacket;
       case 0xff: return Packets.ErrorPacket;
       default:   return Packets.ResultSetHeaderPacket;
     }
@@ -2237,12 +2249,20 @@ Query.prototype['ErrorPacket'] = function(packet) {
   this.end(err, results, fields);
 };
 
-Query.prototype['ResultSetHeaderPacket'] = function(packet) {
-  if (packet.fieldCount === null) {
-    this._sendLocalDataFile(packet.extra);
+Query.prototype['LocalInfileRequestPacket'] = function(packet) {
+  if (this._connection.config.clientFlags & ClientConstants.CLIENT_LOCAL_FILES) {
+    this._sendLocalDataFile(packet.filename);
   } else {
-    this._resultSet = new ResultSet(packet);
+    this._loadError       = new Error('Load local files command is disabled');
+    this._loadError.code  = 'LOCAL_FILES_DISABLED';
+    this._loadError.fatal = false;
+
+    this.emit('packet', new Packets.EmptyPacket());
   }
+};
+
+Query.prototype['ResultSetHeaderPacket'] = function(packet) {
+  this._resultSet = new ResultSet(packet);
 };
 
 Query.prototype['FieldPacket'] = function(packet) {
@@ -2407,7 +2427,7 @@ var pna = __webpack_require__(11);
 module.exports = Readable;
 
 /*<replacement>*/
-var isArray = __webpack_require__(74);
+var isArray = __webpack_require__(75);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -2442,8 +2462,8 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = __webpack_require__(6);
-util.inherits = __webpack_require__(7);
+var util = Object.create(__webpack_require__(7));
+util.inherits = __webpack_require__(8);
 /*</replacement>*/
 
 /*<replacement>*/
@@ -2456,7 +2476,7 @@ if (debugUtil && debugUtil.debuglog) {
 }
 /*</replacement>*/
 
-var BufferList = __webpack_require__(76);
+var BufferList = __webpack_require__(77);
 var destroyImpl = __webpack_require__(23);
 var StringDecoder;
 
@@ -3554,13 +3574,13 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = __webpack_require__(6);
-util.inherits = __webpack_require__(7);
+var util = Object.create(__webpack_require__(7));
+util.inherits = __webpack_require__(8);
 /*</replacement>*/
 
 /*<replacement>*/
 var internalUtil = {
-  deprecate: __webpack_require__(77)
+  deprecate: __webpack_require__(78)
 };
 /*</replacement>*/
 
@@ -4553,8 +4573,8 @@ module.exports = Transform;
 var Duplex = __webpack_require__(5);
 
 /*<replacement>*/
-var util = __webpack_require__(6);
-util.inherits = __webpack_require__(7);
+var util = Object.create(__webpack_require__(7));
+util.inherits = __webpack_require__(8);
 /*</replacement>*/
 
 util.inherits(Transform, Duplex);
@@ -4702,7 +4722,7 @@ function done(stream, er, data) {
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(82);
+module.exports = __webpack_require__(83);
 
 
 /***/ }),
@@ -4710,10 +4730,10 @@ module.exports = __webpack_require__(82);
 /***/ (function(module, exports, __webpack_require__) {
 
 var mysql          = __webpack_require__(12);
-var Connection     = __webpack_require__(8);
+var Connection     = __webpack_require__(9);
 var EventEmitter   = __webpack_require__(4).EventEmitter;
 var Util           = __webpack_require__(0);
-var PoolConnection = __webpack_require__(84);
+var PoolConnection = __webpack_require__(85);
 
 module.exports = Pool;
 
@@ -5010,7 +5030,7 @@ function spliceConnection(array, connection) {
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var ConnectionConfig = __webpack_require__(9);
+var ConnectionConfig = __webpack_require__(10);
 
 module.exports = PoolConfig;
 function PoolConfig(options) {
@@ -5085,12 +5105,12 @@ PoolSelector.ORDER = function PoolSelectorOrder() {
 /***/ (function(module, exports, __webpack_require__) {
 
 const MySQL = __webpack_require__(32);
-const Logger = __webpack_require__(87);
-const Profiler = __webpack_require__(88);
-const parseSettings = __webpack_require__(89);
+const Logger = __webpack_require__(88);
+const Profiler = __webpack_require__(89);
+const parseSettings = __webpack_require__(90);
 const {
   prepareQuery, typeCast, safeInvoke, sanitizeTransactionInput,
-} = __webpack_require__(90);
+} = __webpack_require__(91);
 
 let logger = null;
 let profiler = null;
@@ -5386,6 +5406,43 @@ exports['Amazon RDS'] = {
     + '2u6O/+YE2U+qyyxHE5Wd5oqde0oo9UUpFETJPVb6Q2cEeQib8PBAyi0i6KnF+kIV\n'
     + 'A9dY7IHSubtCK/i8wxMVqfd5GtbA8mmpeJFwnDvm9rBEsHybl08qlax9syEwsUYr\n'
     + '/40NawZfTUU=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS global root CA 2019 to 2024
+     *
+     *   CN = Amazon RDS Root 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-08-22T17:08:50Z/2024-08-22T17:08:50Z
+     *   F = D4:0D:DB:29:E3:75:0D:FF:A6:71:C3:14:0B:BF:5F:47:8D:1C:80:96
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBjCCAu6gAwIBAgIJAMc0ZzaSUK51MA0GCSqGSIb3DQEBCwUAMIGPMQswCQYD\n'
+    + 'VQQGEwJVUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEi\n'
+    + 'MCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1h\n'
+    + 'em9uIFJEUzEgMB4GA1UEAwwXQW1hem9uIFJEUyBSb290IDIwMTkgQ0EwHhcNMTkw\n'
+    + 'ODIyMTcwODUwWhcNMjQwODIyMTcwODUwWjCBjzELMAkGA1UEBhMCVVMxEDAOBgNV\n'
+    + 'BAcMB1NlYXR0bGUxEzARBgNVBAgMCldhc2hpbmd0b24xIjAgBgNVBAoMGUFtYXpv\n'
+    + 'biBXZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxIDAeBgNV\n'
+    + 'BAMMF0FtYXpvbiBSRFMgUm9vdCAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEFAAOC\n'
+    + 'AQ8AMIIBCgKCAQEArXnF/E6/Qh+ku3hQTSKPMhQQlCpoWvnIthzX6MK3p5a0eXKZ\n'
+    + 'oWIjYcNNG6UwJjp4fUXl6glp53Jobn+tWNX88dNH2n8DVbppSwScVE2LpuL+94vY\n'
+    + '0EYE/XxN7svKea8YvlrqkUBKyxLxTjh+U/KrGOaHxz9v0l6ZNlDbuaZw3qIWdD/I\n'
+    + '6aNbGeRUVtpM6P+bWIoxVl/caQylQS6CEYUk+CpVyJSkopwJlzXT07tMoDL5WgX9\n'
+    + 'O08KVgDNz9qP/IGtAcRduRcNioH3E9v981QO1zt/Gpb2f8NqAjUUCUZzOnij6mx9\n'
+    + 'McZ+9cWX88CRzR0vQODWuZscgI08NvM69Fn2SQIDAQABo2MwYTAOBgNVHQ8BAf8E\n'
+    + 'BAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUc19g2LzLA5j0Kxc0LjZa\n'
+    + 'pmD/vB8wHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJKoZIhvcN\n'
+    + 'AQELBQADggEBAHAG7WTmyjzPRIM85rVj+fWHsLIvqpw6DObIjMWokpliCeMINZFV\n'
+    + 'ynfgBKsf1ExwbvJNzYFXW6dihnguDG9VMPpi2up/ctQTN8tm9nDKOy08uNZoofMc\n'
+    + 'NUZxKCEkVKZv+IL4oHoeayt8egtv3ujJM6V14AstMQ6SwvwvA93EP/Ug2e4WAXHu\n'
+    + 'cbI1NAbUgVDqp+DRdfvZkgYKryjTWd/0+1fS8X1bBZVWzl7eirNVnHbSH2ZDpNuY\n'
+    + '0SBd8dj5F6ld3t58ydZbrTHze7JJOd8ijySAp4/kiu9UfZWuTPABzDa/DSdz9Dk/\n'
+    + 'zPW4CXXvhLmE02TA9/HeCw3KEHIwicNuEfw=\n'
     + '-----END CERTIFICATE-----\n',
 
     /**
@@ -6052,6 +6109,709 @@ exports['Amazon RDS'] = {
     + 'kDwkHwEqflRKfZ9/oFTcCfoiHPA7AdBtaPVr0/Kj9L7k+ouz122huqG5KqX0Zpo8\n'
     + 'S0IGvcd2FZjNSNPttNAK7YuBVsZ0m2nIH1SLp//00v7yAHIgytQwwB17PBcp4NXD\n'
     + 'pCfTa27ng9mMMC2YLqWQpW4TkqjDin2ZC+5X/mbrjzTvVg==\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-east-1 certificate CA 2019 to 2022
+     *
+     *   CN = Amazon RDS ap-east-1 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-02-17T02:47:00Z/2022-06-01T12:00:00Z
+     *   F = BC:F8:70:75:1F:93:3F:A7:82:86:67:63:A8:86:1F:A4:E8:07:CE:06
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICEAAwDQYJKoZIhvcNAQELBQAwgZQxCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSUwIwYDVQQDDBxBbWF6b24gUkRTIGFwLWVhc3QtMSBSb290IENBMB4XDTE5MDIx\n'
+    + 'NzAyNDcwMFoXDTIyMDYwMTEyMDAwMFowgY8xCzAJBgNVBAYTAlVTMRMwEQYDVQQI\n'
+    + 'DApXYXNoaW5ndG9uMRAwDgYDVQQHDAdTZWF0dGxlMSIwIAYDVQQKDBlBbWF6b24g\n'
+    + 'V2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRTMSAwHgYDVQQD\n'
+    + 'DBdBbWF6b24gUkRTIGFwLWVhc3QtMSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBAOcJAUofyJuBuPr5ISHi/Ha5ed8h3eGdzn4MBp6rytPOg9NVGRQs\n'
+    + 'O93fNGCIKsUT6gPuk+1f1ncMTV8Y0Fdf4aqGWme+Khm3ZOP3V1IiGnVq0U2xiOmn\n'
+    + 'SQ4Q7LoeQC4lC6zpoCHVJyDjZ4pAknQQfsXb77Togdt/tK5ahev0D+Q3gCwAoBoO\n'
+    + 'DHKJ6t820qPi63AeGbJrsfNjLKiXlFPDUj4BGir4dUzjEeH7/hx37na1XG/3EcxP\n'
+    + '399cT5k7sY/CR9kctMlUyEEUNQOmhi/ly1Lgtihm3QfjL6K9aGLFNwX35Bkh9aL2\n'
+    + 'F058u+n8DP/dPeKUAcJKiQZUmzuen5n57x8CAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFFlqgF4FQlb9yP6c+Q3E\n'
+    + 'O3tXv+zOMB8GA1UdIwQYMBaAFK9T6sY/PBZVbnHcNcQXf58P4OuPMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQDeXiS3v1z4jWAo1UvVyKDeHjtrtEH1Rida1eOXauFuEQa5tuOk\n'
+    + 'E53Os4haZCW4mOlKjigWs4LN+uLIAe1aFXGo92nGIqyJISHJ1L+bopx/JmIbHMCZ\n'
+    + '0lTNJfR12yBma5VQy7vzeFku/SisKwX0Lov1oHD4MVhJoHbUJYkmAjxorcIHORvh\n'
+    + 'I3Vj5XrgDWtLDPL8/Id/roul/L+WX5ir+PGScKBfQIIN2lWdZoqdsx8YWqhm/ikL\n'
+    + 'C6qNieSwcvWL7C03ri0DefTQMY54r5wP33QU5hJ71JoaZI3YTeT0Nf+NRL4hM++w\n'
+    + 'Q0veeNzBQXg1f/JxfeA39IDIX1kiCf71tGlT\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-northeast-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-northeast-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-18T16:56:20Z/2024-08-22T17:08:50Z
+     *   F = 47:A3:F9:20:64:5C:9F:9D:48:8C:7D:E6:0B:86:D6:05:13:00:16:A1
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEDDCCAvSgAwIBAgICcEUwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTgxNjU2\n'
+    + 'MjBaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\n'
+    + 'em9uIFJEUyBhcC1ub3J0aGVhc3QtMSAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\n'
+    + 'AAOCAQ8AMIIBCgKCAQEAndtkldmHtk4TVQAyqhAvtEHSMb6pLhyKrIFved1WO3S7\n'
+    + '+I+bWwv9b2W/ljJxLq9kdT43bhvzonNtI4a1LAohS6bqyirmk8sFfsWT3akb+4Sx\n'
+    + '1sjc8Ovc9eqIWJCrUiSvv7+cS7ZTA9AgM1PxvHcsqrcUXiK3Jd/Dax9jdZE1e15s\n'
+    + 'BEhb2OEPE+tClFZ+soj8h8Pl2Clo5OAppEzYI4LmFKtp1X/BOf62k4jviXuCSst3\n'
+    + 'UnRJzE/CXtjmN6oZySVWSe0rQYuyqRl6//9nK40cfGKyxVnimB8XrrcxUN743Vud\n'
+    + 'QQVU0Esm8OVTX013mXWQXJHP2c0aKkog8LOga0vobQIDAQABo2YwZDAOBgNVHQ8B\n'
+    + 'Af8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQULmoOS1mFSjj+\n'
+    + 'snUPx4DgS3SkLFYwHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\n'
+    + 'KoZIhvcNAQELBQADggEBAAkVL2P1M2/G9GM3DANVAqYOwmX0Xk58YBHQu6iiQg4j\n'
+    + 'b4Ky/qsZIsgT7YBsZA4AOcPKQFgGTWhe9pvhmXqoN3RYltN8Vn7TbUm/ZVDoMsrM\n'
+    + 'gwv0+TKxW1/u7s8cXYfHPiTzVSJuOogHx99kBW6b2f99GbP7O1Sv3sLq4j6lVvBX\n'
+    + 'Fiacf5LAWC925nvlTzLlBgIc3O9xDtFeAGtZcEtxZJ4fnGXiqEnN4539+nqzIyYq\n'
+    + 'nvlgCzyvcfRAxwltrJHuuRu6Maw5AGcd2Y0saMhqOVq9KYKFKuD/927BTrbd2JVf\n'
+    + '2sGWyuPZPCk3gq+5pCjbD0c6DkhcMGI6WwxvM5V/zSM=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-northeast-2 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-northeast-2 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-10T17:46:21Z/2024-08-22T17:08:50Z
+     *   F = 8E:1C:70:C1:64:BD:FC:F9:93:9B:A2:67:CA:CF:52:F0:E1:F7:B4:F0
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEDDCCAvSgAwIBAgICOFAwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTAxNzQ2\n'
+    + 'MjFaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\n'
+    + 'em9uIFJEUyBhcC1ub3J0aGVhc3QtMiAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\n'
+    + 'AAOCAQ8AMIIBCgKCAQEAzU72e6XbaJbi4HjJoRNjKxzUEuChKQIt7k3CWzNnmjc5\n'
+    + '8I1MjCpa2W1iw1BYVysXSNSsLOtUsfvBZxi/1uyMn5ZCaf9aeoA9UsSkFSZBjOCN\n'
+    + 'DpKPCmfV1zcEOvJz26+1m8WDg+8Oa60QV0ou2AU1tYcw98fOQjcAES0JXXB80P2s\n'
+    + '3UfkNcnDz+l4k7j4SllhFPhH6BQ4lD2NiFAP4HwoG6FeJUn45EPjzrydxjq6v5Fc\n'
+    + 'cQ8rGuHADVXotDbEhaYhNjIrsPL+puhjWfhJjheEw8c4whRZNp6gJ/b6WEes/ZhZ\n'
+    + 'h32DwsDsZw0BfRDUMgUn8TdecNexHUw8vQWeC181hwIDAQABo2YwZDAOBgNVHQ8B\n'
+    + 'Af8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUwW9bWgkWkr0U\n'
+    + 'lrOsq2kvIdrECDgwHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\n'
+    + 'KoZIhvcNAQELBQADggEBAEugF0Gj7HVhX0ehPZoGRYRt3PBuI2YjfrrJRTZ9X5wc\n'
+    + '9T8oHmw07mHmNy1qqWvooNJg09bDGfB0k5goC2emDiIiGfc/kvMLI7u+eQOoMKj6\n'
+    + 'mkfCncyRN3ty08Po45vTLBFZGUvtQmjM6yKewc4sXiASSBmQUpsMbiHRCL72M5qV\n'
+    + 'obcJOjGcIdDTmV1BHdWT+XcjynsGjUqOvQWWhhLPrn4jWe6Xuxll75qlrpn3IrIx\n'
+    + 'CRBv/5r7qbcQJPOgwQsyK4kv9Ly8g7YT1/vYBlR3cRsYQjccw5ceWUj2DrMVWhJ4\n'
+    + 'prf+E3Aa4vYmLLOUUvKnDQ1k3RGNu56V0tonsQbfsaM=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-northeast-3 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-northeast-3 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-17T20:05:29Z/2024-08-22T17:08:50Z
+     *   F = D1:08:B1:40:6D:6C:80:8E:F4:C1:2C:8A:1F:66:17:01:54:CD:1A:4E
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEDDCCAvSgAwIBAgICOYIwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTcyMDA1\n'
+    + 'MjlaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\n'
+    + 'em9uIFJEUyBhcC1ub3J0aGVhc3QtMyAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\n'
+    + 'AAOCAQ8AMIIBCgKCAQEA4dMak8W+XW8y/2F6nRiytFiA4XLwePadqWebGtlIgyCS\n'
+    + 'kbug8Jv5w7nlMkuxOxoUeD4WhI6A9EkAn3r0REM/2f0aYnd2KPxeqS2MrtdxxHw1\n'
+    + 'xoOxk2x0piNSlOz6yog1idsKR5Wurf94fvM9FdTrMYPPrDabbGqiBMsZZmoHLvA3\n'
+    + 'Z+57HEV2tU0Ei3vWeGIqnNjIekS+E06KhASxrkNU5vi611UsnYZlSi0VtJsH4UGV\n'
+    + 'LhnHl53aZL0YFO5mn/fzuNG/51qgk/6EFMMhaWInXX49Dia9FnnuWXwVwi6uX1Wn\n'
+    + '7kjoHi5VtmC8ZlGEHroxX2DxEr6bhJTEpcLMnoQMqwIDAQABo2YwZDAOBgNVHQ8B\n'
+    + 'Af8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUsUI5Cb3SWB8+\n'
+    + 'gv1YLN/ABPMdxSAwHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\n'
+    + 'KoZIhvcNAQELBQADggEBAJAF3E9PM1uzVL8YNdzb6fwJrxxqI2shvaMVmC1mXS+w\n'
+    + 'G0zh4v2hBZOf91l1EO0rwFD7+fxoI6hzQfMxIczh875T6vUXePKVOCOKI5wCrDad\n'
+    + 'zQbVqbFbdhsBjF4aUilOdtw2qjjs9JwPuB0VXN4/jY7m21oKEOcnpe36+7OiSPjN\n'
+    + 'xngYewCXKrSRqoj3mw+0w/+exYj3Wsush7uFssX18av78G+ehKPIVDXptOCP/N7W\n'
+    + '8iKVNeQ2QGTnu2fzWsGUSvMGyM7yqT+h1ILaT//yQS8er511aHMLc142bD4D9VSy\n'
+    + 'DgactwPDTShK/PXqhvNey9v/sKXm4XatZvwcc8KYlW4=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-south-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-south-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-04T17:13:04Z/2024-08-22T17:08:50Z
+     *   F = D6:AD:45:A9:54:36:E4:BA:9C:B7:9B:06:8C:0C:CD:CC:1E:81:B5:00
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECDCCAvCgAwIBAgICVIYwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MDQxNzEz\n'
+    + 'MDRaFw0yNDA4MjIxNzA4NTBaMIGVMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEmMCQGA1UEAwwdQW1h\n'
+    + 'em9uIFJEUyBhcC1zb3V0aC0xIDIwMTkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n'
+    + 'DwAwggEKAoIBAQDUYOz1hGL42yUCrcsMSOoU8AeD/3KgZ4q7gP+vAz1WnY9K/kim\n'
+    + 'eWN/2Qqzlo3+mxSFQFyD4MyV3+CnCPnBl9Sh1G/F6kThNiJ7dEWSWBQGAB6HMDbC\n'
+    + 'BaAsmUc1UIz8sLTL3fO+S9wYhA63Wun0Fbm/Rn2yk/4WnJAaMZcEtYf6e0KNa0LM\n'
+    + 'p/kN/70/8cD3iz3dDR8zOZFpHoCtf0ek80QqTich0A9n3JLxR6g6tpwoYviVg89e\n'
+    + 'qCjQ4axxOkWWeusLeTJCcY6CkVyFvDAKvcUl1ytM5AiaUkXblE7zDFXRM4qMMRdt\n'
+    + 'lPm8d3pFxh0fRYk8bIKnpmtOpz3RIctDrZZxAgMBAAGjZjBkMA4GA1UdDwEB/wQE\n'
+    + 'AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBT99wKJftD3jb4sHoHG\n'
+    + 'i3uGlH6W6TAfBgNVHSMEGDAWgBRzX2DYvMsDmPQrFzQuNlqmYP+8HzANBgkqhkiG\n'
+    + '9w0BAQsFAAOCAQEAZ17hhr3dII3hUfuHQ1hPWGrpJOX/G9dLzkprEIcCidkmRYl+\n'
+    + 'hu1Pe3caRMh/17+qsoEErmnVq5jNY9X1GZL04IZH8YbHc7iRHw3HcWAdhN8633+K\n'
+    + 'jYEB2LbJ3vluCGnCejq9djDb6alOugdLMJzxOkHDhMZ6/gYbECOot+ph1tQuZXzD\n'
+    + 'tZ7prRsrcuPBChHlPjmGy8M9z8u+kF196iNSUGC4lM8vLkHM7ycc1/ZOwRq9aaTe\n'
+    + 'iOghbQQyAEe03MWCyDGtSmDfr0qEk+CHN+6hPiaL8qKt4s+V9P7DeK4iW08ny8Ox\n'
+    + 'AVS7u0OK/5+jKMAMrKwpYrBydOjTUTHScocyNw==\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-southeast-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-southeast-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-13T20:11:42Z/2024-08-22T17:08:50Z
+     *   F = 0D:20:FB:91:DE:BE:D2:CF:F3:F8:F8:43:AF:68:C6:03:76:F3:DD:B8
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEDDCCAvSgAwIBAgICY4kwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTMyMDEx\n'
+    + 'NDJaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\n'
+    + 'em9uIFJEUyBhcC1zb3V0aGVhc3QtMSAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\n'
+    + 'AAOCAQ8AMIIBCgKCAQEAr5u9OuLL/OF/fBNUX2kINJLzFl4DnmrhnLuSeSnBPgbb\n'
+    + 'qddjf5EFFJBfv7IYiIWEFPDbDG5hoBwgMup5bZDbas+ZTJTotnnxVJTQ6wlhTmns\n'
+    + 'eHECcg2pqGIKGrxZfbQhlj08/4nNAPvyYCTS0bEcmQ1emuDPyvJBYDDLDU6AbCB5\n'
+    + '6Z7YKFQPTiCBblvvNzchjLWF9IpkqiTsPHiEt21sAdABxj9ityStV3ja/W9BfgxH\n'
+    + 'wzABSTAQT6FbDwmQMo7dcFOPRX+hewQSic2Rn1XYjmNYzgEHisdUsH7eeXREAcTw\n'
+    + '61TRvaLH8AiOWBnTEJXPAe6wYfrcSd1pD0MXpoB62wIDAQABo2YwZDAOBgNVHQ8B\n'
+    + 'Af8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUytwMiomQOgX5\n'
+    + 'Ichd+2lDWRUhkikwHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\n'
+    + 'KoZIhvcNAQELBQADggEBACf6lRDpfCD7BFRqiWM45hqIzffIaysmVfr+Jr+fBTjP\n'
+    + 'uYe/ba1omSrNGG23bOcT9LJ8hkQJ9d+FxUwYyICQNWOy6ejicm4z0C3VhphbTPqj\n'
+    + 'yjpt9nG56IAcV8BcRJh4o/2IfLNzC/dVuYJV8wj7XzwlvjysenwdrJCoLadkTr1h\n'
+    + 'eIdG6Le07sB9IxrGJL9e04afk37h7c8ESGSE4E+oS4JQEi3ATq8ne1B9DQ9SasXi\n'
+    + 'IRmhNAaISDzOPdyLXi9N9V9Lwe/DHcja7hgLGYx3UqfjhLhOKwp8HtoZORixAmOI\n'
+    + 'HfILgNmwyugAbuZoCazSKKBhQ0wgO0WZ66ZKTMG8Oho=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ap-southeast-2 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ap-southeast-2 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-16T19:53:47Z/2024-08-22T17:08:50Z
+     *   F = D5:D4:51:83:D9:A3:AC:47:B0:0A:5A:77:D8:A0:79:A9:6A:3F:6D:96
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEDDCCAvSgAwIBAgICEkYwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTYxOTUz\n'
+    + 'NDdaFw0yNDA4MjIxNzA4NTBaMIGZMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEqMCgGA1UEAwwhQW1h\n'
+    + 'em9uIFJEUyBhcC1zb3V0aGVhc3QtMiAyMDE5IENBMIIBIjANBgkqhkiG9w0BAQEF\n'
+    + 'AAOCAQ8AMIIBCgKCAQEAufodI2Flker8q7PXZG0P0vmFSlhQDw907A6eJuF/WeMo\n'
+    + 'GHnll3b4S6nC3oRS3nGeRMHbyU2KKXDwXNb3Mheu+ox+n5eb/BJ17eoj9HbQR1cd\n'
+    + 'gEkIciiAltf8gpMMQH4anP7TD+HNFlZnP7ii3geEJB2GGXSxgSWvUzH4etL67Zmn\n'
+    + 'TpGDWQMB0T8lK2ziLCMF4XAC/8xDELN/buHCNuhDpxpPebhct0T+f6Arzsiswt2j\n'
+    + '7OeNeLLZwIZvVwAKF7zUFjC6m7/VmTQC8nidVY559D6l0UhhU0Co/txgq3HVsMOH\n'
+    + 'PbxmQUwJEKAzQXoIi+4uZzHFZrvov/nDTNJUhC6DqwIDAQABo2YwZDAOBgNVHQ8B\n'
+    + 'Af8EBAMCAQYwEgYDVR0TAQH/BAgwBgEB/wIBADAdBgNVHQ4EFgQUwaZpaCme+EiV\n'
+    + 'M5gcjeHZSTgOn4owHwYDVR0jBBgwFoAUc19g2LzLA5j0Kxc0LjZapmD/vB8wDQYJ\n'
+    + 'KoZIhvcNAQELBQADggEBAAR6a2meCZuXO2TF9bGqKGtZmaah4pH2ETcEVUjkvXVz\n'
+    + 'sl+ZKbYjrun+VkcMGGKLUjS812e7eDF726ptoku9/PZZIxlJB0isC/0OyixI8N4M\n'
+    + 'NsEyvp52XN9QundTjkl362bomPnHAApeU0mRbMDRR2JdT70u6yAzGLGsUwMkoNnw\n'
+    + '1VR4XKhXHYGWo7KMvFrZ1KcjWhubxLHxZWXRulPVtGmyWg/MvE6KF+2XMLhojhUL\n'
+    + '+9jB3Fpn53s6KMx5tVq1x8PukHmowcZuAF8k+W4gk8Y68wIwynrdZrKRyRv6CVtR\n'
+    + 'FZ8DeJgoNZT3y/GT254VqMxxfuy2Ccb/RInd16tEvVk=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS ca-central-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS ca-central-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-10T20:52:25Z/2024-08-22T17:08:50Z
+     *   F = A1:03:46:F2:BB:29:BF:4F:EC:04:7E:82:9A:A6:C0:11:4D:AB:82:25
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECjCCAvKgAwIBAgICEzUwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTAyMDUy\n'
+    + 'MjVaFw0yNDA4MjIxNzA4NTBaMIGXMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEoMCYGA1UEAwwfQW1h\n'
+    + 'em9uIFJEUyBjYS1jZW50cmFsLTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQAD\n'
+    + 'ggEPADCCAQoCggEBAOxHqdcPSA2uBjsCP4DLSlqSoPuQ/X1kkJLusVRKiQE2zayB\n'
+    + 'viuCBt4VB9Qsh2rW3iYGM+usDjltGnI1iUWA5KHcvHszSMkWAOYWLiMNKTlg6LCp\n'
+    + 'XnE89tvj5dIH6U8WlDvXLdjB/h30gW9JEX7S8supsBSci2GxEzb5mRdKaDuuF/0O\n'
+    + 'qvz4YE04pua3iZ9QwmMFuTAOYzD1M72aOpj+7Ac+YLMM61qOtU+AU6MndnQkKoQi\n'
+    + 'qmUN2A9IFaqHFzRlSdXwKCKUA4otzmz+/N3vFwjb5F4DSsbsrMfjeHMo6o/nb6Nh\n'
+    + 'YDb0VJxxPee6TxSuN7CQJ2FxMlFUezcoXqwqXD0CAwEAAaNmMGQwDgYDVR0PAQH/\n'
+    + 'BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFDGGpon9WfIpsggE\n'
+    + 'CxHq8hZ7E2ESMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqG\n'
+    + 'SIb3DQEBCwUAA4IBAQAvpeQYEGZvoTVLgV9rd2+StPYykMsmFjWQcyn3dBTZRXC2\n'
+    + 'lKq7QhQczMAOhEaaN29ZprjQzsA2X/UauKzLR2Uyqc2qOeO9/YOl0H3qauo8C/W9\n'
+    + 'r8xqPbOCDLEXlOQ19fidXyyEPHEq5WFp8j+fTh+s8WOx2M7IuC0ANEetIZURYhSp\n'
+    + 'xl9XOPRCJxOhj7JdelhpweX0BJDNHeUFi0ClnFOws8oKQ7sQEv66d5ddxqqZ3NVv\n'
+    + 'RbCvCtEutQMOUMIuaygDlMn1anSM8N7Wndx8G6+Uy67AnhjGx7jw/0YPPxopEj6x\n'
+    + 'JXP8j0sJbcT9K/9/fPVLNT25RvQ/93T2+IQL4Ca2\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS eu-central-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS eu-central-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-11T19:36:20Z/2024-08-22T17:08:50Z
+     *   F = 53:46:18:4A:42:65:A2:8C:5F:5B:0A:AD:E2:2C:80:E5:E6:8A:6D:2F
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECjCCAvKgAwIBAgICV2YwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTExOTM2\n'
+    + 'MjBaFw0yNDA4MjIxNzA4NTBaMIGXMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEoMCYGA1UEAwwfQW1h\n'
+    + 'em9uIFJEUyBldS1jZW50cmFsLTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQAD\n'
+    + 'ggEPADCCAQoCggEBAMEx54X2pHVv86APA0RWqxxRNmdkhAyp2R1cFWumKQRofoFv\n'
+    + 'n+SPXdkpIINpMuEIGJANozdiEz7SPsrAf8WHyD93j/ZxrdQftRcIGH41xasetKGl\n'
+    + 'I67uans8d+pgJgBKGb/Z+B5m+UsIuEVekpvgpwKtmmaLFC/NCGuSsJoFsRqoa6Gh\n'
+    + 'm34W6yJoY87UatddCqLY4IIXaBFsgK9Q/wYzYLbnWM6ZZvhJ52VMtdhcdzeTHNW0\n'
+    + '5LGuXJOF7Ahb4JkEhoo6TS2c0NxB4l4MBfBPgti+O7WjR3FfZHpt18A6Zkq6A2u6\n'
+    + 'D/oTSL6c9/3sAaFTFgMyL3wHb2YlW0BPiljZIqECAwEAAaNmMGQwDgYDVR0PAQH/\n'
+    + 'BAQDAgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFOcAToAc6skWffJa\n'
+    + 'TnreaswAfrbcMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqG\n'
+    + 'SIb3DQEBCwUAA4IBAQA1d0Whc1QtspK496mFWfFEQNegLh0a9GWYlJm+Htcj5Nxt\n'
+    + 'DAIGXb+8xrtOZFHmYP7VLCT5Zd2C+XytqseK/+s07iAr0/EPF+O2qcyQWMN5KhgE\n'
+    + 'cXw2SwuP9FPV3i+YAm11PBVeenrmzuk9NrdHQ7TxU4v7VGhcsd2C++0EisrmquWH\n'
+    + 'mgIfmVDGxphwoES52cY6t3fbnXmTkvENvR+h3rj+fUiSz0aSo+XZUGHPgvuEKM/W\n'
+    + 'CBD9Smc9CBoBgvy7BgHRgRUmwtABZHFUIEjHI5rIr7ZvYn+6A0O6sogRfvVYtWFc\n'
+    + 'qpyrW1YX8mD0VlJ8fGKM3G+aCOsiiPKDV/Uafrm+\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS eu-north-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS eu-north-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-12T18:19:44Z/2024-08-22T17:08:50Z
+     *   F = D0:CA:9C:6E:47:4C:4F:DB:85:28:03:4A:60:AC:14:E0:E6:DF:D4:42
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECDCCAvCgAwIBAgICGAcwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTIxODE5\n'
+    + 'NDRaFw0yNDA4MjIxNzA4NTBaMIGVMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzEmMCQGA1UEAwwdQW1h\n'
+    + 'em9uIFJEUyBldS1ub3J0aC0xIDIwMTkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n'
+    + 'DwAwggEKAoIBAQCiIYnhe4UNBbdBb/nQxl5giM0XoVHWNrYV5nB0YukA98+TPn9v\n'
+    + 'Aoj1RGYmtryjhrf01Kuv8SWO+Eom95L3zquoTFcE2gmxCfk7bp6qJJ3eHOJB+QUO\n'
+    + 'XsNRh76fwDzEF1yTeZWH49oeL2xO13EAx4PbZuZpZBttBM5zAxgZkqu4uWQczFEs\n'
+    + 'JXfla7z2fvWmGcTagX10O5C18XaFroV0ubvSyIi75ue9ykg/nlFAeB7O0Wxae88e\n'
+    + 'uhiBEFAuLYdqWnsg3459NfV8Yi1GnaitTym6VI3tHKIFiUvkSiy0DAlAGV2iiyJE\n'
+    + 'q+DsVEO4/hSINJEtII4TMtysOsYPpINqeEzRAgMBAAGjZjBkMA4GA1UdDwEB/wQE\n'
+    + 'AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBRR0UpnbQyjnHChgmOc\n'
+    + 'hnlc0PogzTAfBgNVHSMEGDAWgBRzX2DYvMsDmPQrFzQuNlqmYP+8HzANBgkqhkiG\n'
+    + '9w0BAQsFAAOCAQEAKJD4xVzSf4zSGTBJrmamo86jl1NHQxXUApAZuBZEc8tqC6TI\n'
+    + 'T5CeoSr9CMuVC8grYyBjXblC4OsM5NMvmsrXl/u5C9dEwtBFjo8mm53rOOIm1fxl\n'
+    + 'I1oYB/9mtO9ANWjkykuLzWeBlqDT/i7ckaKwalhLODsRDO73vRhYNjsIUGloNsKe\n'
+    + 'pxw3dzHwAZx4upSdEVG4RGCZ1D0LJ4Gw40OfD69hfkDfRVVxKGrbEzqxXRvovmDc\n'
+    + 'tKLdYZO/6REoca36v4BlgIs1CbUXJGLSXUwtg7YXGLSVBJ/U0+22iGJmBSNcoyUN\n'
+    + 'cjPFD9JQEhDDIYYKSGzIYpvslvGc4T5ISXFiuQ==\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS eu-west-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS eu-west-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-11T17:31:48Z/2024-08-22T17:08:50Z
+     *   F = 2D:1A:A6:3E:0D:EB:D6:26:03:3E:A1:8A:0A:DF:14:80:78:EC:B6:63
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICYpgwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTExNzMx\n'
+    + 'NDhaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyBldS13ZXN0LTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBAMk3YdSZ64iAYp6MyyKtYJtNzv7zFSnnNf6vv0FB4VnfITTMmOyZ\n'
+    + 'LXqKAT2ahZ00hXi34ewqJElgU6eUZT/QlzdIu359TEZyLVPwURflL6SWgdG01Q5X\n'
+    + 'O++7fSGcBRyIeuQWs9FJNIIqK8daF6qw0Rl5TXfu7P9dBc3zkgDXZm2DHmxGDD69\n'
+    + '7liQUiXzoE1q2Z9cA8+jirDioJxN9av8hQt12pskLQumhlArsMIhjhHRgF03HOh5\n'
+    + 'tvi+RCfihVOxELyIRTRpTNiIwAqfZxxTWFTgfn+gijTmd0/1DseAe82aYic8JbuS\n'
+    + 'EMbrDduAWsqrnJ4GPzxHKLXX0JasCUcWyMECAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFPLtsq1NrwJXO13C9eHt\n'
+    + 'sLY11AGwMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQAnWBKj5xV1A1mYd0kIgDdkjCwQkiKF5bjIbGkT3YEFFbXoJlSP\n'
+    + '0lZZ/hDaOHI8wbLT44SzOvPEEmWF9EE7SJzkvSdQrUAWR9FwDLaU427ALI3ngNHy\n'
+    + 'lGJ2hse1fvSRNbmg8Sc9GBv8oqNIBPVuw+AJzHTacZ1OkyLZrz1c1QvwvwN2a+Jd\n'
+    + 'vH0V0YIhv66llKcYDMUQJAQi4+8nbRxXWv6Gq3pvrFoorzsnkr42V3JpbhnYiK+9\n'
+    + 'nRKd4uWl62KRZjGkfMbmsqZpj2fdSWMY1UGyN1k+kDmCSWYdrTRDP0xjtIocwg+A\n'
+    + 'J116n4hV/5mbA0BaPiS2krtv17YAeHABZcvz\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS eu-west-2 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS eu-west-2 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-12T21:32:32Z/2024-08-22T17:08:50Z
+     *   F = 60:65:44:F4:74:6E:2E:29:50:19:38:7C:4B:BE:18:B9:5B:D4:CD:23
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICZIEwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTIyMTMy\n'
+    + 'MzJaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyBldS13ZXN0LTIgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBALGiwqjiF7xIjT0Sx7zB3764K2T2a1DHnAxEOr+/EIftWKxWzT3u\n'
+    + 'PFwS2eEZcnKqSdRQ+vRzonLBeNLO4z8aLjQnNbkizZMBuXGm4BqRm1Kgq3nlLDQn\n'
+    + '7YqdijOq54SpShvR/8zsO4sgMDMmHIYAJJOJqBdaus2smRt0NobIKc0liy7759KB\n'
+    + '6kmQ47Gg+kfIwxrQA5zlvPLeQImxSoPi9LdbRoKvu7Iot7SOa+jGhVBh3VdqndJX\n'
+    + '7tm/saj4NE375csmMETFLAOXjat7zViMRwVorX4V6AzEg1vkzxXpA9N7qywWIT5Y\n'
+    + 'fYaq5M8i6vvLg0CzrH9fHORtnkdjdu1y+0MCAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFFOhOx1yt3Z7mvGB9jBv\n'
+    + '2ymdZwiOMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQBehqY36UGDvPVU9+vtaYGr38dBbp+LzkjZzHwKT1XJSSUc2wqM\n'
+    + 'hnCIQKilonrTIvP1vmkQi8qHPvDRtBZKqvz/AErW/ZwQdZzqYNFd+BmOXaeZWV0Q\n'
+    + 'oHtDzXmcwtP8aUQpxN0e1xkWb1E80qoy+0uuRqb/50b/R4Q5qqSfJhkn6z8nwB10\n'
+    + '7RjLtJPrK8igxdpr3tGUzfAOyiPrIDncY7UJaL84GFp7WWAkH0WG3H8Y8DRcRXOU\n'
+    + 'mqDxDLUP3rNuow3jnGxiUY+gGX5OqaZg4f4P6QzOSmeQYs6nLpH0PiN00+oS1BbD\n'
+    + 'bpWdZEttILPI+vAYkU4QuBKKDjJL6HbSd+cn\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS eu-west-3 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS eu-west-3 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-18T17:03:15Z/2024-08-22T17:08:50Z
+     *   F = 6F:79:56:B0:74:9C:C6:3E:3B:50:26:C8:51:55:08:F0:BB:7E:32:04
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICJDQwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTgxNzAz\n'
+    + 'MTVaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyBldS13ZXN0LTMgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBAL9bL7KE0n02DLVtlZ2PL+g/BuHpMYFq2JnE2RgompGurDIZdjmh\n'
+    + '1pxfL3nT+QIVMubuAOy8InRfkRxfpxyjKYdfLJTPJG+jDVL+wDcPpACFVqoV7Prg\n'
+    + 'pVYEV0lc5aoYw4bSeYFhdzgim6F8iyjoPnObjll9mo4XsHzSoqJLCd0QC+VG9Fw2\n'
+    + 'q+GDRZrLRmVM2oNGDRbGpGIFg77aRxRapFZa8SnUgs2AqzuzKiprVH5i0S0M6dWr\n'
+    + 'i+kk5epmTtkiDHceX+dP/0R1NcnkCPoQ9TglyXyPdUdTPPRfKCq12dftqll+u4mV\n'
+    + 'ARdN6WFjovxax8EAP2OAUTi1afY+1JFMj+sCAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFLfhrbrO5exkCVgxW0x3\n'
+    + 'Y2mAi8lNMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQAigQ5VBNGyw+OZFXwxeJEAUYaXVoP/qrhTOJ6mCE2DXUVEoJeV\n'
+    + 'SxScy/TlFA9tJXqmit8JH8VQ/xDL4ubBfeMFAIAo4WzNWDVoeVMqphVEcDWBHsI1\n'
+    + 'AETWzfsapRS9yQekOMmxg63d/nV8xewIl8aNVTHdHYXMqhhik47VrmaVEok1UQb3\n'
+    + 'O971RadLXIEbVd9tjY5bMEHm89JsZDnDEw1hQXBb67Elu64OOxoKaHBgUH8AZn/2\n'
+    + 'zFsL1ynNUjOhCSAA15pgd1vjwc0YsBbAEBPcHBWYBEyME6NLNarjOzBl4FMtATSF\n'
+    + 'wWCKRGkvqN8oxYhwR2jf2rR5Mu4DWkK5Q8Ep\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS me-south-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS me-south-1 Root CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-05-10T21:48:27Z/2024-05-08T21:48:27Z
+     *   F = 8A:69:D7:00:FB:5D:62:9C:B0:D1:75:6F:B7:B6:38:AA:76:C4:BD:1F
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEEjCCAvqgAwIBAgIJANew34ehz5l8MA0GCSqGSIb3DQEBCwUAMIGVMQswCQYD\n'
+    + 'VQQGEwJVUzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEi\n'
+    + 'MCAGA1UECgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1h\n'
+    + 'em9uIFJEUzEmMCQGA1UEAwwdQW1hem9uIFJEUyBtZS1zb3V0aC0xIFJvb3QgQ0Ew\n'
+    + 'HhcNMTkwNTEwMjE0ODI3WhcNMjQwNTA4MjE0ODI3WjCBlTELMAkGA1UEBhMCVVMx\n'
+    + 'EDAOBgNVBAcMB1NlYXR0bGUxEzARBgNVBAgMCldhc2hpbmd0b24xIjAgBgNVBAoM\n'
+    + 'GUFtYXpvbiBXZWIgU2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMx\n'
+    + 'JjAkBgNVBAMMHUFtYXpvbiBSRFMgbWUtc291dGgtMSBSb290IENBMIIBIjANBgkq\n'
+    + 'hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp7BYV88MukcY+rq0r79+C8UzkT30fEfT\n'
+    + 'aPXbx1d6M7uheGN4FMaoYmL+JE1NZPaMRIPTHhFtLSdPccInvenRDIatcXX+jgOk\n'
+    + 'UA6lnHQ98pwN0pfDUyz/Vph4jBR9LcVkBbe0zdoKKp+HGbMPRU0N2yNrog9gM5O8\n'
+    + 'gkU/3O2csJ/OFQNnj4c2NQloGMUpEmedwJMOyQQfcUyt9CvZDfIPNnheUS29jGSw\n'
+    + 'ERpJe/AENu8Pxyc72jaXQuD+FEi2Ck6lBkSlWYQFhTottAeGvVFNCzKszCntrtqd\n'
+    + 'rdYUwurYsLTXDHv9nW2hfDUQa0mhXf9gNDOBIVAZugR9NqNRNyYLHQIDAQABo2Mw\n'
+    + 'YTAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU54cf\n'
+    + 'DjgwBx4ycBH8+/r8WXdaiqYwHwYDVR0jBBgwFoAU54cfDjgwBx4ycBH8+/r8WXda\n'
+    + 'iqYwDQYJKoZIhvcNAQELBQADggEBAIIMTSPx/dR7jlcxggr+O6OyY49Rlap2laKA\n'
+    + 'eC/XI4ySP3vQkIFlP822U9Kh8a9s46eR0uiwV4AGLabcu0iKYfXjPkIprVCqeXV7\n'
+    + 'ny9oDtrbflyj7NcGdZLvuzSwgl9SYTJp7PVCZtZutsPYlbJrBPHwFABvAkMvRtDB\n'
+    + 'hitIg4AESDGPoCl94sYHpfDfjpUDMSrAMDUyO6DyBdZH5ryRMAs3lGtsmkkNUrso\n'
+    + 'aTW6R05681Z0mvkRdb+cdXtKOSuDZPoe2wJJIaz3IlNQNSrB5TImMYgmt6iAsFhv\n'
+    + '3vfTSTKrZDNTJn4ybG6pq1zWExoXsktZPylJly6R3RBwV6nwqBM=\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS sa-east-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS sa-east-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-05T18:46:29Z/2024-08-22T17:08:50Z
+     *   F = 8C:34:0F:AA:FB:10:80:9C:05:CE:D7:BF:0B:12:4D:07:42:39:74:7A
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICQ2QwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MDUxODQ2\n'
+    + 'MjlaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyBzYS1lYXN0LTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBAMMvR+ReRnOzqJzoaPipNTt1Z2VA968jlN1+SYKUrYM3No+Vpz0H\n'
+    + 'M6Tn0oYB66ByVsXiGc28ulsqX1HbHsxqDPwvQTKvO7SrmDokoAkjJgLocOLUAeld\n'
+    + '5AwvUjxGRP6yY90NV7X786MpnYb2Il9DIIaV9HjCmPt+rjy2CZjS0UjPjCKNfB8J\n'
+    + 'bFjgW6GGscjeyGb/zFwcom5p4j0rLydbNaOr9wOyQrtt3ZQWLYGY9Zees/b8pmcc\n'
+    + 'Jt+7jstZ2UMV32OO/kIsJ4rMUn2r/uxccPwAc1IDeRSSxOrnFKhW3Cu69iB3bHp7\n'
+    + 'JbawY12g7zshE4I14sHjv3QoXASoXjx4xgMCAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFI1Fc/Ql2jx+oJPgBVYq\n'
+    + 'ccgP0pQ8MB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQB4VVVabVp70myuYuZ3vltQIWqSUMhkaTzehMgGcHjMf9iLoZ/I\n'
+    + '93KiFUSGnek5cRePyS9wcpp0fcBT3FvkjpUdCjVtdttJgZFhBxgTd8y26ImdDDMR\n'
+    + '4+BUuhI5msvjL08f+Vkkpu1GQcGmyFVPFOy/UY8iefu+QyUuiBUnUuEDd49Hw0Fn\n'
+    + '/kIPII6Vj82a2mWV/Q8e+rgN8dIRksRjKI03DEoP8lhPlsOkhdwU6Uz9Vu6NOB2Q\n'
+    + 'Ls1kbcxAc7cFSyRVJEhh12Sz9d0q/CQSTFsVJKOjSNQBQfVnLz1GwO/IieUEAr4C\n'
+    + 'jkTntH0r1LX5b/GwN4R887LvjAEdTbg1his7\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS us-east-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS us-east-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-19T18:16:53Z/2024-08-22T17:08:50Z
+     *   F = F0:ED:82:3E:D1:44:47:BA:B5:57:FD:F3:E4:92:74:66:98:8C:1C:78
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICJVUwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTkxODE2\n'
+    + 'NTNaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyB1cy1lYXN0LTEgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBAM3i/k2u6cqbMdcISGRvh+m+L0yaSIoOXjtpNEoIftAipTUYoMhL\n'
+    + 'InXGlQBVA4shkekxp1N7HXe1Y/iMaPEyb3n+16pf3vdjKl7kaSkIhjdUz3oVUEYt\n'
+    + 'i8Z/XeJJ9H2aEGuiZh3kHixQcZczn8cg3dA9aeeyLSEnTkl/npzLf//669Ammyhs\n'
+    + 'XcAo58yvT0D4E0D/EEHf2N7HRX7j/TlyWvw/39SW0usiCrHPKDLxByLojxLdHzso\n'
+    + 'QIp/S04m+eWn6rmD+uUiRteN1hI5ncQiA3wo4G37mHnUEKo6TtTUh+sd/ku6a8HK\n'
+    + 'glMBcgqudDI90s1OpuIAWmuWpY//8xEG2YECAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFPqhoWZcrVY9mU7tuemR\n'
+    + 'RBnQIj1jMB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQB6zOLZ+YINEs72heHIWlPZ8c6WY8MDU+Be5w1M+BK2kpcVhCUK\n'
+    + 'PJO4nMXpgamEX8DIiaO7emsunwJzMSvavSPRnxXXTKIc0i/g1EbiDjnYX9d85DkC\n'
+    + 'E1LaAUCmCZBVi9fIe0H2r9whIh4uLWZA41oMnJx/MOmo3XyMfQoWcqaSFlMqfZM4\n'
+    + '0rNoB/tdHLNuV4eIdaw2mlHxdWDtF4oH+HFm+2cVBUVC1jXKrFv/euRVtsTT+A6i\n'
+    + 'h2XBHKxQ1Y4HgAn0jACP2QSPEmuoQEIa57bEKEcZsBR8SDY6ZdTd2HLRIApcCOSF\n'
+    + 'MRM8CKLeF658I0XgF8D5EsYoKPsA+74Z+jDH\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS us-east-2 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS us-east-2 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-13T17:06:41Z/2024-08-22T17:08:50Z
+     *   F = E9:FE:27:2A:A0:0F:CE:DF:AD:51:03:A6:94:F7:1F:6F:BD:1E:28:D3
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECDCCAvCgAwIBAgIDAIVCMA0GCSqGSIb3DQEBCwUAMIGPMQswCQYDVQQGEwJV\n'
+    + 'UzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEiMCAGA1UE\n'
+    + 'CgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJE\n'
+    + 'UzEgMB4GA1UEAwwXQW1hem9uIFJEUyBSb290IDIwMTkgQ0EwHhcNMTkwOTEzMTcw\n'
+    + 'NjQxWhcNMjQwODIyMTcwODUwWjCBlDELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldh\n'
+    + 'c2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxIjAgBgNVBAoMGUFtYXpvbiBXZWIg\n'
+    + 'U2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxJTAjBgNVBAMMHEFt\n'
+    + 'YXpvbiBSRFMgdXMtZWFzdC0yIDIwMTkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n'
+    + 'DwAwggEKAoIBAQDE+T2xYjUbxOp+pv+gRA3FO24+1zCWgXTDF1DHrh1lsPg5k7ht\n'
+    + '2KPYzNc+Vg4E+jgPiW0BQnA6jStX5EqVh8BU60zELlxMNvpg4KumniMCZ3krtMUC\n'
+    + 'au1NF9rM7HBh+O+DYMBLK5eSIVt6lZosOb7bCi3V6wMLA8YqWSWqabkxwN4w0vXI\n'
+    + '8lu5uXXFRemHnlNf+yA/4YtN4uaAyd0ami9+klwdkZfkrDOaiy59haOeBGL8EB/c\n'
+    + 'dbJJlguHH5CpCscs3RKtOOjEonXnKXldxarFdkMzi+aIIjQ8GyUOSAXHtQHb3gZ4\n'
+    + 'nS6Ey0CMlwkB8vUObZU9fnjKJcL5QCQqOfwvAgMBAAGjZjBkMA4GA1UdDwEB/wQE\n'
+    + 'AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBQUPuRHohPxx4VjykmH\n'
+    + '6usGrLL1ETAfBgNVHSMEGDAWgBRzX2DYvMsDmPQrFzQuNlqmYP+8HzANBgkqhkiG\n'
+    + '9w0BAQsFAAOCAQEAUdR9Vb3y33Yj6X6KGtuthZ08SwjImVQPtknzpajNE5jOJAh8\n'
+    + 'quvQnU9nlnMO85fVDU1Dz3lLHGJ/YG1pt1Cqq2QQ200JcWCvBRgdvH6MjHoDQpqZ\n'
+    + 'HvQ3vLgOGqCLNQKFuet9BdpsHzsctKvCVaeBqbGpeCtt3Hh/26tgx0rorPLw90A2\n'
+    + 'V8QSkZJjlcKkLa58N5CMM8Xz8KLWg3MZeT4DmlUXVCukqK2RGuP2L+aME8dOxqNv\n'
+    + 'OnOz1zrL5mR2iJoDpk8+VE/eBDmJX40IJk6jBjWoxAO/RXq+vBozuF5YHN1ujE92\n'
+    + 'tO8HItgTp37XT8bJBAiAnt5mxw+NLSqtxk2QdQ==\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS us-west-1 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS us-west-1 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-06T17:40:21Z/2024-08-22T17:08:50Z
+     *   F = 1C:9F:DF:84:E6:13:32:F3:91:12:2D:0D:A5:9A:16:5D:AC:DC:E8:93
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIECDCCAvCgAwIBAgIDAIkHMA0GCSqGSIb3DQEBCwUAMIGPMQswCQYDVQQGEwJV\n'
+    + 'UzEQMA4GA1UEBwwHU2VhdHRsZTETMBEGA1UECAwKV2FzaGluZ3RvbjEiMCAGA1UE\n'
+    + 'CgwZQW1hem9uIFdlYiBTZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJE\n'
+    + 'UzEgMB4GA1UEAwwXQW1hem9uIFJEUyBSb290IDIwMTkgQ0EwHhcNMTkwOTA2MTc0\n'
+    + 'MDIxWhcNMjQwODIyMTcwODUwWjCBlDELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldh\n'
+    + 'c2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxIjAgBgNVBAoMGUFtYXpvbiBXZWIg\n'
+    + 'U2VydmljZXMsIEluYy4xEzARBgNVBAsMCkFtYXpvbiBSRFMxJTAjBgNVBAMMHEFt\n'
+    + 'YXpvbiBSRFMgdXMtd2VzdC0xIDIwMTkgQ0EwggEiMA0GCSqGSIb3DQEBAQUAA4IB\n'
+    + 'DwAwggEKAoIBAQDD2yzbbAl77OofTghDMEf624OvU0eS9O+lsdO0QlbfUfWa1Kd6\n'
+    + '0WkgjkLZGfSRxEHMCnrv4UPBSK/Qwn6FTjkDLgemhqBtAnplN4VsoDL+BkRX4Wwq\n'
+    + '/dSQJE2b+0hm9w9UMVGFDEq1TMotGGTD2B71eh9HEKzKhGzqiNeGsiX4VV+LJzdH\n'
+    + 'uM23eGisNqmd4iJV0zcAZ+Gbh2zK6fqTOCvXtm7Idccv8vZZnyk1FiWl3NR4WAgK\n'
+    + 'AkvWTIoFU3Mt7dIXKKClVmvssG8WHCkd3Xcb4FHy/G756UZcq67gMMTX/9fOFM/v\n'
+    + 'l5C0+CHl33Yig1vIDZd+fXV1KZD84dEJfEvHAgMBAAGjZjBkMA4GA1UdDwEB/wQE\n'
+    + 'AwIBBjASBgNVHRMBAf8ECDAGAQH/AgEAMB0GA1UdDgQWBBR+ap20kO/6A7pPxo3+\n'
+    + 'T3CfqZpQWjAfBgNVHSMEGDAWgBRzX2DYvMsDmPQrFzQuNlqmYP+8HzANBgkqhkiG\n'
+    + '9w0BAQsFAAOCAQEAHCJky2tPjPttlDM/RIqExupBkNrnSYnOK4kr9xJ3sl8UF2DA\n'
+    + 'PAnYsjXp3rfcjN/k/FVOhxwzi3cXJF/2Tjj39Bm/OEfYTOJDNYtBwB0VVH4ffa/6\n'
+    + 'tZl87jaIkrxJcreeeHqYMnIxeN0b/kliyA+a5L2Yb0VPjt9INq34QDc1v74FNZ17\n'
+    + '4z8nr1nzg4xsOWu0Dbjo966lm4nOYIGBRGOKEkHZRZ4mEiMgr3YLkv8gSmeitx57\n'
+    + 'Z6dVemNtUic/LVo5Iqw4n3TBS0iF2C1Q1xT/s3h+0SXZlfOWttzSluDvoMv5PvCd\n'
+    + 'pFjNn+aXLAALoihL1MJSsxydtsLjOBro5eK0Vw==\n'
+    + '-----END CERTIFICATE-----\n',
+
+    /**
+     * Amazon RDS us-west-2 certificate CA 2019 to 2024
+     *
+     *   CN = Amazon RDS us-west-2 2019 CA
+     *   OU = Amazon RDS
+     *   O = Amazon Web Services, Inc.
+     *   L = Seattle
+     *   ST = Washington
+     *   C = US
+     *   P = 2019-09-16T18:21:15Z/2024-08-22T17:08:50Z
+     *   F = C8:DE:1D:13:AD:35:9B:3D:EA:18:2A:DC:B4:79:6D:22:47:75:3C:4A
+     */
+    '-----BEGIN CERTIFICATE-----\n'
+    + 'MIIEBzCCAu+gAwIBAgICUYkwDQYJKoZIhvcNAQELBQAwgY8xCzAJBgNVBAYTAlVT\n'
+    + 'MRAwDgYDVQQHDAdTZWF0dGxlMRMwEQYDVQQIDApXYXNoaW5ndG9uMSIwIAYDVQQK\n'
+    + 'DBlBbWF6b24gV2ViIFNlcnZpY2VzLCBJbmMuMRMwEQYDVQQLDApBbWF6b24gUkRT\n'
+    + 'MSAwHgYDVQQDDBdBbWF6b24gUkRTIFJvb3QgMjAxOSBDQTAeFw0xOTA5MTYxODIx\n'
+    + 'MTVaFw0yNDA4MjIxNzA4NTBaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2Fz\n'
+    + 'aGluZ3RvbjEQMA4GA1UEBwwHU2VhdHRsZTEiMCAGA1UECgwZQW1hem9uIFdlYiBT\n'
+    + 'ZXJ2aWNlcywgSW5jLjETMBEGA1UECwwKQW1hem9uIFJEUzElMCMGA1UEAwwcQW1h\n'
+    + 'em9uIFJEUyB1cy13ZXN0LTIgMjAxOSBDQTCCASIwDQYJKoZIhvcNAQEBBQADggEP\n'
+    + 'ADCCAQoCggEBANCEZBZyu6yJQFZBJmSUZfSZd3Ui2gitczMKC4FLr0QzkbxY+cLa\n'
+    + 'uVONIOrPt4Rwi+3h/UdnUg917xao3S53XDf1TDMFEYp4U8EFPXqCn/GXBIWlU86P\n'
+    + 'PvBN+gzw3nS+aco7WXb+woTouvFVkk8FGU7J532llW8o/9ydQyDIMtdIkKTuMfho\n'
+    + 'OiNHSaNc+QXQ32TgvM9A/6q7ksUoNXGCP8hDOkSZ/YOLiI5TcdLh/aWj00ziL5bj\n'
+    + 'pvytiMZkilnc9dLY9QhRNr0vGqL0xjmWdoEXz9/OwjmCihHqJq+20MJPsvFm7D6a\n'
+    + '2NKybR9U+ddrjb8/iyLOjURUZnj5O+2+OPcCAwEAAaNmMGQwDgYDVR0PAQH/BAQD\n'
+    + 'AgEGMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFEBxMBdv81xuzqcK5TVu\n'
+    + 'pHj+Aor8MB8GA1UdIwQYMBaAFHNfYNi8ywOY9CsXNC42WqZg/7wfMA0GCSqGSIb3\n'
+    + 'DQEBCwUAA4IBAQBZkfiVqGoJjBI37aTlLOSjLcjI75L5wBrwO39q+B4cwcmpj58P\n'
+    + '3sivv+jhYfAGEbQnGRzjuFoyPzWnZ1DesRExX+wrmHsLLQbF2kVjLZhEJMHF9eB7\n'
+    + 'GZlTPdTzHErcnuXkwA/OqyXMpj9aghcQFuhCNguEfnROY9sAoK2PTfnTz9NJHL+Q\n'
+    + 'UpDLEJEUfc0GZMVWYhahc0x38ZnSY2SKacIPECQrTI0KpqZv/P+ijCEcMD9xmYEb\n'
+    + 'jL4en+XKS1uJpw5fIU5Sj0MxhdGstH6S84iAE5J3GM3XHklGSFwwqPYvuTXvANH6\n'
+    + 'uboynxRgSae59jIlAK6Jrr6GWMwQRbgcaAlW\n'
     + '-----END CERTIFICATE-----\n'
   ]
 };
@@ -6066,7 +6826,7 @@ var Sequences    = __webpack_require__(43);
 var Packets      = __webpack_require__(2);
 var Stream       = __webpack_require__(14).Stream;
 var Util         = __webpack_require__(0);
-var PacketWriter = __webpack_require__(81);
+var PacketWriter = __webpack_require__(82);
 
 module.exports = Protocol;
 Util.inherits(Protocol, Stream);
@@ -7042,10 +7802,10 @@ function PacketHeader(length, number) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BigNumber", function() { return BigNumber; });
 /*
- *      bignumber.js v7.2.1
+ *      bignumber.js v9.0.0
  *      A JavaScript library for arbitrary-precision arithmetic.
  *      https://github.com/MikeMcl/bignumber.js
- *      Copyright (c) 2018 Michael Mclaughlin <M8ch88l@gmail.com>
+ *      Copyright (c) 2019 Michael Mclaughlin <M8ch88l@gmail.com>
  *      MIT Licensed.
  *
  *      BigNumber.prototype methods     |  BigNumber methods
@@ -7065,7 +7825,7 @@ __webpack_require__.r(__webpack_exports__);
  *      isLessThan               lt     |  maximum              max
  *      isLessThanOrEqualTo      lte    |  minimum              min
  *      isNaN                           |  random
- *      isNegative                      |
+ *      isNegative                      |  sum
  *      isPositive                      |
  *      isZero                          |
  *      minus                           |
@@ -7089,7 +7849,8 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 
-var isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i,
+var
+  isNumeric = /^-?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i,
 
   mathceil = Math.ceil,
   mathfloor = Math.floor,
@@ -7189,16 +7950,18 @@ function clone(configObject) {
 
     // The format specification used by the BigNumber.prototype.toFormat method.
     FORMAT = {
-      decimalSeparator: '.',
-      groupSeparator: ',',
+      prefix: '',
       groupSize: 3,
       secondaryGroupSize: 0,
+      groupSeparator: ',',
+      decimalSeparator: '.',
+      fractionGroupSize: 0,
       fractionGroupSeparator: '\xA0',      // non-breaking space
-      fractionGroupSize: 0
+      suffix: ''
     },
 
-    // The alphabet used for base conversion.
-    // It must be at least 2 characters long, with no '.' or repeated character.
+    // The alphabet used for base conversion. It must be at least 2 characters long, with no '+',
+    // '-', '.', whitespace, or repeated character.
     // '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$_'
     ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
 
@@ -7213,99 +7976,102 @@ function clone(configObject) {
    * The BigNumber constructor and exported function.
    * Create and return a new instance of a BigNumber object.
    *
-   * n {number|string|BigNumber} A numeric value.
-   * [b] {number} The base of n. Integer, 2 to ALPHABET.length inclusive.
+   * v {number|string|BigNumber} A numeric value.
+   * [b] {number} The base of v. Integer, 2 to ALPHABET.length inclusive.
    */
-  function BigNumber(n, b) {
+  function BigNumber(v, b) {
     var alphabet, c, caseChanged, e, i, isNum, len, str,
       x = this;
 
-    // Enable constructor usage without new.
-    if (!(x instanceof BigNumber)) {
-
-      // Don't throw on constructor call without new (#81).
-      // '[BigNumber Error] Constructor call without new: {n}'
-      //throw Error(bignumberError + ' Constructor call without new: ' + n);
-      return new BigNumber(n, b);
-    }
+    // Enable constructor call without `new`.
+    if (!(x instanceof BigNumber)) return new BigNumber(v, b);
 
     if (b == null) {
 
-      // Duplicate.
-      if (n instanceof BigNumber) {
-        x.s = n.s;
-        x.e = n.e;
-        x.c = (n = n.c) ? n.slice() : n;
+      if (v && v._isBigNumber === true) {
+        x.s = v.s;
+
+        if (!v.c || v.e > MAX_EXP) {
+          x.c = x.e = null;
+        } else if (v.e < MIN_EXP) {
+          x.c = [x.e = 0];
+        } else {
+          x.e = v.e;
+          x.c = v.c.slice();
+        }
+
         return;
       }
 
-      isNum = typeof n == 'number';
-
-      if (isNum && n * 0 == 0) {
+      if ((isNum = typeof v == 'number') && v * 0 == 0) {
 
         // Use `1 / n` to handle minus zero also.
-        x.s = 1 / n < 0 ? (n = -n, -1) : 1;
+        x.s = 1 / v < 0 ? (v = -v, -1) : 1;
 
-        // Faster path for integers.
-        if (n === ~~n) {
-          for (e = 0, i = n; i >= 10; i /= 10, e++);
-          x.e = e;
-          x.c = [n];
+        // Fast path for integers, where n < 2147483648 (2**31).
+        if (v === ~~v) {
+          for (e = 0, i = v; i >= 10; i /= 10, e++);
+
+          if (e > MAX_EXP) {
+            x.c = x.e = null;
+          } else {
+            x.e = e;
+            x.c = [v];
+          }
+
           return;
         }
 
-        str = n + '';
+        str = String(v);
       } else {
-        if (!isNumeric.test(str = n + '')) return parseNumeric(x, str, isNum);
+
+        if (!isNumeric.test(str = String(v))) return parseNumeric(x, str, isNum);
+
         x.s = str.charCodeAt(0) == 45 ? (str = str.slice(1), -1) : 1;
       }
 
       // Decimal point?
-        if ((e = str.indexOf('.')) > -1) str = str.replace('.', '');
+      if ((e = str.indexOf('.')) > -1) str = str.replace('.', '');
 
-        // Exponential form?
-        if ((i = str.search(/e/i)) > 0) {
+      // Exponential form?
+      if ((i = str.search(/e/i)) > 0) {
 
-          // Determine exponent.
-          if (e < 0) e = i;
-          e += +str.slice(i + 1);
-          str = str.substring(0, i);
-        } else if (e < 0) {
+        // Determine exponent.
+        if (e < 0) e = i;
+        e += +str.slice(i + 1);
+        str = str.substring(0, i);
+      } else if (e < 0) {
 
-          // Integer.
-          e = str.length;
-        }
+        // Integer.
+        e = str.length;
+      }
 
     } else {
 
       // '[BigNumber Error] Base {not a primitive number|not an integer|out of range}: {b}'
       intCheck(b, 2, ALPHABET.length, 'Base');
-      str = n + '';
 
       // Allow exponential notation to be used with base 10 argument, while
       // also rounding to DECIMAL_PLACES as with other bases.
       if (b == 10) {
-        x = new BigNumber(n instanceof BigNumber ? n : str);
+        x = new BigNumber(v);
         return round(x, DECIMAL_PLACES + x.e + 1, ROUNDING_MODE);
       }
 
-      isNum = typeof n == 'number';
+      str = String(v);
 
-      if (isNum) {
+      if (isNum = typeof v == 'number') {
 
         // Avoid potential interpretation of Infinity and NaN as base 44+ values.
-        if (n * 0 != 0) return parseNumeric(x, str, isNum, b);
+        if (v * 0 != 0) return parseNumeric(x, str, isNum, b);
 
-        x.s = 1 / n < 0 ? (str = str.slice(1), -1) : 1;
+        x.s = 1 / v < 0 ? (str = str.slice(1), -1) : 1;
 
         // '[BigNumber Error] Number primitive has more than 15 significant digits: {n}'
         if (BigNumber.DEBUG && str.replace(/^0\.0*|\./, '').length > 15) {
           throw Error
-           (tooManyDigits + n);
+           (tooManyDigits + v);
         }
-
-        // Prevent later check for length on converted number.
-        isNum = false;
       } else {
         x.s = str.charCodeAt(0) === 45 ? (str = str.slice(1), -1) : 1;
       }
@@ -7314,7 +8080,7 @@ function clone(configObject) {
       e = i = 0;
 
       // Check that str is a valid base b number.
-      // Don't use RegExp so alphabet can contain special characters.
+      // Don't use RegExp, so alphabet can contain special characters.
       for (len = str.length; i < len; i++) {
         if (alphabet.indexOf(c = str.charAt(i)) < 0) {
           if (c == '.') {
@@ -7336,10 +8102,12 @@ function clone(configObject) {
             }
           }
 
-          return parseNumeric(x, n + '', isNum, b);
+          return parseNumeric(x, String(v), isNum, b);
         }
       }
 
+      // Prevent later check for length on converted number.
+      isNum = false;
       str = convertBase(str, b, 10, x.s);
 
       // Decimal point?
@@ -7353,22 +8121,18 @@ function clone(configObject) {
     // Determine trailing zeros.
     for (len = str.length; str.charCodeAt(--len) === 48;);
 
-    str = str.slice(i, ++len);
-
-    if (str) {
+    if (str = str.slice(i, ++len)) {
       len -= i;
 
       // '[BigNumber Error] Number primitive has more than 15 significant digits: {n}'
       if (isNum && BigNumber.DEBUG &&
-        len > 15 && (n > MAX_SAFE_INTEGER || n !== mathfloor(n))) {
+        len > 15 && (v > MAX_SAFE_INTEGER || v !== mathfloor(v))) {
           throw Error
-           (tooManyDigits + (x.s * n));
+           (tooManyDigits + (x.s * v));
       }
 
-      e = e - i - 1;
-
        // Overflow?
-      if (e > MAX_EXP) {
+      if ((e = e - i - 1) > MAX_EXP) {
 
         // Infinity.
         x.c = x.e = null;
@@ -7387,7 +8151,7 @@ function clone(configObject) {
         // e is the base 10 exponent.
         // i is where to slice str to get the first element of the coefficient array.
         i = (e + 1) % LOG_BASE;
-        if (e < 0) i += LOG_BASE;
+        if (e < 0) i += LOG_BASE;  // i < 1
 
         if (i < len) {
           if (i) x.c.push(+str.slice(0, i));
@@ -7396,8 +8160,7 @@ function clone(configObject) {
             x.c.push(+str.slice(i, i += LOG_BASE));
           }
 
-          str = str.slice(i);
-          i = LOG_BASE - str.length;
+          i = LOG_BASE - (str = str.slice(i)).length;
         } else {
           i -= len;
         }
@@ -7446,12 +8209,14 @@ function clone(configObject) {
    *   ALPHABET         {string}           A string of two or more unique characters which does
    *                                     not contain '.'.
    *   FORMAT           {object}           An object with some of the following properties:
-   *      decimalSeparator       {string}
-   *      groupSeparator         {string}
-   *      groupSize              {number}
-   *      secondaryGroupSize     {number}
-   *      fractionGroupSeparator {string}
-   *      fractionGroupSize      {number}
+   *     prefix                 {string}
+   *     groupSize              {number}
+   *     secondaryGroupSize     {number}
+   *     groupSeparator         {string}
+   *     decimalSeparator       {string}
+   *     fractionGroupSize      {number}
+   *     fractionGroupSeparator {string}
+   *     suffix                 {string}
    *
    * (The values assigned to the above FORMAT object properties are not checked for validity.)
    *
@@ -7491,7 +8256,7 @@ function clone(configObject) {
         // '[BigNumber Error] EXPONENTIAL_AT {not a primitive number|not an integer|out of range}: {v}'
         if (obj.hasOwnProperty(p = 'EXPONENTIAL_AT')) {
           v = obj[p];
-          if (isArray(v)) {
+          if (v && v.pop) {
             intCheck(v[0], -MAX, 0, p);
             intCheck(v[1], 0, MAX, p);
             TO_EXP_NEG = v[0];
@@ -7507,7 +8272,7 @@ function clone(configObject) {
         // '[BigNumber Error] RANGE {not a primitive number|not an integer|out of range|cannot be zero}: {v}'
         if (obj.hasOwnProperty(p = 'RANGE')) {
           v = obj[p];
-          if (isArray(v)) {
+          if (v && v.pop) {
             intCheck(v[0], -MAX, -1, p);
             intCheck(v[1], 1, MAX, p);
             MIN_EXP = v[0];
@@ -7577,8 +8342,9 @@ function clone(configObject) {
         if (obj.hasOwnProperty(p = 'ALPHABET')) {
           v = obj[p];
 
-          // Disallow if only one character, or contains '.' or a repeated character.
-          if (typeof v == 'string' && !/^.$|\.|(.).*\1/.test(v)) {
+          // Disallow if only one character,
+          // or if it contains '+', '-', '.', whitespace, or a repeated character.
+          if (typeof v == 'string' && !/^.$|[+-.\s]|(.).*\1/.test(v)) {
             ALPHABET = v;
           } else {
             throw Error
@@ -7611,10 +8377,56 @@ function clone(configObject) {
   /*
    * Return true if v is a BigNumber instance, otherwise return false.
    *
+   * If BigNumber.DEBUG is true, throw if a BigNumber instance is not well-formed.
+   *
    * v {any}
+   *
+   * '[BigNumber Error] Invalid BigNumber: {v}'
    */
   BigNumber.isBigNumber = function (v) {
-    return v instanceof BigNumber || v && v._isBigNumber === true || false;
+    if (!v || v._isBigNumber !== true) return false;
+    if (!BigNumber.DEBUG) return true;
+
+    var i, n,
+      c = v.c,
+      e = v.e,
+      s = v.s;
+
+    out: if ({}.toString.call(c) == '[object Array]') {
+
+      if ((s === 1 || s === -1) && e >= -MAX && e <= MAX && e === mathfloor(e)) {
+
+        // If the first element is zero, the BigNumber value must be zero.
+        if (c[0] === 0) {
+          if (e === 0 && c.length === 1) return true;
+          break out;
+        }
+
+        // Calculate number of digits that c[0] should have, based on the exponent.
+        i = (e + 1) % LOG_BASE;
+        if (i < 1) i += LOG_BASE;
+
+        // Calculate number of digits of c[0].
+        //if (Math.ceil(Math.log(c[0] + 1) / Math.LN10) == i) {
+        if (String(c[0]).length == i) {
+
+          for (i = 0; i < c.length; i++) {
+            n = c[i];
+            if (n < 0 || n >= BASE || n !== mathfloor(n)) break out;
+          }
+
+          // Last element cannot be zero, unless it is the only element.
+          if (n !== 0) return true;
+        }
+      }
+
+    // Infinity/NaN
+    } else if (c === null && e === null && (s === null || s === 1 || s === -1)) {
+      return true;
+    }
+
+    throw Error
+      (bignumberError + 'Invalid BigNumber: ' + v);
   };
 
 
@@ -7782,6 +8594,20 @@ function clone(configObject) {
   })();
 
 
+   /*
+   * Return a BigNumber whose value is the sum of the arguments.
+   *
+   * arguments {number|string|BigNumber}
+   */
+  BigNumber.sum = function () {
+    var i = 1,
+      args = arguments,
+      sum = new BigNumber(args[0]);
+    for (; i < args.length;) sum = sum.plus(args[i++]);
+    return sum;
+  };
+
+
   // PRIVATE FUNCTIONS
 
 
@@ -7900,8 +8726,7 @@ function clone(configObject) {
       if (d < 1 || !xc[0]) {
 
         // 1^-dp or 0
-        str = r ? toFixedPoint(alphabet.charAt(1), -dp, alphabet.charAt(0))
-            : alphabet.charAt(0);
+        str = r ? toFixedPoint(alphabet.charAt(1), -dp, alphabet.charAt(0)) : alphabet.charAt(0);
       } else {
 
         // Truncate xc to the required number of decimal places.
@@ -8219,7 +9044,7 @@ function clone(configObject) {
 
     if (i == null) {
       str = coeffToString(n.c);
-      str = id == 1 || id == 2 && ne <= TO_EXP_NEG
+      str = id == 1 || id == 2 && (ne <= TO_EXP_NEG || ne >= TO_EXP_POS)
        ? toExponential(str, ne)
        : toFixedPoint(str, ne, '0');
     } else {
@@ -8266,13 +9091,11 @@ function clone(configObject) {
 
   // Handle BigNumber.max and BigNumber.min.
   function maxOrMin(args, method) {
-    var m, n,
-      i = 0;
+    var n,
+      i = 1,
+      m = new BigNumber(args[0]);
 
-    if (isArray(args[0])) args = args[0];
-    m = new BigNumber(args[0]);
-
-    for (; ++i < args.length;) {
+    for (; i < args.length; i++) {
       n = new BigNumber(args[i]);
 
       // If any number is NaN, return NaN.
@@ -8337,7 +9160,6 @@ function clone(configObject) {
       // No exception on ±Infinity or NaN.
       if (isInfinityOrNaN.test(s)) {
         x.s = isNaN(s) ? null : s < 0 ? -1 : 1;
-        x.c = x.e = null;
       } else {
         if (!isNum) {
 
@@ -8365,8 +9187,10 @@ function clone(configObject) {
         }
 
         // NaN
-        x.c = x.e = x.s = null;
+        x.s = null;
       }
+
+      x.c = x.e = null;
     }
   })();
 
@@ -8533,6 +9357,22 @@ function clone(configObject) {
   }
 
 
+  function valueOf(n) {
+    var str,
+      e = n.e;
+
+    if (e === null) return n.toString();
+
+    str = coeffToString(n.c);
+
+    str = e <= TO_EXP_NEG || e >= TO_EXP_POS
+      ? toExponential(str, e)
+      : toFixedPoint(str, e, '0');
+
+    return n.s < 0 ? '-' + str : str;
+  }
+
+
   // PROTOTYPE/INSTANCE METHODS
 
 
@@ -8644,7 +9484,7 @@ function clone(configObject) {
    * '[BigNumber Error] Exponent not an integer: {n}'
    */
   P.exponentiatedBy = P.pow = function (n, m) {
-    var half, isModExp, k, more, nIsBig, nIsNeg, nIsOdd, y,
+    var half, isModExp, i, k, more, nIsBig, nIsNeg, nIsOdd, y,
       x = this;
 
     n = new BigNumber(n);
@@ -8652,7 +9492,7 @@ function clone(configObject) {
     // Allow NaN and ±Infinity, but not other non-integers.
     if (n.c && !n.isInteger()) {
       throw Error
-        (bignumberError + 'Exponent not an integer: ' + n);
+        (bignumberError + 'Exponent not an integer: ' + valueOf(n));
     }
 
     if (m != null) m = new BigNumber(m);
@@ -8665,7 +9505,7 @@ function clone(configObject) {
 
       // The sign of the result of pow when x is negative depends on the evenness of n.
       // If +n overflows to ±Infinity, the evenness of n would be not be known.
-      y = new BigNumber(Math.pow(+x.valueOf(), nIsBig ? 2 - isOdd(n) : +n));
+      y = new BigNumber(Math.pow(+valueOf(x), nIsBig ? 2 - isOdd(n) : +valueOf(n)));
       return m ? y.mod(m) : y;
     }
 
@@ -8707,12 +9547,12 @@ function clone(configObject) {
 
     if (nIsBig) {
       half = new BigNumber(0.5);
+      if (nIsNeg) n.s = 1;
       nIsOdd = isOdd(n);
     } else {
-      nIsOdd = n % 2;
+      i = Math.abs(+valueOf(n));
+      nIsOdd = i % 2;
     }
-
-    if (nIsNeg) n.s = 1;
 
     y = new BigNumber(ONE);
 
@@ -8730,16 +9570,21 @@ function clone(configObject) {
         }
       }
 
-      if (nIsBig) {
+      if (i) {
+        i = mathfloor(i / 2);
+        if (i === 0) break;
+        nIsOdd = i % 2;
+      } else {
         n = n.times(half);
         round(n, n.e + 1, 1);
-        if (!n.c[0]) break;
-        nIsBig = n.e > 14;
-        nIsOdd = isOdd(n);
-      } else {
-        n = mathfloor(n / 2);
-        if (!n) break;
-        nIsOdd = n % 2;
+
+        if (n.e > 14) {
+          nIsOdd = isOdd(n);
+        } else {
+          i = +valueOf(n);
+          if (i === 0) break;
+          nIsOdd = i % 2;
+        }
       }
 
       x = x.times(x);
@@ -9341,14 +10186,14 @@ function clone(configObject) {
     }
 
     // Initial estimate.
-    s = Math.sqrt(+x);
+    s = Math.sqrt(+valueOf(x));
 
     // Math.sqrt underflow/overflow?
     // Pass x to Math.sqrt as integer, then adjust the exponent of the result.
     if (s == 0 || s == 1 / 0) {
       n = coeffToString(c);
       if ((n.length + e) % 2 == 0) n += '0';
-      s = Math.sqrt(n);
+      s = Math.sqrt(+n);
       e = bitFloor((e + 1) / 2) - (e < 0 || e % 2);
 
       if (s == 1 / 0) {
@@ -9377,8 +10222,7 @@ function clone(configObject) {
         t = r;
         r = half.times(t.plus(div(x, t, dp, 1)));
 
-        if (coeffToString(t.c  ).slice(0, s) === (n =
-           coeffToString(r.c)).slice(0, s)) {
+        if (coeffToString(t.c).slice(0, s) === (n = coeffToString(r.c)).slice(0, s)) {
 
           // The exponent of r may here be one less than the final result exponent,
           // e.g 0.0009999 (e-4) --> 0.001 (e-3), so adjust s so the rounding digits
@@ -9468,34 +10312,58 @@ function clone(configObject) {
   /*
    * Return a string representing the value of this BigNumber in fixed-point notation rounded
    * using rm or ROUNDING_MODE to dp decimal places, and formatted according to the properties
-   * of the FORMAT object (see BigNumber.set).
+   * of the format or FORMAT object (see BigNumber.set).
+   *
+   * The formatting object may contain some or all of the properties shown below.
    *
    * FORMAT = {
-   *      decimalSeparator : '.',
-   *      groupSeparator : ',',
-   *      groupSize : 3,
-   *      secondaryGroupSize : 0,
-   *      fractionGroupSeparator : '\xA0',    // non-breaking space
-   *      fractionGroupSize : 0
+   *   prefix: '',
+   *   groupSize: 3,
+   *   secondaryGroupSize: 0,
+   *   groupSeparator: ',',
+   *   decimalSeparator: '.',
+   *   fractionGroupSize: 0,
+   *   fractionGroupSeparator: '\xA0',      // non-breaking space
+   *   suffix: ''
    * };
    *
    * [dp] {number} Decimal places. Integer, 0 to MAX inclusive.
    * [rm] {number} Rounding mode. Integer, 0 to 8 inclusive.
+   * [format] {object} Formatting options. See FORMAT pbject above.
    *
    * '[BigNumber Error] Argument {not a primitive number|not an integer|out of range}: {dp|rm}'
+   * '[BigNumber Error] Argument not an object: {format}'
    */
-  P.toFormat = function (dp, rm) {
-    var str = this.toFixed(dp, rm);
+  P.toFormat = function (dp, rm, format) {
+    var str,
+      x = this;
 
-    if (this.c) {
+    if (format == null) {
+      if (dp != null && rm && typeof rm == 'object') {
+        format = rm;
+        rm = null;
+      } else if (dp && typeof dp == 'object') {
+        format = dp;
+        dp = rm = null;
+      } else {
+        format = FORMAT;
+      }
+    } else if (typeof format != 'object') {
+      throw Error
+        (bignumberError + 'Argument not an object: ' + format);
+    }
+
+    str = x.toFixed(dp, rm);
+
+    if (x.c) {
       var i,
         arr = str.split('.'),
-        g1 = +FORMAT.groupSize,
-        g2 = +FORMAT.secondaryGroupSize,
-        groupSeparator = FORMAT.groupSeparator,
+        g1 = +format.groupSize,
+        g2 = +format.secondaryGroupSize,
+        groupSeparator = format.groupSeparator || '',
         intPart = arr[0],
         fractionPart = arr[1],
-        isNeg = this.s < 0,
+        isNeg = x.s < 0,
         intDigits = isNeg ? intPart.slice(1) : intPart,
         len = intDigits.length;
 
@@ -9504,40 +10372,36 @@ function clone(configObject) {
       if (g1 > 0 && len > 0) {
         i = len % g1 || g1;
         intPart = intDigits.substr(0, i);
-
-        for (; i < len; i += g1) {
-          intPart += groupSeparator + intDigits.substr(i, g1);
-        }
-
+        for (; i < len; i += g1) intPart += groupSeparator + intDigits.substr(i, g1);
         if (g2 > 0) intPart += groupSeparator + intDigits.slice(i);
         if (isNeg) intPart = '-' + intPart;
       }
 
       str = fractionPart
-       ? intPart + FORMAT.decimalSeparator + ((g2 = +FORMAT.fractionGroupSize)
+       ? intPart + (format.decimalSeparator || '') + ((g2 = +format.fractionGroupSize)
         ? fractionPart.replace(new RegExp('\\d{' + g2 + '}\\B', 'g'),
-         '$&' + FORMAT.fractionGroupSeparator)
+         '$&' + (format.fractionGroupSeparator || ''))
         : fractionPart)
        : intPart;
     }
 
-    return str;
+    return (format.prefix || '') + str + (format.suffix || '');
   };
 
 
   /*
-   * Return a string array representing the value of this BigNumber as a simple fraction with
-   * an integer numerator and an integer denominator. The denominator will be a positive
-   * non-zero value less than or equal to the specified maximum denominator. If a maximum
-   * denominator is not specified, the denominator will be the lowest value necessary to
-   * represent the number exactly.
+   * Return an array of two BigNumbers representing the value of this BigNumber as a simple
+   * fraction with an integer numerator and an integer denominator.
+   * The denominator will be a positive non-zero value less than or equal to the specified
+   * maximum denominator. If a maximum denominator is not specified, the denominator will be
+   * the lowest value necessary to represent the number exactly.
    *
    * [md] {number|string|BigNumber} Integer >= 1, or Infinity. The maximum denominator.
    *
    * '[BigNumber Error] Argument {not an integer|out of range} : {md}'
    */
   P.toFraction = function (md) {
-    var arr, d, d0, d1, d2, e, exp, n, n0, n1, q, s,
+    var d, d0, d1, d2, e, exp, n, n0, n1, q, r, s,
       x = this,
       xc = x.c;
 
@@ -9548,11 +10412,11 @@ function clone(configObject) {
       if (!n.isInteger() && (n.c || n.s !== 1) || n.lt(ONE)) {
         throw Error
           (bignumberError + 'Argument ' +
-            (n.isInteger() ? 'out of range: ' : 'not an integer: ') + md);
+            (n.isInteger() ? 'out of range: ' : 'not an integer: ') + valueOf(n));
       }
     }
 
-    if (!xc) return x.toString();
+    if (!xc) return new BigNumber(x);
 
     d = new BigNumber(ONE);
     n1 = d0 = new BigNumber(ONE);
@@ -9588,16 +10452,15 @@ function clone(configObject) {
     n0 = n0.plus(d2.times(n1));
     d0 = d0.plus(d2.times(d1));
     n0.s = n1.s = x.s;
-    e *= 2;
+    e = e * 2;
 
     // Determine which fraction is closer to x, n0/d0 or n1/d1
-    arr = div(n1, d1, e, ROUNDING_MODE).minus(x).abs().comparedTo(
-       div(n0, d0, e, ROUNDING_MODE).minus(x).abs()) < 1
-        ? [n1.toString(), d1.toString()]
-        : [n0.toString(), d0.toString()];
+    r = div(n1, d1, e, ROUNDING_MODE).minus(x).abs().comparedTo(
+        div(n0, d0, e, ROUNDING_MODE).minus(x).abs()) < 1 ? [n1, d1] : [n0, d0];
 
     MAX_EXP = exp;
-    return arr;
+
+    return r;
   };
 
 
@@ -9605,7 +10468,7 @@ function clone(configObject) {
    * Return the value of this BigNumber converted to a number primitive.
    */
   P.toNumber = function () {
-    return +this;
+    return +valueOf(this);
   };
 
 
@@ -9645,7 +10508,6 @@ function clone(configObject) {
 
     // Infinity or NaN?
     if (e === null) {
-
       if (s) {
         str = 'Infinity';
         if (s < 0) str = '-' + str;
@@ -9653,15 +10515,16 @@ function clone(configObject) {
         str = 'NaN';
       }
     } else {
-      str = coeffToString(n.c);
-
       if (b == null) {
         str = e <= TO_EXP_NEG || e >= TO_EXP_POS
-         ? toExponential(str, e)
-         : toFixedPoint(str, e, '0');
+         ? toExponential(coeffToString(n.c), e)
+         : toFixedPoint(coeffToString(n.c), e, '0');
+      } else if (b === 10) {
+        n = round(new BigNumber(n), DECIMAL_PLACES + e + 1, ROUNDING_MODE);
+        str = toFixedPoint(coeffToString(n.c), n.e, '0');
       } else {
         intCheck(b, 2, ALPHABET.length, 'Base');
-        str = convertBase(toFixedPoint(str, e, '0'), 10, b, s, true);
+        str = convertBase(toFixedPoint(coeffToString(n.c), e, '0'), 10, b, s, true);
       }
 
       if (s < 0 && n.c[0]) str = '-' + str;
@@ -9676,23 +10539,16 @@ function clone(configObject) {
    * negative zero.
    */
   P.valueOf = P.toJSON = function () {
-    var str,
-      n = this,
-      e = n.e;
-
-    if (e === null) return n.toString();
-
-    str = coeffToString(n.c);
-
-    str = e <= TO_EXP_NEG || e >= TO_EXP_POS
-      ? toExponential(str, e)
-      : toFixedPoint(str, e, '0');
-
-    return n.s < 0 ? '-' + str : str;
+    return valueOf(this);
   };
 
 
   P._isBigNumber = true;
+
+  P[Symbol.toStringTag] = 'BigNumber';
+
+  // Node.js v10.12.0+
+  P[Symbol.for('nodejs.util.inspect.custom')] = P.valueOf;
 
   if (configObject != null) BigNumber.set(configObject);
 
@@ -9701,6 +10557,9 @@ function clone(configObject) {
 
 
 // PRIVATE HELPER FUNCTIONS
+
+// These functions don't need access to variables,
+// e.g. DECIMAL_PLACES, in the scope of the `clone` function above.
 
 
 function bitFloor(n) {
@@ -9725,6 +10584,7 @@ function coeffToString(a) {
 
   // Determine trailing zeros.
   for (j = r.length; r.charCodeAt(--j) === 48;);
+
   return r.slice(0, j + 1 || 1);
 }
 
@@ -9774,17 +10634,12 @@ function compare(x, y) {
  * Check that n is a primitive number, an integer, and in range, otherwise throw.
  */
 function intCheck(n, min, max, name) {
-  if (n < min || n > max || n !== (n < 0 ? mathceil(n) : mathfloor(n))) {
+  if (n < min || n > max || n !== mathfloor(n)) {
     throw Error
      (bignumberError + (name || 'Argument') + (typeof n == 'number'
        ? n < min || n > max ? ' out of range: ' : ' not an integer: '
-       : ' not a primitive number: ') + n);
+       : ' not a primitive number: ') + String(n));
   }
-}
-
-
-function isArray(obj) {
-  return Object.prototype.toString.call(obj) == '[object Array]';
 }
 
 
@@ -9828,7 +10683,7 @@ function toFixedPoint(str, e, z) {
 }
 
 
-// EXPORTS
+// EXPORT
 
 
 var BigNumber = clone();
@@ -9878,12 +10733,12 @@ BufferList.prototype.push = function push(buf) {
 /***/ (function(module, exports, __webpack_require__) {
 
 exports.ChangeUser = __webpack_require__(44);
-exports.Handshake = __webpack_require__(69);
-exports.Ping = __webpack_require__(70);
+exports.Handshake = __webpack_require__(70);
+exports.Ping = __webpack_require__(71);
 exports.Query = __webpack_require__(19);
-exports.Quit = __webpack_require__(79);
+exports.Quit = __webpack_require__(80);
 exports.Sequence = __webpack_require__(3);
-exports.Statistics = __webpack_require__(80);
+exports.Statistics = __webpack_require__(81);
 
 
 /***/ }),
@@ -10180,6 +11035,9 @@ module.exports = EmptyPacket;
 function EmptyPacket() {
 }
 
+EmptyPacket.prototype.parse = function parse() {
+};
+
 EmptyPacket.prototype.write = function write() {
 };
 
@@ -10360,7 +11218,7 @@ FieldPacket.prototype.write = function(writer) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var Buffer = __webpack_require__(1).Buffer;
-var Client = __webpack_require__(10);
+var Client = __webpack_require__(6);
 
 module.exports = HandshakeInitializationPacket;
 function HandshakeInitializationPacket(options) {
@@ -10489,6 +11347,33 @@ LocalDataFilePacket.prototype.write = function(writer) {
 /* 59 */
 /***/ (function(module, exports) {
 
+module.exports = LocalInfileRequestPacket;
+function LocalInfileRequestPacket(options) {
+  options = options || {};
+
+  this.filename = options.filename;
+}
+
+LocalInfileRequestPacket.prototype.parse = function parse(parser) {
+  if (parser.parseLengthCodedNumber() !== null) {
+    var err  = new TypeError('Received invalid field length');
+    err.code = 'PARSER_INVALID_FIELD_LENGTH';
+    throw err;
+  }
+
+  this.filename = parser.parsePacketTerminatedString();
+};
+
+LocalInfileRequestPacket.prototype.write = function write(writer) {
+  writer.writeLengthCodedNumber(null);
+  writer.writeString(this.filename);
+};
+
+
+/***/ }),
+/* 60 */
+/***/ (function(module, exports) {
+
 
 // Language-neutral expression to match ER_UPDATE_INFO
 var ER_UPDATE_INFO_REGEXP = /^[^:0-9]+: [0-9]+[^:0-9]+: ([0-9]+)[^:0-9]+: [0-9]+[^:0-9]*$/;
@@ -10536,7 +11421,7 @@ OkPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = OldPasswordPacket;
@@ -10556,7 +11441,7 @@ OldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSetHeaderPacket;
@@ -10564,30 +11449,19 @@ function ResultSetHeaderPacket(options) {
   options = options || {};
 
   this.fieldCount = options.fieldCount;
-  this.extra      = options.extra;
 }
 
 ResultSetHeaderPacket.prototype.parse = function(parser) {
   this.fieldCount = parser.parseLengthCodedNumber();
-
-  if (parser.reachedPacketEnd()) return;
-
-  this.extra = (this.fieldCount === null)
-    ? parser.parsePacketTerminatedString()
-    : parser.parseLengthCodedNumber();
 };
 
 ResultSetHeaderPacket.prototype.write = function(writer) {
   writer.writeLengthCodedNumber(this.fieldCount);
-
-  if (this.extra !== undefined) {
-    writer.writeLengthCodedNumber(this.extra);
-  }
 };
 
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Types                        = __webpack_require__(13);
@@ -10723,13 +11597,13 @@ function typeMatch(type, list) {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // http://dev.mysql.com/doc/internals/en/ssl.html
 // http://dev.mysql.com/doc/internals/en/connection-phase-packets.html#packet-Protocol::SSLRequest
 
-var ClientConstants = __webpack_require__(10);
+var ClientConstants = __webpack_require__(6);
 
 module.exports = SSLRequestPacket;
 
@@ -10756,7 +11630,7 @@ SSLRequestPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = StatisticsPacket;
@@ -10782,7 +11656,7 @@ StatisticsPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = UseOldPasswordPacket;
@@ -10802,13 +11676,13 @@ UseOldPasswordPacket.prototype.write = function(writer) {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports) {
 
 /**
  * MySQL error constants
  *
- * Extracted from version 5.7.21
+ * Extracted from version 5.7.29
  *
  * !! Generated by generate-error-constants.js, do not modify by hand !!
  */
@@ -11812,6 +12686,9 @@ exports.ER_AES_INVALID_IV                                                       
 exports.ER_PLUGIN_CANNOT_BE_UNINSTALLED                                                  = 1883;
 exports.ER_GTID_UNSAFE_BINLOG_SPLITTABLE_STATEMENT_AND_GTID_GROUP                        = 1884;
 exports.ER_SLAVE_HAS_MORE_GTIDS_THAN_MASTER                                              = 1885;
+exports.ER_MISSING_KEY                                                                   = 1886;
+exports.WARN_NAMED_PIPE_ACCESS_EVERYONE                                                  = 1887;
+exports.ER_FOUND_MISSING_GTIDS                                                           = 1888;
 exports.ER_FILE_CORRUPT                                                                  = 3000;
 exports.ER_ERROR_ON_MASTER                                                               = 3001;
 exports.ER_INCONSISTENT_ERROR                                                            = 3002;
@@ -12016,6 +12893,33 @@ exports.ER_UDF_ERROR                                                            
 exports.ER_KEYRING_MIGRATION_FAILURE                                                     = 3201;
 exports.ER_KEYRING_ACCESS_DENIED_ERROR                                                   = 3202;
 exports.ER_KEYRING_MIGRATION_STATUS                                                      = 3203;
+exports.ER_PLUGIN_FAILED_TO_OPEN_TABLES                                                  = 3204;
+exports.ER_PLUGIN_FAILED_TO_OPEN_TABLE                                                   = 3205;
+exports.ER_AUDIT_LOG_NO_KEYRING_PLUGIN_INSTALLED                                         = 3206;
+exports.ER_AUDIT_LOG_ENCRYPTION_PASSWORD_HAS_NOT_BEEN_SET                                = 3207;
+exports.ER_AUDIT_LOG_COULD_NOT_CREATE_AES_KEY                                            = 3208;
+exports.ER_AUDIT_LOG_ENCRYPTION_PASSWORD_CANNOT_BE_FETCHED                               = 3209;
+exports.ER_AUDIT_LOG_JSON_FILTERING_NOT_ENABLED                                          = 3210;
+exports.ER_AUDIT_LOG_UDF_INSUFFICIENT_PRIVILEGE                                          = 3211;
+exports.ER_AUDIT_LOG_SUPER_PRIVILEGE_REQUIRED                                            = 3212;
+exports.ER_COULD_NOT_REINITIALIZE_AUDIT_LOG_FILTERS                                      = 3213;
+exports.ER_AUDIT_LOG_UDF_INVALID_ARGUMENT_TYPE                                           = 3214;
+exports.ER_AUDIT_LOG_UDF_INVALID_ARGUMENT_COUNT                                          = 3215;
+exports.ER_AUDIT_LOG_HAS_NOT_BEEN_INSTALLED                                              = 3216;
+exports.ER_AUDIT_LOG_UDF_READ_INVALID_MAX_ARRAY_LENGTH_ARG_TYPE                          = 3217;
+exports.ER_AUDIT_LOG_UDF_READ_INVALID_MAX_ARRAY_LENGTH_ARG_VALUE                         = 3218;
+exports.ER_AUDIT_LOG_JSON_FILTER_PARSING_ERROR                                           = 3219;
+exports.ER_AUDIT_LOG_JSON_FILTER_NAME_CANNOT_BE_EMPTY                                    = 3220;
+exports.ER_AUDIT_LOG_JSON_USER_NAME_CANNOT_BE_EMPTY                                      = 3221;
+exports.ER_AUDIT_LOG_JSON_FILTER_DOES_NOT_EXISTS                                         = 3222;
+exports.ER_AUDIT_LOG_USER_FIRST_CHARACTER_MUST_BE_ALPHANUMERIC                           = 3223;
+exports.ER_AUDIT_LOG_USER_NAME_INVALID_CHARACTER                                         = 3224;
+exports.ER_AUDIT_LOG_HOST_NAME_INVALID_CHARACTER                                         = 3225;
+exports.WARN_DEPRECATED_MAXDB_SQL_MODE_FOR_TIMESTAMP                                     = 3226;
+exports.ER_XA_REPLICATION_FILTERS                                                        = 3227;
+exports.ER_CANT_OPEN_ERROR_LOG                                                           = 3228;
+exports.ER_GROUPING_ON_TIMESTAMP_IN_DST                                                  = 3229;
+exports.ER_CANT_START_SERVER_NAMED_PIPE                                                  = 3230;
 
 // Lookup-by-number table
 exports[1]    = 'EE_CANTCREATEFILE';
@@ -13017,6 +13921,9 @@ exports[1882] = 'ER_AES_INVALID_IV';
 exports[1883] = 'ER_PLUGIN_CANNOT_BE_UNINSTALLED';
 exports[1884] = 'ER_GTID_UNSAFE_BINLOG_SPLITTABLE_STATEMENT_AND_GTID_GROUP';
 exports[1885] = 'ER_SLAVE_HAS_MORE_GTIDS_THAN_MASTER';
+exports[1886] = 'ER_MISSING_KEY';
+exports[1887] = 'WARN_NAMED_PIPE_ACCESS_EVERYONE';
+exports[1888] = 'ER_FOUND_MISSING_GTIDS';
 exports[3000] = 'ER_FILE_CORRUPT';
 exports[3001] = 'ER_ERROR_ON_MASTER';
 exports[3002] = 'ER_INCONSISTENT_ERROR';
@@ -13221,13 +14128,40 @@ exports[3200] = 'ER_UDF_ERROR';
 exports[3201] = 'ER_KEYRING_MIGRATION_FAILURE';
 exports[3202] = 'ER_KEYRING_ACCESS_DENIED_ERROR';
 exports[3203] = 'ER_KEYRING_MIGRATION_STATUS';
+exports[3204] = 'ER_PLUGIN_FAILED_TO_OPEN_TABLES';
+exports[3205] = 'ER_PLUGIN_FAILED_TO_OPEN_TABLE';
+exports[3206] = 'ER_AUDIT_LOG_NO_KEYRING_PLUGIN_INSTALLED';
+exports[3207] = 'ER_AUDIT_LOG_ENCRYPTION_PASSWORD_HAS_NOT_BEEN_SET';
+exports[3208] = 'ER_AUDIT_LOG_COULD_NOT_CREATE_AES_KEY';
+exports[3209] = 'ER_AUDIT_LOG_ENCRYPTION_PASSWORD_CANNOT_BE_FETCHED';
+exports[3210] = 'ER_AUDIT_LOG_JSON_FILTERING_NOT_ENABLED';
+exports[3211] = 'ER_AUDIT_LOG_UDF_INSUFFICIENT_PRIVILEGE';
+exports[3212] = 'ER_AUDIT_LOG_SUPER_PRIVILEGE_REQUIRED';
+exports[3213] = 'ER_COULD_NOT_REINITIALIZE_AUDIT_LOG_FILTERS';
+exports[3214] = 'ER_AUDIT_LOG_UDF_INVALID_ARGUMENT_TYPE';
+exports[3215] = 'ER_AUDIT_LOG_UDF_INVALID_ARGUMENT_COUNT';
+exports[3216] = 'ER_AUDIT_LOG_HAS_NOT_BEEN_INSTALLED';
+exports[3217] = 'ER_AUDIT_LOG_UDF_READ_INVALID_MAX_ARRAY_LENGTH_ARG_TYPE';
+exports[3218] = 'ER_AUDIT_LOG_UDF_READ_INVALID_MAX_ARRAY_LENGTH_ARG_VALUE';
+exports[3219] = 'ER_AUDIT_LOG_JSON_FILTER_PARSING_ERROR';
+exports[3220] = 'ER_AUDIT_LOG_JSON_FILTER_NAME_CANNOT_BE_EMPTY';
+exports[3221] = 'ER_AUDIT_LOG_JSON_USER_NAME_CANNOT_BE_EMPTY';
+exports[3222] = 'ER_AUDIT_LOG_JSON_FILTER_DOES_NOT_EXISTS';
+exports[3223] = 'ER_AUDIT_LOG_USER_FIRST_CHARACTER_MUST_BE_ALPHANUMERIC';
+exports[3224] = 'ER_AUDIT_LOG_USER_NAME_INVALID_CHARACTER';
+exports[3225] = 'ER_AUDIT_LOG_HOST_NAME_INVALID_CHARACTER';
+exports[3226] = 'WARN_DEPRECATED_MAXDB_SQL_MODE_FOR_TIMESTAMP';
+exports[3227] = 'ER_XA_REPLICATION_FILTERS';
+exports[3228] = 'ER_CANT_OPEN_ERROR_LOG';
+exports[3229] = 'ER_GROUPING_ON_TIMESTAMP_IN_DST';
+exports[3230] = 'ER_CANT_START_SERVER_NAMED_PIPE';
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Timers = __webpack_require__(68);
+var Timers = __webpack_require__(69);
 
 module.exports = Timer;
 function Timer(object) {
@@ -13263,20 +14197,20 @@ Timer.prototype._onTimeout = function _onTimeout() {
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports) {
 
 module.exports = require("timers");
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence        = __webpack_require__(3);
 var Util            = __webpack_require__(0);
 var Packets         = __webpack_require__(2);
 var Auth            = __webpack_require__(18);
-var ClientConstants = __webpack_require__(10);
+var ClientConstants = __webpack_require__(6);
 
 module.exports = Handshake;
 Util.inherits(Handshake, Sequence);
@@ -13401,7 +14335,7 @@ Handshake.prototype['ErrorPacket'] = function(packet) {
 
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13426,7 +14360,7 @@ Ping.prototype.start = function() {
 
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports) {
 
 module.exports = ResultSet;
@@ -13439,7 +14373,7 @@ function ResultSet(resultSetHeaderPacket) {
 
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports) {
 
 // Manually extracted from mysql-5.5.23/include/mysql_com.h
@@ -13484,7 +14418,7 @@ exports.SERVER_PS_OUT_PARAMS = 4096;
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Stream = __webpack_require__(14);
@@ -13504,12 +14438,12 @@ if (process.env.READABLE_STREAM === 'disable' && Stream) {
   exports.Writable = __webpack_require__(24);
   exports.Duplex = __webpack_require__(5);
   exports.Transform = __webpack_require__(26);
-  exports.PassThrough = __webpack_require__(78);
+  exports.PassThrough = __webpack_require__(79);
 }
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports) {
 
 var toString = {}.toString;
@@ -13520,7 +14454,7 @@ module.exports = Array.isArray || function (arr) {
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports) {
 
 if (typeof Object.create === 'function') {
@@ -13549,7 +14483,7 @@ if (typeof Object.create === 'function') {
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13634,7 +14568,7 @@ if (util && util.inspect && util.inspect.custom) {
 }
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 
@@ -13646,7 +14580,7 @@ module.exports = __webpack_require__(0).deprecate;
 
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13682,8 +14616,8 @@ module.exports = PassThrough;
 var Transform = __webpack_require__(26);
 
 /*<replacement>*/
-var util = __webpack_require__(6);
-util.inherits = __webpack_require__(7);
+var util = Object.create(__webpack_require__(7));
+util.inherits = __webpack_require__(8);
 /*</replacement>*/
 
 util.inherits(PassThrough, Transform);
@@ -13699,7 +14633,7 @@ PassThrough.prototype._transform = function (chunk, encoding, cb) {
 };
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13745,7 +14679,7 @@ Quit.prototype.start = function() {
 
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Sequence = __webpack_require__(3);
@@ -13781,7 +14715,7 @@ Statistics.prototype.determinePacket = function determinePacket(firstByte) {
 
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var BIT_16            = Math.pow(2, 16);
@@ -13998,14 +14932,14 @@ PacketWriter.prototype._allocate = function _allocate(bytes) {
 
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(83);
+module.exports = __webpack_require__(84);
 
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports) {
 
 var SqlString  = exports;
@@ -14248,11 +15182,11 @@ function convertTimezone(tz) {
 
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var inherits   = __webpack_require__(0).inherits;
-var Connection = __webpack_require__(8);
+var Connection = __webpack_require__(9);
 var Events     = __webpack_require__(4);
 
 module.exports = PoolConnection;
@@ -14319,12 +15253,12 @@ PoolConnection.prototype._removeFromPool = function _removeFromPool() {
 
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var Pool          = __webpack_require__(28);
 var PoolConfig    = __webpack_require__(29);
-var PoolNamespace = __webpack_require__(86);
+var PoolNamespace = __webpack_require__(87);
 var PoolSelector  = __webpack_require__(30);
 var Util          = __webpack_require__(0);
 var EventEmitter  = __webpack_require__(4).EventEmitter;
@@ -14613,10 +15547,10 @@ function _noop() {}
 
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Connection   = __webpack_require__(8);
+var Connection   = __webpack_require__(9);
 var PoolSelector = __webpack_require__(30);
 
 module.exports = PoolNamespace;
@@ -14755,7 +15689,7 @@ PoolNamespace.prototype._getClusterNode = function _getClusterNode() {
 
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const fs = __webpack_require__(20);
@@ -14767,13 +15701,15 @@ class Logger {
     if (this.output === 'file' || this.output === 'both') {
       this.fileStream = fs.createWriteStream('./mysql-async.log');
     }
-    this.writeConsole = msg => console.log(msg);
+    this.writeConsole = (msg) => console.log(msg);
+    this.getTimeStamp = () => {
+      const date = new Date();
+      return date.toISOString();
+    };
   }
 
   writeFile(msg) {
-    var d = new Date();
-    msg = d.toLocaleDateString() + " - " +d.toLocaleTimeString() +': ' + msg
-    this.fileStream.write(`${msg}\n`);
+    this.fileStream.write(`${this.getTimeStamp()}: ${msg}\n`);
   }
 
   log(msg) {
@@ -14805,7 +15741,7 @@ module.exports = Logger;
 
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, exports) {
 
 const profilerDefaultConfig = {
@@ -14840,7 +15776,7 @@ class Profiler {
     this.version = 'MySQL';
     this.startTime = Date.now();
     this.logger = logger;
-    this.config = Object.assign({}, profilerDefaultConfig, config);
+    this.config = { ...profilerDefaultConfig, ...config };
     this.profiles = {
       executionTimes: [],
       resources: {},
@@ -14857,7 +15793,7 @@ class Profiler {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter(el => el !== min);
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }
@@ -14895,7 +15831,7 @@ class Profiler {
       this.addSlowQuery(sql, resource, queryTime);
     }
 
-    if (this.slowQueryWarningTime < queryTime) {
+    if (this.config.slowQueryWarningTime < queryTime) {
       this.logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
 
@@ -14909,10 +15845,10 @@ module.exports = Profiler;
 
 
 /***/ }),
-/* 89 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const { parseUrl } = __webpack_require__(9);
+const { parseUrl } = __webpack_require__(10);
 
 const defaultCfg = {
   host: '127.0.0.1',
@@ -14943,14 +15879,14 @@ function parseConnectingString(connectionString) {
     cfg = parseUrl(connectionString);
   } else throw new Error('No valid connection string found');
 
-  return Object.assign({}, defaultCfg, cfg);
+  return { ...defaultCfg, ...cfg };
 }
 
 module.exports = parseConnectingString;
 
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, exports, __webpack_require__) {
 
 const mysql = __webpack_require__(12);
@@ -15018,7 +15954,7 @@ function sanitizeTransactionInput(querys, params, callback) {
   let sqls = [];
   let cb = callback;
   // if every query is a string we are dealing with syntax type a
-  if (!querys.every(element => typeof element === 'string')) sqls = querys;
+  if (!querys.every((element) => typeof element === 'string')) sqls = querys;
   else {
     const values = (typeof params === 'function') ? [] : params;
     querys.forEach((element) => {
