@@ -14771,6 +14771,8 @@ class Logger {
   }
 
   writeFile(msg) {
+    var d = new Date();
+    msg = d.toLocaleDateString() + " - " +d.toLocaleTimeString() +': ' + msg
     this.fileStream.write(`${msg}\n`);
   }
 
