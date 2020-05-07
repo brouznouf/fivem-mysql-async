@@ -1,3 +1,5 @@
+const sass = require('sass');
+const fiber = require('fibers');
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -64,9 +66,9 @@ const nuiConfig = {
           loader: 'sass-loader',
           // Requires sass-loader@^8.0.0
           options: {
-            implementation: require('sass'),
+            implementation: sass,
             sassOptions: {
-              fiber: require('fibers'),
+              fiber,
             },
             prependData: '@import \'@/styles/variables.scss\'',
           },
@@ -78,9 +80,9 @@ const nuiConfig = {
           loader: 'sass-loader',
           // Requires sass-loader@^8.0.0
           options: {
-            implementation: require('sass'),
+            implementation: sass,
             sassOptions: {
-              fiber: require('fibers'),
+              fiber,
             },
             prependData: '@import \'@/styles/variables.scss\';',
           },
@@ -122,8 +124,8 @@ const nuiConfig = {
   resolve: {
     alias: {
       '@': path.resolve('ui'),
-    }
-  }
+    },
+  },
 };
 
 module.exports = [serverConfig, clientConfig, nuiConfig];
