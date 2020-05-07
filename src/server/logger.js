@@ -8,12 +8,14 @@ class Logger {
       this.fileStream = fs.createWriteStream('./mysql-async.log');
     }
     this.writeConsole = (msg) => console.log(msg);
+    this.getTimeStamp = () => {
+      const date = new Date();
+      return date.toISOString();
+    };
   }
 
   writeFile(msg) {
-    var d = new Date();
-    msg = d.toLocaleDateString() + " - " +d.toLocaleTimeString() +': ' + msg
-    this.fileStream.write(`${msg}\n`);
+    this.fileStream.write(`${this.getTimeStamp()}: ${msg}\n`);
   }
 
   log(msg) {
