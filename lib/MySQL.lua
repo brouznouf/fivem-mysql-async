@@ -113,7 +113,7 @@ end
 function MySQL.Sync.transaction(querys, params)
     local res = 0
     local finishedQuery = false
-    exports['mysql-async']:mysql_transaction(query, params, function (result)
+    exports['mysql-async']:mysql_transaction(querys, params, function (result)
         res = result
         finishedQuery = true
     end)
