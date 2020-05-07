@@ -85,7 +85,7 @@ class Profiler {
       this.addSlowQuery(sql, resource, queryTime);
     }
 
-    if (this.slowQueryWarningTime < queryTime) {
+    if (this.config.slowQueryWarningTime < queryTime) {
       this.logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
 
