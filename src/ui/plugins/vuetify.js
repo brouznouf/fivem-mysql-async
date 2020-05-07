@@ -2,7 +2,9 @@ import Vue from 'vue';
 import Vuetify from 'vuetify/lib';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 
-Vue.use(Vuetify, {
+Vue.use(Vuetify)
+
+export default new Vuetify({
   iconfont: 'md',
   theme: {
     primary: '#ddd',

@@ -1,9 +1,10 @@
 import Vue from 'vue';
-import '../ui/plugins/vuetify';
+import vuetify from '../ui/plugins/vuetify';
 import App from '../ui/Nui.vue';
 
 Vue.config.productionTip = false;
 
 new Vue({
-  render(h) { return h(App); },
+  vuetify,
+  render: (h) => h(App),
 }).$mount('#app');

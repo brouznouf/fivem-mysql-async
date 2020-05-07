@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="showInterface">
+  <v-app v-if="showInterface" class="v-app-background">
     <v-content>
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
@@ -50,7 +50,12 @@
                       align-end
                       :headers="headers"
                       :items="slowqueries"
-                      :rows-per-page-items="[7]"
+                      :items-per-page="7"
+                      :footer-props="{
+                        'items-per-page-options': [7],
+                        prevIcon: 'chevron_left',
+                        nextIcon: 'chevron_right'
+                      }"
                     >
                       <template v-slot:items="props">
                         <td>{{ props.item.resource }}</td>
@@ -197,28 +202,14 @@ export default {
 }
 </script>
 
-<style lang="stylus">
-$body-font-family = 'Fira Sans', sans-serif;
-@require '~vuetify/src/stylus/app.styl';
+<style lang="scss">
+@import './styles/_mixins';
 
-html
-  overflow-y auto
+html {
+  overflow-y: auto;
+}
 
-.app-background, .theme--light.application
-  background rgba(0, 0, 0, 0.5) !important
-
-font-url(file)
-  return './assets/fonts/' + file
-
-webfont(family, file, style = 'normal', weight = 400)
-  @font-face
-    font-family family
-    font-style style
-    font-weight weight 
-    src url(font-url(file + '.woff2')) format('woff2'),
-        url(font-url(file + '.woff')) format('woff')
-
-webfont('Fira Sans', 'fira-sans-v9-latin-regular')
-webfont('Fira Sans', 'fira-sans-v9-latin-italic', italic)
-webfont('Fira Sans', 'fira-sans-v9-latin-700', normal, 700)
+@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-regular', 400, normal, woff woff2);
+@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-italic', 400, italic, woff woff2);
+@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-700', 700, normal, woff woff2);
 </style>
