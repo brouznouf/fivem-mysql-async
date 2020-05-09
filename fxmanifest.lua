@@ -1,5 +1,5 @@
-fx_version 'adamant'
-game 'common'
+fx_version 'bodacious'
+game 'gta5'
 
 version '3.2.1'
 
