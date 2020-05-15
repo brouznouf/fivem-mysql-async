@@ -26,7 +26,6 @@
     "mini-css-extract-plugin": "^0.6.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
-    "typescript": "^3.4.5",
     "vue-loader": "^15.7.0",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2",
@@ -36,7 +35,7 @@
   "dependencies": {
     "chart.js": "^2.8.0",
     "material-design-icons-iconfont": "^5.0.1",
-    "mysql": "^2.15.0",
+    "mysql": "^2.18.1",
     "vue": "^2.6.10",
     "vuetify": "^1.5.14"
   }
