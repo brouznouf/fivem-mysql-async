@@ -33,6 +33,10 @@ Alternatively an url-like connection string can be used:
 
 `set mysql_connection_string "mysql://username:password@host/database"`
 
+If you are home hosting with no ssl you need to append your convar to match the following:
+
+`set mysql_connection_string "server=localhost;uid=mysqluser;password=password;database=fivem;ssl=none"`
+
 Further options can be found under https://github.com/mysqljs/mysql#connection-options for the mysql.js connection string, they can be added on both: the semicolon seperated string or the url-like string.
 
 ### keepAlive
