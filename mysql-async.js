@@ -612,9 +612,11 @@ function objectToString(o) {
 
 try {
   var util = __webpack_require__(0);
+  /* istanbul ignore next */
   if (typeof util.inherits !== 'function') throw '';
   module.exports = util.inherits;
 } catch (e) {
+  /* istanbul ignore next */
   module.exports = __webpack_require__(76);
 }
 
@@ -1376,7 +1378,8 @@ ConnectionConfig.parseUrl = function(url) {
 "use strict";
 
 
-if (!process.version ||
+if (typeof process === 'undefined' ||
+    !process.version ||
     process.version.indexOf('v0.') === 0 ||
     process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
   module.exports = { nextTick: nextTick };
@@ -5233,8 +5236,8 @@ class MySQL {
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
-        const { versionPrefix, version } = formatVersion(result[0]['VERSION()']);
-        profiler.setVersion(`${versionPrefix}:${version}`);
+        const formattedVersion = formatVersion(result[0]['VERSION()']);
+        profiler.setVersion(formattedVersion);
         logger.log('\x1b[32m[mysql-async]\x1b[0m Database server connection established.');
       } else {
         logger.error(`[ERROR] ${error.message}`);
@@ -14460,24 +14463,28 @@ module.exports = Array.isArray || function (arr) {
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    ctor.prototype = Object.create(superCtor.prototype, {
-      constructor: {
-        value: ctor,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
   };
 } else {
   // old school shim for old browsers
   module.exports = function inherits(ctor, superCtor) {
-    ctor.super_ = superCtor
-    var TempCtor = function () {}
-    TempCtor.prototype = superCtor.prototype
-    ctor.prototype = new TempCtor()
-    ctor.prototype.constructor = ctor
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
   }
 }
 
@@ -15798,8 +15805,11 @@ class Profiler {
     }
   }
 
-  setVersion(version) {
-    this.version = version;
+  setVersion({ versionPrefix, version }) {
+    if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
+      this.logger.error('[mysql-async] [Warning] It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+    }
+    this.version = `${versionPrefix}:${version}`;
   }
 
   fillExecutionTimes(interval) {
