@@ -22,8 +22,8 @@ class MySQL {
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
-        const { versionPrefix, version } = formatVersion(result[0]['VERSION()']);
-        profiler.setVersion(`${versionPrefix}:${version}`);
+        const formattedVersion = formatVersion(result[0]['VERSION()']);
+        profiler.setVersion(formattedVersion);
         logger.log('\x1b[32m[mysql-async]\x1b[0m Database server connection established.');
       } else {
         logger.error(`[ERROR] ${error.message}`);

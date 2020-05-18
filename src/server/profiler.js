@@ -52,8 +52,11 @@ class Profiler {
     }
   }
 
-  setVersion(version) {
-    this.version = version;
+  setVersion({ versionPrefix, version }) {
+    if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
+      this.logger.error('[mysql-async] [Warning] It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+    }
+    this.version = `${versionPrefix}:${version}`;
   }
 
   fillExecutionTimes(interval) {
