@@ -30,7 +30,7 @@ class Profiler {
     this.version = 'MySQL';
     this.startTime = Date.now();
     this.logger = logger;
-    this.config = Object.assign({}, profilerDefaultConfig, config);
+    this.config = { ...profilerDefaultConfig, ...config };
     this.profiles = {
       executionTimes: [],
       resources: {},
@@ -47,13 +47,16 @@ class Profiler {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter(el => el !== min);
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }
 
-  setVersion(version) {
-    this.version = version;
+  setVersion({ versionPrefix, version }) {
+    if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
+      this.logger.error('[ghmattimysql] [Warning] It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+    }
+    this.version = `${versionPrefix}:${version}`;
   }
 
   fillExecutionTimes(interval) {
@@ -85,7 +88,7 @@ class Profiler {
       this.addSlowQuery(sql, resource, queryTime);
     }
 
-    if (this.slowQueryWarningTime < queryTime) {
+    if (this.config.slowQueryWarningTime < queryTime) {
       this.logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
     }
 

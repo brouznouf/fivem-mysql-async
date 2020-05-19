@@ -14,7 +14,7 @@ class MySQL {
     this.pool = null;
     this.profiler = profiler;
     this.logger = logger;
-    this.formatQuery = sql => `${sql.sql} : ${JSON.stringify(sql.values)}`;
+    this.formatQuery = (sql) => `${sql.sql} : ${JSON.stringify(sql.values)}`;
 
     if (typeof mysqlConfig === 'object') {
       this.pool = mysql.createPool(mysqlConfig);
@@ -24,8 +24,8 @@ class MySQL {
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
-        const { versionPrefix, version } = formatVersion(result[0]['VERSION()']);
-        profiler.setVersion(`${versionPrefix}:${version}`);
+        const formattedVersion = formatVersion(result[0]['VERSION()']);
+        profiler.setVersion(formattedVersion);
         logger.log('\x1b[32m[ghmattimysql]\x1b[0m Database server connection established.');
       } else {
         logger.error(`[ERROR] ${error.message}`);
