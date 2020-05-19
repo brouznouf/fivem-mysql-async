@@ -87,7 +87,7 @@ function sanitizeTransactionInput(querys, params, callback) {
   let sqls = [];
   let cb = callback;
   // start by type-checking and sorting the data
-  if (!querys.every(element => typeof element === 'string')) sqls = querys;
+  if (!querys.every((element) => typeof element === 'string')) sqls = querys;
   else {
     const values = (typeof params === 'function') ? [] : params;
     querys.forEach((element) => {
