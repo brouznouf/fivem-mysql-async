@@ -1,6 +1,6 @@
 {
   "name": "ghmattimysql",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "mysql middleware for fivem",
   "private": true,
   "scripts": {
