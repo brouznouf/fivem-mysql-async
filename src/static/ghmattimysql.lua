@@ -1,4 +1,11 @@
-resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'
+fx_version 'adamant'
+game 'common'
+
+name 'ghmattimysql'
+description 'MySQL Middleware for fivem using mysql.js.'
+author 'Matthias Mandelartz'
+version '1.2.2'
+url 'https://github.com/GHMatti/ghmattimysql'
 
 server_scripts {
   'ghmattimysql-server.js',
