@@ -4,6 +4,7 @@
 
 <script>
 import Chart from 'chart.js';
+
 Chart.defaults.global.defaultFontFamily = "'Alegreya Sans', 'sans-serif'";
 export default {
   data() {
@@ -30,14 +31,14 @@ export default {
               },
             }],
           },
-        }
+        },
       });
     },
     arraysEqual(a, b) {
       if (a === b) return true;
       if (a === null || b === null) return false;
-      if (a.length != b.length) return false;
-      for (var i = 0; i < a.length; ++i) {
+      if (a.length !== b.length) return false;
+      for (let i = 0; i < a.length; i += 1) {
         if (a[i] !== b[i]) return false;
       }
       return true;
@@ -88,5 +89,5 @@ export default {
       }
     },
   },
-}
+};
 </script>

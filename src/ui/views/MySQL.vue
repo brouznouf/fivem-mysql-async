@@ -28,7 +28,7 @@
                   <v-flex xs12 pa-2 style="height: 480px;">
                     <m-chart
                       id="time-graph"
-                      :labels="timeLabels" 
+                      :labels="timeLabels"
                       :datasets="timeData"
                       height="540"
                     ></m-chart>
@@ -50,7 +50,12 @@
                       align-end
                       :headers="headers"
                       :items="slowqueries"
-                      :rows-per-page-items="[7]"
+                      :items-per-page="7"
+                      :footer-props="{
+                        'items-per-page-options': [7],
+                        prevIcon: 'chevron_left',
+                        nextIcon: 'chevron_right'
+                      }"
                     >
                       <template v-slot:items="props">
                         <td>{{ props.item.resource }}</td>
@@ -73,6 +78,7 @@
 
 <script>
 import MChart from '../components/utility/MChart.vue';
+
 export default {
   components: {
     MChart,
@@ -123,12 +129,12 @@ export default {
           text: 'Resource',
           value: 'resource',
         },
-        { 
-          text: 'Query', 
+        {
+          text: 'Query',
           value: 'sql',
-          sortable: false, 
+          sortable: false,
         },
-        { 
+        {
           text: 'Execution Time (ms)',
           value: 'queryTime',
         },
@@ -158,14 +164,14 @@ export default {
     onTimeData({ timeData }) {
       if (Array.isArray(timeData) && timeData.length === 3) {
         this.timeData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, timeData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, timeData[1]),
-          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, timeData[2]),
+          { ...this.colorGraphLoad, label: 'Server Load (ms)', ...timeData[0] },
+          { ...this.colorGraphAvg, label: 'Average Query Time (ms)', ...timeData[1] },
+          { ...this.colorGraphCount, label: 'Query Count', ...timeData[2] },
         ];
         const labels = [];
         for (let i = timeData[0].data.length - 1; i > -1; i -= 1) {
           if (i !== 0) {
-            labels.push(`-${i*5}min`);
+            labels.push(`-${i * 5}min`);
           } else {
             labels.push('now');
           }
@@ -176,9 +182,9 @@ export default {
     onResourceData({ resourceData }) {
       if (Array.isArray(resourceData) && resourceData.length === 3) {
         this.resourceData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, resourceData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, resourceData[1]),
-          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, resourceData[2]),
+          { ...this.colorGraphLoad, label: 'Server Load (ms)', ...resourceData[0] },
+          { ...this.colorGraphAvg, label: 'Average Query Time (ms)', ...resourceData[1] },
+          { ...this.colorGraphCount, label: 'Query Count', ...resourceData[2] },
         ];
       }
     },
@@ -189,36 +195,26 @@ export default {
   mounted() {
     this.listener = window.addEventListener('message', (event) => {
       const item = event.data || event.detail;
-      if (this[item.type]) this[item.type](item);
+      if (item && this[item.type]) this[item.type](item);
     });
   },
   name: 'app',
-}
+};
 </script>
 
-<style lang="stylus">
-$body-font-family =  'Alegreya Sans', sans-serif;
-@require '~vuetify/src/stylus/app.styl';
+<style lang="scss">
+@import '../styles/mixins';
 
-html
-  overflow-y auto
+html {
+  overflow-y: auto;
+}
 
-.app-background, .theme--light.application
-  background rgba(0, 0, 0, 0.5) !important
-
-font-url(file)
-  return '../assets/fonts/' + file
-
-webfont(family, file, style = 'normal', weight = 400)
-  @font-face
-    font-family family
-    font-style style
-    font-weight weight 
-    src url(font-url(file + '.woff2')) format('woff2'),
-        url(font-url(file + '.woff')) format('woff')
-
-webfont('Alegreya Sans', 'alegreya-sans-v9-latin-300', normal, 300)
-webfont('Alegreya Sans', 'alegreya-sans-v9-latin-regular')
-webfont('Alegreya Sans', 'alegreya-sans-v9-latin-500', normal, 500)
-webfont('Alegreya Sans', 'alegreya-sans-v9-latin-700', normal, 700)
+@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-300',
+  300, normal, woff woff2);
+@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-regular',
+  400, normal, woff woff2);
+@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-500',
+  500, normal, woff woff2);
+@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-700',
+  700, normal, woff woff2);
 </style>

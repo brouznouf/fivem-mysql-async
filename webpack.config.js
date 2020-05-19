@@ -1,3 +1,5 @@
+const sass = require('sass');
+const fiber = require('fibers');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
@@ -35,8 +37,32 @@ const modules = {
       loader: [MiniCssExtractPlugin.loader, 'css-loader'],
     },
     {
-      test: /\.styl(us)?$/,
-      loader: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader'],
+      test: /\.sass$/,
+      loader: [MiniCssExtractPlugin.loader, 'css-loader', {
+        loader: 'sass-loader',
+        // Requires sass-loader@^8.0.0
+        options: {
+          implementation: sass,
+          sassOptions: {
+            fiber,
+          },
+          prependData: '@import \'@/styles/variables.scss\'',
+        },
+      }],
+    },
+    {
+      test: /\.scss$/,
+      loader: [MiniCssExtractPlugin.loader, 'css-loader', {
+        loader: 'sass-loader',
+        // Requires sass-loader@^8.0.0
+        options: {
+          implementation: sass,
+          sassOptions: {
+            fiber,
+          },
+          prependData: '@import \'@/styles/variables.scss\';',
+        },
+      }],
     },
     {
       test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/i,
@@ -64,33 +90,16 @@ const serverConfig = {
     minimize: false,
   },
   plugins: [
-    new CopyWebpackPlugin([
-      { from: 'src/static/ghmattimysql.lua', to: '__resource.lua' },
-      { from: 'src/static/ghmattimysql-server.lua', to: 'ghmattimysql-server.lua' },
-      { from: 'src/static/config.json', to: 'config.json' },
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'src/static/ghmattimysql.lua', to: 'fxmanifest.lua' },
+        { from: 'src/static/ghmattimysql-server.lua', to: 'ghmattimysql-server.lua' },
+        { from: 'src/static/config.json', to: 'config.json' },
+      ],
+    }),
   ],
   module: modules,
 };
-
-/* const testConfig = {
-  entry: './src/entry/test.js',
-  target: 'node',
-  mode: 'production',
-  output: {
-    filename: 'test-server.js',
-    path: path.resolve(__dirname, 'dist/ghmattimysql-test'),
-  },
-  optimization: {
-    minimize: false,
-  },
-  plugins: [
-    new CopyWebpackPlugin([
-      { from: 'src/static/ghmattimysql-test.lua', to: '__resource.lua' },
-    ]),
-  ],
-  module: modules,
-}; */
 
 const clientConfig = {
   entry: './src/entry/client.js',
@@ -145,8 +154,13 @@ const nuiConfig = {
     }),
     new VuetifyLoaderPlugin(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve('src/ui'),
+    },
+  },
 };
 
 module.exports = [
-  serverConfig, clientConfig, nuiConfig, // testConfig,
+  serverConfig, clientConfig, nuiConfig,
 ];
