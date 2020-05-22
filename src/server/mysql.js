@@ -60,6 +60,8 @@ class MySQL {
       });
     }).catch((error) => {
       this.logger.error(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql.sql}": ${error.message}`);
+      // We should not catch this error when doing a transaction, throw new error instead.
+      if (connection) throw new Error('This error might result from a transaction and be deliberate.');
     });
 
     return queryPromise;
