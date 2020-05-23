@@ -82,6 +82,9 @@ class MySQL {
       // Otherwise catch the error from the execution
     }).catch((executeError) => {
       this.onTransactionError(executeError, connection, callback);
+    }).then(() => {
+      // terminate connection
+      connection.release();
     });
   }
 }
