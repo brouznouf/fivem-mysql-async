@@ -89,6 +89,10 @@ global.on('onResourceStart', (resourcename) => {
   }
 });
 
+global.RegisterCommand('mysql:debug', () => {
+  profiler.config.trace = !profiler.config.trace;
+}, true);
+
 global.onNet('mysql-async:request-data', () => {
   if (isReady) {
     const src = global.source;
