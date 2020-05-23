@@ -69,6 +69,10 @@ global.exports('transaction', (querys, values, callback, resource) => {
   });
 });
 
+global.RegisterCommand('mysql:debug', () => {
+  profiler.config.trace = !profiler.config.trace;
+}, true);
+
 global.onNet(`${currentResourceName}:request-data`, () => {
   const src = global.source;
   global.emitNet(`${currentResourceName}:update-resource-data`, src, profiler.profiles.resources);
