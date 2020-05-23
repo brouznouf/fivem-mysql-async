@@ -5198,6 +5198,10 @@ global.on('onResourceStart', (resourcename) => {
   }
 });
 
+global.RegisterCommand('mysql:debug', () => {
+  profiler.config.trace = !profiler.config.trace;
+}, true);
+
 global.onNet('mysql-async:request-data', () => {
   if (isReady) {
     const src = global.source;
@@ -5274,6 +5278,8 @@ class MySQL {
       });
     }).catch((error) => {
       this.logger.error(`[ERROR] [MySQL] [${invokingResource}] An error happens on MySQL for query "${sql.sql}": ${error.message}`);
+      // We should not catch this error when doing a transaction, throw new error instead.
+      if (connection) throw new Error('This error might result from a transaction and be deliberate.');
     });
 
     return queryPromise;
@@ -5309,6 +5315,9 @@ class MySQL {
       // Otherwise catch the error from the execution
     }).catch((executeError) => {
       this.onTransactionError(executeError, connection, callback);
+    }).then(() => {
+      // terminate connection
+      connection.release();
     });
   }
 }
