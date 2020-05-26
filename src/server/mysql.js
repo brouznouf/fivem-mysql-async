@@ -17,7 +17,7 @@ class MySQL {
     if (typeof mysqlConfig === 'object') {
       this.pool = mysql.createPool(mysqlConfig);
     } else {
-      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
+      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
