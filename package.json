@@ -9,8 +9,7 @@
     "postinstall": "run-p install:*",
     "build:core": "cd packages/ghmattimysql && npm run build",
     "build:ui": "cd packages/ghmattimysql-ui && npm run build",
-    "build": "run-p build:*",
-    "lint": "eslint **/*.js"
+    "build": "run-p build:*"
   },
   "author": "Matthias Mandelartz",
   "license": "AGPL-3.0-or-later",
