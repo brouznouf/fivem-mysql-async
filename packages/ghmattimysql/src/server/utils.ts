@@ -1,3 +1,5 @@
+import QueryParameters from './mysql/queryParameters';
+
 function typeCast(field, next) {
   let dateString = '';
   switch (field.type) {
@@ -22,7 +24,7 @@ function typeCast(field, next) {
   }
 }
 
-function mysqlConvertLegacyFormat(query, parameters) {
+function mysqlConvertLegacyFormat(query: string, parameters: QueryParameters) {
   let sql = query;
   const params = [];
   sql = sql.replace(/@(\w+)/g, (txt, match) => {
@@ -39,7 +41,7 @@ function mysqlConvertLegacyFormat(query, parameters) {
   return { sql, params };
 }
 
-function prepareLegacyQuery(query, parameters) {
+function prepareLegacyQuery(query: string, parameters?: object) {
   let sql = query;
   let params = parameters;
   if (params !== null && typeof params === 'object' && !Array.isArray(params)) {
@@ -63,7 +65,7 @@ function sanitizeInput(query, parameters, callback) {
   return [sql, params, cb];
 }
 
-function safeInvoke(callback, args) {
+function safeInvoke(callback, args: any) {
   if (typeof callback === 'function') {
     setImmediate(() => {
       callback(args);
@@ -99,7 +101,7 @@ function sanitizeTransactionInput(querys, params, callback) {
   return [sqls, cb];
 }
 
-module.exports = {
+export {
   typeCast,
   safeInvoke,
   sanitizeInput,

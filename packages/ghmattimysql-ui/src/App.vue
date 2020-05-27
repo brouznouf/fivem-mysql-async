@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import MChart from '../components/utility/MChart.vue';
+import MChart from './components/MChart.vue';
 
 export default {
   components: {
@@ -203,18 +203,18 @@ export default {
 </script>
 
 <style lang="scss">
-@import '../styles/mixins';
+@import './styles/mixins';
 
 html {
-  overflow-y: auto;
+  overflow-y: hidden !important;
 }
 
-@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-300',
+@include font-face('Alegreya Sans', './assets/fonts/alegreya-sans-v9-latin-300',
   300, normal, woff woff2);
-@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-regular',
+@include font-face('Alegreya Sans', './assets/fonts/alegreya-sans-v9-latin-regular',
   400, normal, woff woff2);
-@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-500',
+@include font-face('Alegreya Sans', './assets/fonts/alegreya-sans-v9-latin-500',
   500, normal, woff woff2);
-@include font-face('Alegreya Sans', '../assets/fonts/alegreya-sans-v9-latin-700',
+@include font-face('Alegreya Sans', './assets/fonts/alegreya-sans-v9-latin-700',
   700, normal, woff woff2);
 </style>

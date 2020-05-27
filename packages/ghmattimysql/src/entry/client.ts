@@ -1,13 +1,13 @@
 let isNuiActive = false;
-const currentResourceName = window.GetCurrentResourceName();
+const currentResourceName = GetCurrentResourceName();
 
 function NuiMessage(msg) {
-  window.SendNuiMessage(JSON.stringify(msg));
+  SendNuiMessage(JSON.stringify(msg));
 }
 
 function NuiCallback(name, callback) {
-  window.RegisterNuiCallbackType(name);
-  window.on(`__cfx_nui:${name}`, (data, cb) => {
+  RegisterNuiCallbackType(name);
+  on(`__cfx_nui:${name}`, (data, cb) => {
     callback(data);
     cb('ok');
   });
@@ -16,15 +16,15 @@ function NuiCallback(name, callback) {
 function setNuiActive(boolean = true) {
   if (boolean !== isNuiActive) {
     if (boolean) {
-      window.emitNet(`${currentResourceName}:request-data`);
+      emitNet(`${currentResourceName}:request-data`);
     }
     isNuiActive = boolean;
     NuiMessage({ type: 'onToggleShow' });
-    window.SetNuiFocus(boolean, boolean);
+    SetNuiFocus(boolean, boolean);
   }
 }
 
-window.RegisterCommand('mysql', () => {
+RegisterCommand('mysql', () => {
   setNuiActive();
 }, true);
 
@@ -32,13 +32,13 @@ NuiCallback('close-explorer', () => {
   setNuiActive(false);
 });
 
-window.setInterval(() => {
+setInterval(() => {
   if (isNuiActive) {
-    window.emitNet(`${currentResourceName}:request-data`);
+    emitNet(`${currentResourceName}:request-data`);
   }
 }, 300000);
 
-window.onNet(`${currentResourceName}:update-resource-data`, (resourceData) => {
+onNet(`${currentResourceName}:update-resource-data`, (resourceData) => {
   let arrayToSortAndMap = [];
   const resources = Object.keys(resourceData);
   for (let i = 0; i < resources.length; i += 1) {
@@ -88,7 +88,7 @@ window.onNet(`${currentResourceName}:update-resource-data`, (resourceData) => {
   }
 });
 
-window.onNet(`${currentResourceName}:update-time-data`, (timeData) => {
+onNet(`${currentResourceName}:update-time-data`, (timeData) => {
   let timeArray = [];
   if (Array.isArray(timeData)) {
     const len = timeData.length;
@@ -113,7 +113,7 @@ window.onNet(`${currentResourceName}:update-time-data`, (timeData) => {
   }
 });
 
-window.onNet(`${currentResourceName}:update-slow-queries`, (slowQueryData) => {
+onNet(`${currentResourceName}:update-slow-queries`, (slowQueryData) => {
   const slowQueries = slowQueryData.map((el) => {
     const element = el;
     element.queryTime = Math.round(el.queryTime * 100) / 100;

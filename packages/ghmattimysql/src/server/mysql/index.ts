@@ -1,6 +1,10 @@
-const mysql = require('mysql');
+import {
+  createPool, Pool, PoolConnection, QueryOptions, MysqlError, PoolConfig,
+} from 'mysql';
+import Logger from '../logger';
+import Profiler from '../profiler';
 
-function formatVersion(versionString) {
+function formatVersion(versionString: string) {
   let versionPrefix = 'MariaDB';
   const version = versionString;
   if (version[0] === '5' || version[0] === '8') {
@@ -10,16 +14,24 @@ function formatVersion(versionString) {
 }
 
 class MySQL {
-  constructor(mysqlConfig, logger, profiler) {
+  pool: Pool;
+
+  profiler: Profiler;
+
+  logger: Logger;
+
+  formatQuery: any;
+
+  constructor(mysqlConfig: PoolConfig | string, logger: Logger, profiler: Profiler) {
     this.pool = null;
     this.profiler = profiler;
     this.logger = logger;
-    this.formatQuery = (sql) => `${sql.sql} : ${JSON.stringify(sql.values)}`;
+    this.formatQuery = (sql: QueryOptions): string => `${sql.sql} : ${JSON.stringify(sql.values)}`;
 
     if (typeof mysqlConfig === 'object') {
-      this.pool = mysql.createPool(mysqlConfig);
+      this.pool = createPool(mysqlConfig);
     } else {
-      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
+      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
@@ -33,7 +45,7 @@ class MySQL {
     });
   }
 
-  execute(sql, invokingResource, connection) {
+  execute(sql: QueryOptions, invokingResource: string, connection?: PoolConnection) {
     const queryPromise = new Promise((resolve, reject) => {
       const start = process.hrtime();
       const db = connection || this.pool;
@@ -52,7 +64,7 @@ class MySQL {
     return queryPromise;
   }
 
-  onTransactionError(error, connection, callback) {
+  onTransactionError(error: MysqlError, connection: PoolConnection, callback) {
     connection.rollback(() => {
       this.logger.error(error.message);
       callback(false);
@@ -73,7 +85,7 @@ class MySQL {
     });
   }
 
-  commitTransaction(promises, connection, callback) {
+  commitTransaction(promises: Promise<unknown>[], connection: PoolConnection, callback) {
     Promise.all(promises).then(() => {
       connection.commit((commitError) => {
         if (commitError) this.onTransactionError(commitError, connection, callback);
@@ -89,4 +101,4 @@ class MySQL {
   }
 }
 
-module.exports = MySQL;
+export default MySQL;

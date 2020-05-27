@@ -1,15 +1,13 @@
-const profilerDefaultConfig = {
-  trace: false,
-  slowQueryWarningTime: 100,
-  slowestQueries: 21,
-  timeInterval: 300000,
-};
+import { ProfilerConfig, defaultProfilerConfig } from './profilerConfig';
+import ExecutionTime from './executionTime';
+import Profile from './profile';
+import Logger from '../logger';
 
-function updateExecutionTimes(object, queryTime) {
-  let returnObj = null;
+function updateExecutionTimes(executionTime: ExecutionTime, queryTime: number) {
+  let returnObj: ExecutionTime = null;
 
-  if (object) {
-    const { totalExecutionTime, queryCount } = object;
+  if (typeof executionTime !== 'undefined' && executionTime !== null) {
+    const { totalExecutionTime, queryCount } = executionTime;
 
     returnObj = {
       totalExecutionTime: totalExecutionTime + queryTime,
@@ -26,11 +24,23 @@ function updateExecutionTimes(object, queryTime) {
 }
 
 class Profiler {
-  constructor(logger, config) {
+  version: string;
+
+  startTime: number;
+
+  logger: Logger;
+
+  config: ProfilerConfig;
+
+  profiles: Profile;
+
+  slowQueryLimit: number;
+
+  constructor(logger: Logger, config: ProfilerConfig) {
     this.version = 'MySQL';
     this.startTime = Date.now();
     this.logger = logger;
-    this.config = { ...profilerDefaultConfig, ...config };
+    this.config = { ...defaultProfilerConfig, ...config };
     this.profiles = {
       executionTimes: [],
       resources: {},
@@ -40,14 +50,18 @@ class Profiler {
   }
 
   get getFastestSlowQuery() {
-    return this.profiles.slowQueries.reduce((acc, cur) => ((cur < acc) ? cur : acc));
+    return this.profiles.slowQueries.reduce(
+      (acc, { queryTime }) => ((queryTime < acc) ? queryTime : acc),
+      0,
+    );
   }
 
-  addSlowQuery(sql, resource, queryTime) {
+  addSlowQuery(sql: string, resource: string, queryTime: number) {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
+      // no shadow, so no destructuring :(
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((sq) => sq.queryTime !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }
@@ -59,7 +73,7 @@ class Profiler {
     this.version = `${versionPrefix}:${version}`;
   }
 
-  fillExecutionTimes(interval) {
+  fillExecutionTimes(interval: number) {
     for (let i = 0; i < interval; i += 1) {
       if (!this.profiles.executionTimes[i]) {
         this.profiles.executionTimes[i] = {
@@ -70,7 +84,7 @@ class Profiler {
     }
   }
 
-  profile(time, sql, resource) {
+  profile(time: [number, number], sql, resource) {
     const interval = Math.floor((Date.now() - this.startTime) / this.config.timeInterval);
     const queryTime = time[0] * 1e3 + time[1] * 1e-6;
 
@@ -98,4 +112,4 @@ class Profiler {
   }
 }
 
-module.exports = Profiler;
+export default Profiler;
