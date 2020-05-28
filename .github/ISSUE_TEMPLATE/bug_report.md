@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve
 title: ''
 labels: ''
-assignees: ''
+assignees: GHMatti
 
 ---
 
@@ -11,11 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+Please provide a brief script that causes the error.
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
@@ -24,9 +20,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots or log files to help explain your problem.
 
 **Software:**
- - OS: [e.g. Ubuntu 8.10]
- - Version of the Resource
- - MySQL, MariaDB
+ - OS: [e.g. Windows 10]
+ - Version of the resource [e.g. 22]
+ - Database Version [e.g. MariaDB 10.4 or MySQL 8.0]
 
 **Additional context**
 Add any other context about the problem here.
