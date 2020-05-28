@@ -72,6 +72,7 @@ global.exports('transaction', (querys, values, callback, resource?: string) => {
 
 RegisterCommand('mysql:debug', () => {
   profiler.config.trace = !profiler.config.trace;
+  console.log(`\x1b[36m[ghmattimysql]\x1b[0m display debug: ${profiler.config.trace}`);
 }, true);
 
 onNet(`${currentResourceName}:request-data`, () => {
