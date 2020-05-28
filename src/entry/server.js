@@ -91,6 +91,7 @@ global.on('onResourceStart', (resourcename) => {
 
 global.RegisterCommand('mysql:debug', () => {
   profiler.config.trace = !profiler.config.trace;
+  console.log(`\x1b[36m[mysql-async]\x1b[0m display debug: ${profiler.config.trace}`);
 }, true);
 
 global.onNet('mysql-async:request-data', () => {
