@@ -4,14 +4,15 @@ class Logger {
   constructor(output) {
     this.output = output;
     this.fileStream = null;
-    if (this.output === 'file' || this.output === 'both') {
-      this.fileStream = fs.createWriteStream('./mysql-async.log');
-    }
     this.writeConsole = (msg) => console.log(msg);
     this.getTimeStamp = () => {
       const date = new Date();
       return date.toISOString();
     };
+
+    if (this.output === 'file' || this.output === 'both') {
+      this.fileStream = fs.createWriteStream(`./mysql-async-${Date.now()}.log`);
+    }
   }
 
   writeFile(msg) {
