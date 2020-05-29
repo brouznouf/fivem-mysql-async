@@ -40,14 +40,17 @@ class Profiler {
   }
 
   get getFastestSlowQuery() {
-    return this.profiles.slowQueries.reduce((acc, cur) => ((cur < acc) ? cur : acc));
+    return this.profiles.slowQueries.reduce(
+      (acc, { queryTime }) => ((queryTime < acc) ? queryTime : acc),
+      0,
+    );
   }
 
   addSlowQuery(sql, resource, queryTime) {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((sq) => sq.queryTime !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }
