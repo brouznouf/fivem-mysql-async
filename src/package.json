@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "build": "webpack --progress",
+    "build:docs": "webpack --progress --config webpack.config.docs.js",
+    "deploy:docs": "gh-pages -d docs/dist",
     "lint": "eslint '**/*.js'"
   },
   "contributors": [
