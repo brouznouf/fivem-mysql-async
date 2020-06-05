@@ -9,4 +9,6 @@ $navbar-dark-color: rgba(#fff, .7);
 $navbar-dark-hover-color: rgba(#fff, .9);
 
 
-@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap";
+@import "~bootstrap-vue";
+@import '~prismjs/themes/prism.css';
