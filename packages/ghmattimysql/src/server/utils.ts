@@ -21,6 +21,14 @@ function typeCast(field, next) {
       return next();
     case 'BIT':
       return Number(field.buffer()[0]);
+    case 'TINY_BLOB':
+    case 'MEDIUM_BLOB':
+    case 'LONG_BLOB':
+    case 'BLOB':
+      if (field.packet.charsetNr === BINARY) {
+        return [...field.buffer()];
+      } 
+      return field.string();
     default:
       return next();
   }
