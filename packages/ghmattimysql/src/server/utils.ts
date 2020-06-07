@@ -1,4 +1,6 @@
+import { BINARY } from 'mysql/lib/protocol/constants/charsets.js';
 import QueryParameters from './mysql/queryParameters';
+import { TransactionQuery, TransactionQueries } from './mysql/transactionQueries';
 
 function typeCast(field, next) {
   let dateString = '';
@@ -41,7 +43,7 @@ function mysqlConvertLegacyFormat(query: string, parameters: QueryParameters) {
   return { sql, params };
 }
 
-function prepareLegacyQuery(query: string, parameters?: object) {
+function prepareLegacyQuery(query: string, parameters?: any) {
   let sql = query;
   let params = parameters;
   if (params !== null && typeof params === 'object' && !Array.isArray(params)) {
@@ -73,9 +75,9 @@ function safeInvoke(callback, args: any) {
   }
 }
 
-function prepareTransactionLegacyQuery(querys) {
+function prepareTransactionLegacyQuery(querys): TransactionQueries {
   const sqls = querys;
-  sqls.forEach((element, index) => {
+  sqls.forEach((element, index: number) => {
     const [query, values] = prepareLegacyQuery(element.query, element.values);
     sqls[index] = {
       query,
@@ -85,14 +87,15 @@ function prepareTransactionLegacyQuery(querys) {
   return sqls;
 }
 
-function sanitizeTransactionInput(querys, params, callback) {
-  let sqls = [];
+function sanitizeTransactionInput(querys, params, callback): [TransactionQueries, any] {
+  let sqls: TransactionQueries = [];
   let cb = callback;
   // start by type-checking and sorting the data
-  if (!querys.every((element) => typeof element === 'string')) sqls = querys;
+  // impl: better checks
+  if (!querys.every((query: string | TransactionQuery) => typeof query === 'string')) sqls = querys;
   else {
     const values = (typeof params === 'function') ? [] : params;
-    querys.forEach((element) => {
+    querys.forEach((element: string) => {
       sqls.push({ query: element, values });
     });
   }

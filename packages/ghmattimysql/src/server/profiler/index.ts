@@ -84,7 +84,7 @@ class Profiler {
     }
   }
 
-  profile(time: [number, number], sql, resource) {
+  profile(time: [number, number], sql: string, resource: string) {
     const interval = Math.floor((Date.now() - this.startTime) / this.config.timeInterval);
     const queryTime = time[0] * 1e3 + time[1] * 1e-6;
 

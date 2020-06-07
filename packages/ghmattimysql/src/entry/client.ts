@@ -1,11 +1,11 @@
 let isNuiActive = false;
 const currentResourceName = GetCurrentResourceName();
 
-function NuiMessage(msg) {
+function NuiMessage(msg: any) {
   SendNuiMessage(JSON.stringify(msg));
 }
 
-function NuiCallback(name, callback) {
+function NuiCallback(name: string, callback) {
   RegisterNuiCallbackType(name);
   on(`__cfx_nui:${name}`, (data, cb) => {
     callback(data);
@@ -38,7 +38,7 @@ setInterval(() => {
   }
 }, 300000);
 
-onNet(`${currentResourceName}:update-resource-data`, (resourceData) => {
+onNet(`${currentResourceName}:update-resource-data`, (resourceData: any) => {
   let arrayToSortAndMap = [];
   const resources = Object.keys(resourceData);
   for (let i = 0; i < resources.length; i += 1) {
