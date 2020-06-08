@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2017",
     "module": "commonjs",
-    "types": ["@citizenfx/client", "@types/node", "@types/mysql", "./types"],
+    "types": ["@citizenfx/client", "@citizenfx/server", "@types/node", "@types/mysql"],
   },
   "include": [
     "src/**/*"
