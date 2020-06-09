@@ -54,4 +54,6 @@ class Logger {
   }
 }
 
-export default Logger;
+const logger = new Logger(GetConvar('mysql_debug_output', 'console'));
+
+export default logger;

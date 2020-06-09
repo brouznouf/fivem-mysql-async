@@ -18,29 +18,26 @@ class MySQL {
 
   profiler: Profiler;
 
-  logger: Logger;
-
   formatQuery: any;
 
-  constructor(mysqlConfig: PoolConfig | string, logger: Logger, profiler: Profiler) {
+  constructor(mysqlConfig: PoolConfig | string, profiler: Profiler) {
     this.pool = null;
     this.profiler = profiler;
-    this.logger = logger;
     this.formatQuery = (sql: QueryOptions): string => `${sql.sql} : ${JSON.stringify(sql.values)}`;
 
     if (typeof mysqlConfig === 'object') {
       this.pool = createPool(mysqlConfig);
     } else {
-      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
+      Logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
         const formattedVersion = formatVersion(result[0]['VERSION()']);
         profiler.setVersion(formattedVersion);
-        logger.log('\x1b[32m[ghmattimysql]\x1b[0m Database server connection established.');
+        Logger.log('\x1b[32m[ghmattimysql]\x1b[0m Database server connection established.');
       } else {
-        logger.error(`[ERROR] ${error.message}`);
+        Logger.error(`[ERROR] ${error.message}`);
       }
     });
   }
@@ -56,7 +53,7 @@ class MySQL {
         resolve(result);
       });
     }).catch((error) => {
-      this.logger.error(`[ERROR] [${this.profiler.version}] [${invokingResource}] An error happens on MySQL for query "${this.formatQuery(sql)}": ${error.message}`);
+      Logger.error(`[ERROR] [${this.profiler.version}] [${invokingResource}] An error happens on MySQL for query "${this.formatQuery(sql)}": ${error.message}`);
       // We should not catch this error when doing a transaction, throw new error instead.
       if (connection) throw new Error('This error might result from a transaction and be deliberate.');
     });
@@ -66,7 +63,7 @@ class MySQL {
 
   onTransactionError(error: MysqlError, connection: PoolConnection, callback) {
     connection.rollback(() => {
-      this.logger.error(error.message);
+      Logger.error(error.message);
       callback(false);
     });
   }
@@ -74,7 +71,7 @@ class MySQL {
   beginTransaction(callback) {
     this.pool.getConnection((connectionError, connection) => {
       if (connectionError) {
-        this.logger.error(connectionError.message);
+        Logger.error(connectionError.message);
         callback(false);
         return;
       }

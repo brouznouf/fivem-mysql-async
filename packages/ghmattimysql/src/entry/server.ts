@@ -2,27 +2,34 @@ import { parseUrl } from 'mysql/lib/ConnectionConfig';
 import Profiler from '../server/profiler';
 import Logger from '../server/logger';
 import MySQL from '../server/mysql';
+import QueryStorage from '../server/queryStorage';
 import {
   sanitizeInput, safeInvoke, typeCast, sanitizeTransactionInput,
 } from '../server/utils';
 
-const logger = new Logger(GetConvar('mysql_debug_output', 'console'));
-const profiler = new Profiler(logger, {
+const profiler = new Profiler({
   trace: GetConvarInt('mysql_debug', 0) > 0,
   slowQueryWarningTime: GetConvarInt('mysql_slow_query_warning', 100),
 });
 
-const config = JSON.parse(LoadResourceFile('ghmattimysql', 'config.json'));
-const configFromString = parseUrl(GetConvar('mysql_connection_string', 'mysql://localhost/fivem'));
-
-const mysql = new MySQL(config || configFromString, logger, profiler);
-
 const currentResourceName: string = GetCurrentResourceName();
 
+const config = JSON.parse(LoadResourceFile(currentResourceName, 'config.json'));
+const configFromString = parseUrl(GetConvar('mysql_connection_string', 'mysql://localhost/fivem'));
+
+const mysql = new MySQL(config || configFromString, profiler);
+
+global.exports('store', (query: string, callback: any) => {
+  const invokingResource = GetInvokingResource();
+  const storageId = QueryStorage.add(query);
+  Logger.log(`\x1b[36m[ghmattimysql]\x1b[0m [${invokingResource}] Stored [${storageId}] : ${query}`);
+  safeInvoke(callback, storageId);
+});
+
 // need to use global.exports, as otherwise babel-loader will not recognize the scope.
-global.exports('scalar', (query: string, parameters?: any, callback?: any, resource?: string): void => {
+global.exports('scalar', (query: string | number, parameters?: any, callback?: any, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
-  let sql = query;
+  let sql = QueryStorage.get(query);
   let values = parameters;
   let cb = callback;
   [sql, values, cb] = sanitizeInput(sql, values, cb);
@@ -33,9 +40,9 @@ global.exports('scalar', (query: string, parameters?: any, callback?: any, resou
   }).catch(() => false);
 });
 
-global.exports('execute', (query: string, parameters?: any, callback?: any, resource?: string): void => {
+global.exports('execute', (query: string | number, parameters?: any, callback?: any, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
-  let sql = query;
+  let sql = QueryStorage.get(query);
   let values = parameters;
   let cb = callback;
   [sql, values, cb] = sanitizeInput(sql, values, cb);

@@ -1,6 +1,7 @@
 import { BINARY } from 'mysql/lib/protocol/constants/charsets.js';
 import QueryParameters from './mysql/queryParameters';
 import { TransactionQuery, TransactionQueries } from './mysql/transactionQueries';
+import QueryStorage from './queryStorage';
 
 function typeCast(field, next) {
   let dateString = '';
@@ -83,7 +84,7 @@ function safeInvoke(callback, args: any) {
   }
 }
 
-function prepareTransactionLegacyQuery(querys): TransactionQueries {
+function prepareTransactionLegacyQuery(querys: TransactionQueries): TransactionQueries {
   const sqls = querys;
   sqls.forEach((element, index: number) => {
     const [query, values] = prepareLegacyQuery(element.query, element.values);
@@ -95,18 +96,17 @@ function prepareTransactionLegacyQuery(querys): TransactionQueries {
   return sqls;
 }
 
-function sanitizeTransactionInput(querys, params, callback): [TransactionQueries, any] {
+function sanitizeTransactionInput(querys, params, callback: any): [TransactionQueries, any] {
   let sqls: TransactionQueries = [];
   let cb = callback;
   // start by type-checking and sorting the data
-  // impl: better checks
-  if (!querys.every((query: string | TransactionQuery) => typeof query === 'string')) sqls = querys;
-  else {
-    const values = (typeof params === 'function') ? [] : params;
-    querys.forEach((element: string) => {
-      sqls.push({ query: element, values });
-    });
-  }
+  const values = (typeof params === 'function') ? [] : params;
+  sqls = querys.map((query: string | number | TransactionQuery) => {
+    if (typeof query === 'string' || typeof query === 'number') { 
+      return { query: QueryStorage.get(query), values };
+    } // we got a Type: TransactionQuery, should actually check that, but we don't
+    return { query: QueryStorage.get(query.query), values: query.values };
+  });
   if (typeof params === 'function') cb = params;
   sqls = prepareTransactionLegacyQuery(sqls);
   return [sqls, cb];
