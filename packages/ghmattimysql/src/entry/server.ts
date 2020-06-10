@@ -5,7 +5,8 @@ import MySQL from '../server/mysql';
 import QueryStorage from '../server/queryStorage';
 import {
   sanitizeInput, safeInvoke, typeCast, sanitizeTransactionInput,
-} from '../server/utils';
+} from '../server/utility';
+import CFXCallback from '../server/types/cfxCallback';
 
 const profiler = new Profiler({
   trace: GetConvarInt('mysql_debug', 0) > 0,
@@ -19,7 +20,7 @@ const configFromString = parseUrl(GetConvar('mysql_connection_string', 'mysql://
 
 const mysql = new MySQL(config || configFromString, profiler);
 
-global.exports('store', (query: string, callback: any) => {
+global.exports('store', (query: string, callback: CFXCallback) => {
   const invokingResource = GetInvokingResource();
   const storageId = QueryStorage.add(query);
   Logger.log(`\x1b[36m[ghmattimysql]\x1b[0m [${invokingResource}] Stored [${storageId}] : ${query}`);
@@ -27,7 +28,7 @@ global.exports('store', (query: string, callback: any) => {
 });
 
 // need to use global.exports, as otherwise babel-loader will not recognize the scope.
-global.exports('scalar', (query: string | number, parameters?: any, callback?: any, resource?: string): void => {
+global.exports('scalar', (query: string | number, parameters?: any | CFXCallback, callback?: CFXCallback, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
   let sql = QueryStorage.get(query);
   let values = parameters;
@@ -40,7 +41,7 @@ global.exports('scalar', (query: string | number, parameters?: any, callback?: a
   }).catch(() => false);
 });
 
-global.exports('execute', (query: string | number, parameters?: any, callback?: any, resource?: string): void => {
+global.exports('execute', (query: string | number, parameters?: any | CFXCallback, callback?: CFXCallback, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
   let sql = QueryStorage.get(query);
   let values = parameters;
@@ -53,7 +54,7 @@ global.exports('execute', (query: string | number, parameters?: any, callback?: 
   }).catch(() => false);
 });
 
-global.exports('transaction', (querys, values, callback, resource?: string) => {
+global.exports('transaction', (querys, values?: any | CFXCallback, callback?: CFXCallback, resource?: string) => {
   const invokingResource = resource || GetInvokingResource();
   let sqls = [];
   let cb = callback;
@@ -71,7 +72,7 @@ global.exports('transaction', (querys, values, callback, resource?: string) => {
       }, invokingResource, connection));
     });
     // commit transaction
-    mysql.commitTransaction(promises, connection, (result) => {
+    mysql.commitTransaction(promises, connection, (result: any) => {
       safeInvoke(cb, result);
     });
   });
