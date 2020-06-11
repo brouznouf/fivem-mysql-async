@@ -7,9 +7,9 @@ import {
   sanitizeInput, safeInvoke, typeCast, sanitizeTransactionInput,
 } from '../server/utility';
 import CFXCallback from '../server/types/cfxCallback';
+import { OutputDestination } from '../server/logger/loggerConfig';
 
 const profiler = new Profiler({
-  trace: GetConvarInt('mysql_debug', 0) > 0,
   slowQueryWarningTime: GetConvarInt('mysql_slow_query_warning', 100),
 });
 
@@ -79,8 +79,14 @@ global.exports('transaction', (querys, values?: any | CFXCallback, callback?: CF
 });
 
 RegisterCommand('mysql:debug', () => {
-  profiler.config.trace = !profiler.config.trace;
-  console.log(`\x1b[36m[ghmattimysql]\x1b[0m display debug: ${profiler.config.trace}`);
+  let trace = false;
+  if (Logger.defaultConfig.output === OutputDestination.FileAndConsole || Logger.defaultConfig.output === OutputDestination.Console) {
+    Logger.defaultConfig.output = OutputDestination.File;
+  } else {
+    Logger.defaultConfig.output = OutputDestination.FileAndConsole;
+    trace = true;
+  }
+  Logger.info(`display debug: ${trace}`);
 }, true);
 
 onNet(`${currentResourceName}:request-data`, () => {

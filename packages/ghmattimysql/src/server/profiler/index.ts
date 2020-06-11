@@ -101,9 +101,7 @@ class Profiler {
 
     if (this.config.slowQueryWarningTime < queryTime) {
       Logger.warning(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
-    }
-
-    if (this.config.trace) {
+    } else {
       Logger.log(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     }
   }

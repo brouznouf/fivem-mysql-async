@@ -13,7 +13,7 @@ class Logger {
     this.fileStream = null;
 
     if (this.defaultConfig.output === OutputDestination.File || this.defaultConfig.output === OutputDestination.FileAndConsole) {
-      this.fileStream = createWriteStream(`./ghmattimysql-${this.getTimeStamp()}.log`);
+      this.fileStream = createWriteStream(`./ghmattimysql-${Date.now()}.log`);
     }
   }
 
@@ -69,6 +69,6 @@ class Logger {
   }
 }
 
-const logger = new Logger(GetConvar('mysql_debug', 'none'));
+const logger = new Logger(GetConvar('mysql_debug', 'None'));
 
 export default logger;
