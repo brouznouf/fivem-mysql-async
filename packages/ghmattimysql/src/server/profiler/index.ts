@@ -65,7 +65,7 @@ class Profiler {
 
   setVersion({ versionPrefix, version }) {
     if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
-      Logger.error('[ghmattimysql] [Warning] It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+      Logger.warning('It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
     }
     this.version = `${versionPrefix}:${version}`;
   }
@@ -100,11 +100,11 @@ class Profiler {
     }
 
     if (this.config.slowQueryWarningTime < queryTime) {
-      Logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+      Logger.warning(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     }
 
     if (this.config.trace) {
-      Logger.log(`[${this.version}] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+      Logger.log(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     }
   }
 }

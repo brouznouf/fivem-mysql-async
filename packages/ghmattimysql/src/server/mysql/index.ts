@@ -28,16 +28,16 @@ class MySQL {
     if (typeof mysqlConfig === 'object') {
       this.pool = createPool(mysqlConfig);
     } else {
-      Logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
+      Logger.error(`Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
         const formattedVersion = formatVersion(result[0]['VERSION()']);
         profiler.setVersion(formattedVersion);
-        Logger.log('\x1b[32m[ghmattimysql]\x1b[0m Database server connection established.');
+        Logger.success('Database server connection established.');
       } else {
-        Logger.error(`[ERROR] ${error.message}`);
+        Logger.error(error.message);
       }
     });
   }
@@ -53,9 +53,8 @@ class MySQL {
         resolve(result);
       });
     }).catch((error) => {
-      Logger.error(`[ERROR] [${this.profiler.version}] [${invokingResource}] An error happens on MySQL for query "${this.formatQuery(sql)}": ${error.message}`);
-      // We should not catch this error when doing a transaction, throw new error instead.
-      if (connection) throw new Error('This error might result from a transaction and be deliberate.');
+      if (connection) Logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      else Logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
     });
 
     return queryPromise;
