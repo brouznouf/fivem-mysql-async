@@ -29,7 +29,4 @@ class QueryStringStorage {
   }
 }
 
-// Use a singleton approach here
-const queryStringStorage = new QueryStringStorage();
-
-export default queryStringStorage;
+export default QueryStringStorage;

@@ -1,6 +1,6 @@
 import { TransactionQueries, TransactionQuery } from '../mysql/transactionQueries';
 import convertTransactionLegacyQueries from './convertTransactionLegacyQueries';
-import QueryStorage from '../queryStorage';
+import { queryStorage } from '../core';
 
 function sanitizeTransactionInput(querys, params, callback: any): [TransactionQueries, any] {
   let sqls: TransactionQueries = [];
@@ -9,9 +9,9 @@ function sanitizeTransactionInput(querys, params, callback: any): [TransactionQu
   const values = (typeof params === 'function') ? [] : params;
   sqls = querys.map((query: string | number | TransactionQuery) => {
     if (typeof query === 'string' || typeof query === 'number') {
-      return { query: QueryStorage.get(query), values };
+      return { query: queryStorage.get(query), values };
     } // we got a Type: TransactionQuery, should actually check that, but we don't
-    return { query: QueryStorage.get(query.query), values: query.values };
+    return { query: queryStorage.get(query.query), values: query.values };
   });
   if (typeof params === 'function') cb = params;
   sqls = convertTransactionLegacyQueries(sqls);

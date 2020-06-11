@@ -34,8 +34,11 @@ class Profiler {
 
   slowQueryLimit: number;
 
-  constructor(config: ProfilerConfig) {
+  logger: Logger;
+
+  constructor(config: ProfilerConfig, logger: Logger) {
     this.version = 'MySQL';
+    this.logger = logger;
     this.startTime = Date.now();
     this.config = { ...defaultProfilerConfig, ...config };
     this.profiles = {
@@ -65,7 +68,7 @@ class Profiler {
 
   setVersion({ versionPrefix, version }) {
     if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
-      Logger.warning('It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+      this.logger.warning('It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
     }
     this.version = `${versionPrefix}:${version}`;
   }
@@ -100,9 +103,9 @@ class Profiler {
     }
 
     if (this.config.slowQueryWarningTime < queryTime) {
-      Logger.warning(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
+      this.logger.warning(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     } else {
-      Logger.log(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
+      this.logger.log(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     }
   }
 }
