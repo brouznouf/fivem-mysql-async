@@ -1,19 +1,20 @@
-import { createWriteStream, WriteStream } from 'fs';
+import { appendFileSync, openSync, closeSync } from 'fs';
 import { LoggerConfig, OutputDestination, defaultLoggerConfig } from './loggerConfig';
 import { Color, colorize } from './color';
 
 class Logger {
   defaultConfig: LoggerConfig;
 
-  fileStream: WriteStream;
+  loggingFile: string;
 
   constructor(outputString: string) {
     const output = OutputDestination[outputString] || OutputDestination.None;
     this.defaultConfig = { ...defaultLoggerConfig, output };
-    this.fileStream = null;
+    this.loggingFile = null;
 
     if (this.defaultConfig.output === OutputDestination.File || this.defaultConfig.output === OutputDestination.FileAndConsole) {
-      this.fileStream = createWriteStream(`./ghmattimysql-${Date.now()}.log`);
+      this.loggingFile = `./ghmattimysql-${Date.now()}.log`;
+      closeSync(openSync(this.loggingFile, 'w'))
     }
   }
 
@@ -29,9 +30,9 @@ class Logger {
   }
 
   writeFile(msg: string, options: LoggerConfig) {
-    if (this.fileStream !== null) {
+    if (this.loggingFile !== null) {
       const levelTag = (options.level !== '') ? ` - ${options.level}` : '';
-      this.fileStream.write(`${this.getTimeStamp()}${levelTag}: ${msg}\n`);
+      appendFileSync(this.loggingFile, `${this.getTimeStamp()}${levelTag}: ${msg}\n`);
     }
   }
 
