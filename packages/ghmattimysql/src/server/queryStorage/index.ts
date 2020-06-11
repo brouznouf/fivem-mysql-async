@@ -27,7 +27,7 @@ class QueryStringStorage {
     if (this.queryStringStorage.length > storageId) return this.queryStringStorage[storageId];
     return 'Error: Query string not found in storage';
   }
-};
+}
 
 // Use a singleton approach here
 const queryStringStorage = new QueryStringStorage();

@@ -1,4 +1,4 @@
-import prepareLegacyQuery from "./prepareLegacyQuery";
+import prepareLegacyQuery from './prepareLegacyQuery';
 
 function sanitizeInput(query, parameters, callback) {
   let sql = query;

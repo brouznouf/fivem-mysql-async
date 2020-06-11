@@ -1,5 +1,5 @@
-import { TransactionQueries, TransactionQuery } from "../mysql/transactionQueries";
-import convertTransactionLegacyQueries from "./convertTransactionLegacyQueries";
+import { TransactionQueries, TransactionQuery } from '../mysql/transactionQueries';
+import convertTransactionLegacyQueries from './convertTransactionLegacyQueries';
 import QueryStorage from '../queryStorage';
 
 function sanitizeTransactionInput(querys, params, callback: any): [TransactionQueries, any] {
@@ -8,7 +8,7 @@ function sanitizeTransactionInput(querys, params, callback: any): [TransactionQu
   // start by type-checking and sorting the data
   const values = (typeof params === 'function') ? [] : params;
   sqls = querys.map((query: string | number | TransactionQuery) => {
-    if (typeof query === 'string' || typeof query === 'number') { 
+    if (typeof query === 'string' || typeof query === 'number') {
       return { query: QueryStorage.get(query), values };
     } // we got a Type: TransactionQuery, should actually check that, but we don't
     return { query: QueryStorage.get(query.query), values: query.values };

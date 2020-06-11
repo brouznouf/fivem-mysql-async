@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint src/**/*.{js,ts}",
+    "lintfix": "eslint src/**/*.{js,ts} --fix",
     "build": "webpack"
   },
   "author": "Matthias Mandelartz",

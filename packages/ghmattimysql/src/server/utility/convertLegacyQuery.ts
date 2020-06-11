@@ -1,4 +1,4 @@
-import QueryParameters from "../mysql/queryParameters";
+import QueryParameters from '../mysql/queryParameters';
 
 function convertLegacyQuery(query: string, parameters: QueryParameters) {
   let sql = query;

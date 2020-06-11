@@ -1,4 +1,4 @@
-import { Color } from "./color";
+import { Color } from './color';
 
 enum OutputDestination {
   FileAndConsole = <any>'FileAndConsole',

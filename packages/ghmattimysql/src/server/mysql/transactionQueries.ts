@@ -1,4 +1,4 @@
-import QueryParameters from "./queryParameters";
+import QueryParameters from './queryParameters';
 
 interface TransactionQuery {
   values: QueryParameters,

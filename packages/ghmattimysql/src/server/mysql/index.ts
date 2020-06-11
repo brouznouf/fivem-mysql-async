@@ -16,28 +16,31 @@ function formatVersion(versionString: string) {
 class MySQL {
   pool: Pool;
 
+  logger: Logger;
+
   profiler: Profiler;
 
   formatQuery: any;
 
-  constructor(mysqlConfig: PoolConfig | string, profiler: Profiler) {
+  constructor(mysqlConfig: PoolConfig | string, profiler: Profiler, logger: Logger) {
     this.pool = null;
     this.profiler = profiler;
+    this.logger = logger;
     this.formatQuery = (sql: QueryOptions): string => `${sql.sql} : ${JSON.stringify(sql.values)}`;
 
     if (typeof mysqlConfig === 'object') {
       this.pool = createPool(mysqlConfig);
     } else {
-      Logger.error(`Unexpected configuration of type ${typeof mysqlConfig} received.`);
+      this.logger.error(`Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
         const formattedVersion = formatVersion(result[0]['VERSION()']);
         profiler.setVersion(formattedVersion);
-        Logger.success('Database server connection established.');
+        this.logger.success('Database server connection established.');
       } else {
-        Logger.error(error.message);
+        this.logger.error(error.message);
       }
     });
   }
@@ -53,8 +56,8 @@ class MySQL {
         resolve(result);
       });
     }).catch((error) => {
-      if (connection) Logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
-      else Logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      if (connection) this.logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      else this.logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
     });
 
     return queryPromise;
@@ -62,7 +65,7 @@ class MySQL {
 
   onTransactionError(error: MysqlError, connection: PoolConnection, callback) {
     connection.rollback(() => {
-      Logger.error(error.message);
+      this.logger.error(error.message);
       callback(false);
     });
   }
@@ -70,7 +73,7 @@ class MySQL {
   beginTransaction(callback) {
     this.pool.getConnection((connectionError, connection) => {
       if (connectionError) {
-        Logger.error(connectionError.message);
+        this.logger.error(connectionError.message);
         callback(false);
         return;
       }

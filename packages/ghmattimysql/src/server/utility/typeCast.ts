@@ -25,7 +25,7 @@ function typeCast(field, next) {
     case 'BLOB':
       if (field.packet.charsetNr === BINARY) {
         return [...field.buffer()];
-      } 
+      }
       return field.string();
     default:
       return next();

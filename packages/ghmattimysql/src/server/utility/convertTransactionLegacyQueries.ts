@@ -1,5 +1,5 @@
-import { TransactionQueries } from "../mysql/transactionQueries";
-import prepareLegacyQuery from "./prepareLegacyQuery";
+import { TransactionQueries } from '../mysql/transactionQueries';
+import prepareLegacyQuery from './prepareLegacyQuery';
 
 function convertTransactionLegacyQueries(querys: TransactionQueries): TransactionQueries {
   const sqls = querys;

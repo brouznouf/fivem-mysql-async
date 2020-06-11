@@ -1,4 +1,4 @@
-import CFXCallback from "../types/cfxCallback";
+import CFXCallback from '../types/cfxCallback';
 
 function safeInvoke(callback: CFXCallback, args: any) {
   if (typeof callback === 'function') {

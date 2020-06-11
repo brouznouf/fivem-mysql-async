@@ -9,21 +9,20 @@ import {
 import CFXCallback from '../server/types/cfxCallback';
 import { OutputDestination } from '../server/logger/loggerConfig';
 
+const logger = new Logger(GetConvar('mysql_debug', 'None'));
 const profiler = new Profiler({
   slowQueryWarningTime: GetConvarInt('mysql_slow_query_warning', 100),
 });
 
-const currentResourceName: string = GetCurrentResourceName();
-
-const config = JSON.parse(LoadResourceFile(currentResourceName, 'config.json'));
+const config = JSON.parse(LoadResourceFile('ghmattimysql', 'config.json'));
 const configFromString = parseUrl(GetConvar('mysql_connection_string', 'mysql://localhost/fivem'));
 
-const mysql = new MySQL(config || configFromString, profiler);
+const mysql = new MySQL(config || configFromString, profiler, logger);
 
 global.exports('store', (query: string, callback: CFXCallback) => {
   const invokingResource = GetInvokingResource();
   const storageId = QueryStorage.add(query);
-  Logger.log(`\x1b[36m[ghmattimysql]\x1b[0m [${invokingResource}] Stored [${storageId}] : ${query}`);
+  logger.info(`[${invokingResource}] Stored [${storageId}] : ${query}`);
   safeInvoke(callback, storageId);
 });
 
@@ -80,18 +79,19 @@ global.exports('transaction', (querys, values?: any | CFXCallback, callback?: CF
 
 RegisterCommand('mysql:debug', () => {
   let trace = false;
-  if (Logger.defaultConfig.output === OutputDestination.FileAndConsole || Logger.defaultConfig.output === OutputDestination.Console) {
-    Logger.defaultConfig.output = OutputDestination.File;
+  if (logger.defaultConfig.output === OutputDestination.FileAndConsole
+    || logger.defaultConfig.output === OutputDestination.Console) {
+    logger.defaultConfig.output = OutputDestination.File;
   } else {
-    Logger.defaultConfig.output = OutputDestination.FileAndConsole;
+    logger.defaultConfig.output = OutputDestination.FileAndConsole;
     trace = true;
   }
-  Logger.info(`display debug: ${trace}`);
+  logger.info(`display debug: ${trace}`);
 }, true);
 
-onNet(`${currentResourceName}:request-data`, () => {
+onNet('ghmattimysql:request-data', () => {
   const src = source;
-  emitNet(`${currentResourceName}:update-resource-data`, src, profiler.profiles.resources);
-  emitNet(`${currentResourceName}:update-time-data`, src, profiler.profiles.executionTimes);
-  emitNet(`${currentResourceName}:update-slow-queries`, src, profiler.profiles.slowQueries);
+  emitNet('ghmattimysql:update-resource-data', src, profiler.profiles.resources);
+  emitNet('ghmattimysql:update-time-data', src, profiler.profiles.executionTimes);
+  emitNet('ghmattimysql:update-slow-queries', src, profiler.profiles.slowQueries);
 });

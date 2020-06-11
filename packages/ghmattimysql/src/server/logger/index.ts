@@ -1,6 +1,8 @@
 import { appendFileSync, openSync, closeSync } from 'fs';
 import { LoggerConfig, OutputDestination, defaultLoggerConfig } from './loggerConfig';
 import { Color, colorize } from './color';
+import getTimeStamp from './getTimeStamp';
+import writeConsole from './writeConsole';
 
 class Logger {
   defaultConfig: LoggerConfig;
@@ -12,27 +14,17 @@ class Logger {
     this.defaultConfig = { ...defaultLoggerConfig, output };
     this.loggingFile = null;
 
-    if (this.defaultConfig.output === OutputDestination.File || this.defaultConfig.output === OutputDestination.FileAndConsole) {
+    if (this.defaultConfig.output === OutputDestination.File
+      || this.defaultConfig.output === OutputDestination.FileAndConsole) {
       this.loggingFile = `./ghmattimysql-${Date.now()}.log`;
-      closeSync(openSync(this.loggingFile, 'w'))
+      closeSync(openSync(this.loggingFile, 'w'));
     }
-  }
-
-  getTimeStamp() {
-    const date = new Date();
-    return date.toISOString();
-  }
-
-  writeConsole(msg: string, options: LoggerConfig) {
-    const tag = colorize(`[${options.tag}]`, options.color);
-    const levelTag = (options.level !== '') ? ` [${options.level}]` : '';
-    console.log(`${tag}${levelTag} ${msg}`);
   }
 
   writeFile(msg: string, options: LoggerConfig) {
     if (this.loggingFile !== null) {
       const levelTag = (options.level !== '') ? ` - ${options.level}` : '';
-      appendFileSync(this.loggingFile, `${this.getTimeStamp()}${levelTag}: ${msg}\n`);
+      appendFileSync(this.loggingFile, `${getTimeStamp()}${levelTag}: ${msg}\n`);
     }
   }
 
@@ -41,35 +33,57 @@ class Logger {
     switch (opts.output) {
       default:
       case OutputDestination.Console:
-        this.writeConsole(msg, opts);
+        writeConsole(msg, opts);
         break;
       case OutputDestination.File:
         this.writeFile(msg, opts);
         break;
       case OutputDestination.FileAndConsole:
-        this.writeConsole(msg, opts);
+        writeConsole(msg, opts);
         this.writeFile(msg, opts);
         break;
     }
   }
 
   error(msg: string, options: LoggerConfig = {}) {
-    this.log(msg, { color: Color.Error, output: OutputDestination.FileAndConsole, level: 'ERROR', ...options });
+    this.log(msg,
+      {
+        color: Color.Error,
+        output: OutputDestination.FileAndConsole,
+        level: 'ERROR',
+        ...options,
+      });
   }
 
   info(msg: string, options: LoggerConfig = {}) {
-    this.log(msg, { color: Color.Info, output: OutputDestination.FileAndConsole, level: 'INFO', ...options });
+    this.log(msg,
+      {
+        color: Color.Info,
+        output: OutputDestination.FileAndConsole,
+        level: 'INFO',
+        ...options,
+      });
   }
 
   success(msg: string, options: LoggerConfig = {}) {
-    this.log(msg, { color: Color.Success, output: OutputDestination.FileAndConsole, level: 'SUCCESS', ...options });
+    this.log(msg,
+      {
+        color: Color.Success,
+        output: OutputDestination.FileAndConsole,
+        level: 'SUCCESS',
+        ...options,
+      });
   }
 
   warning(msg: string, options: LoggerConfig = {}) {
-    this.log(msg, { color: Color.Warning, output: OutputDestination.FileAndConsole, level: 'WARNING', ...options });
+    this.log(msg,
+      {
+        color: Color.Warning,
+        output: OutputDestination.FileAndConsole,
+        level: 'WARNING',
+        ...options,
+      });
   }
 }
 
-const logger = new Logger(GetConvar('mysql_debug', 'None'));
-
-export default logger;
+export default Logger;

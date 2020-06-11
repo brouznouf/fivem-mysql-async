@@ -1,4 +1,4 @@
-import convertLegacyQuery from "./convertLegacyQuery";
+import convertLegacyQuery from './convertLegacyQuery';
 
 function prepareLegacyQuery(query: string, parameters?: any) {
   let sql = query;
