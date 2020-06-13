@@ -7,7 +7,7 @@ This mysql-async Library for FiveM intends to provide function to connect to a M
 Check out https://brouznouf.github.io/fivem-mysql-async/ for a complete documentation.
 
 ### Questions
-For help and support questions, please use [Discord](https://discord.gg/ranNWKE). I would like to keep the issues in this repository for bugs and feature requests only.
+For help and support questions, please use [Discord](https://discord.gg/AXcxRjt). I would like to keep the issues in this repository for bugs and feature requests only.
 
 ### Issues
 Make sure you provide all information possible when reporting an issue.
