@@ -1,6 +1,6 @@
 import { TransactionQueries, TransactionQuery } from '../mysql/transactionQueries';
 import convertTransactionLegacyQueries from './convertTransactionLegacyQueries';
-import { queryStorage } from '../core';
+import queryStorage from '../queryStore';
 
 function sanitizeTransactionInput(querys, params, callback: any): [TransactionQueries, any] {
   let sqls: TransactionQueries = [];
