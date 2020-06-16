@@ -16,7 +16,7 @@ class Logger {
 
     if (this.defaultConfig.output === OutputDestination.File
       || this.defaultConfig.output === OutputDestination.FileAndConsole) {
-      this.loggingFile = `./ghmattimysql-${Date.now()}.log`;
+      this.loggingFile = `./${GetCurrentResourceName()}-${Date.now()}.log`;
       closeSync(openSync(this.loggingFile, 'w'));
     }
   }
