@@ -7,14 +7,9 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
-const serverConfig = {
-  entry: './entry/server.ts',
-  target: 'node',
+const baseConfig = {
   mode: 'production',
-  output: {
-    filename: 'mysql-async.js',
-    path: path.resolve(__dirname, '..'),
-  },
+  target: 'node',
   optimization: {
     minimize: false,
   },
@@ -46,17 +41,22 @@ const serverConfig = {
   },
 };
 
+const serverConfig = {
+  entry: './entry/server.ts',
+  output: {
+    filename: 'mysql-async.js',
+    path: path.resolve(__dirname, '..'),
+  },
+  ...baseConfig,
+};
+
 const clientConfig = {
-  entry: './entry/client.js',
-  target: 'node',
-  mode: 'production',
+  entry: './entry/client.ts',
   output: {
     filename: 'mysql-async-client.js',
     path: path.resolve(__dirname, '..'),
   },
-  optimization: {
-    minimize: false,
-  },
+  ...baseConfig,
 };
 
 const nuiConfig = {

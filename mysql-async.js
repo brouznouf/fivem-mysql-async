@@ -15997,7 +15997,7 @@ class profiler_Profiler {
   get getFastestSlowQuery() {
     return this.profiles.slowQueries.reduce((acc, {
       queryTime
-    }) => queryTime < acc ? queryTime : acc, 0);
+    }) => queryTime < acc ? queryTime : acc, this.profiles.slowQueries[0].queryTime);
   }
 
   addSlowQuery(sql, resource, queryTime) {

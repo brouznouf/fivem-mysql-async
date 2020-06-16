@@ -1,3 +1,4 @@
+import { OkPacket } from 'mysql';
 import { safeInvoke } from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/utility';
 import CFXCallback from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/types/cfxCallback';
 import { OutputDestination } from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/logger/loggerConfig';
@@ -30,7 +31,7 @@ on('onResourceStart', (resourcename) => {
 global.exports('mysql_execute', (query: string | number, parameters?: any | CFXCallback, callback?: any | CFXCallback, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
   server.execute(query, parameters, callback, invokingResource).then(([result, cb]) => {
-    safeInvoke(cb, (result) ? result.affectedRows : 0);
+    safeInvoke(cb, (result) ? (<OkPacket>result).affectedRows : 0);
     return true;
   }).catch(() => false);
 });
@@ -54,7 +55,7 @@ global.exports('mysql_fetch_scalar', (query: string | number, parameters?: any |
 global.exports('mysql_insert', (query: string | number, parameters?: any | CFXCallback, callback?: any | CFXCallback, resource?: string): void => {
   const invokingResource = resource || GetInvokingResource();
   server.execute(query, parameters, callback, invokingResource).then(([result, cb]) => {
-    safeInvoke(cb, (result) ? result.insertId : 0);
+    safeInvoke(cb, (result) ? (<OkPacket>result).insertId : 0);
     return true;
   }).catch(() => false);
 });
