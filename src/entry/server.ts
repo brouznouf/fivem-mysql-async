@@ -1,8 +1,8 @@
-import { safeInvoke } from 'ghmattimysql/packages/ghmattimysql/src/server/utility';
-import CFXCallback from 'ghmattimysql/packages/ghmattimysql/src/server/types/cfxCallback';
-import { OutputDestination } from 'ghmattimysql/packages/ghmattimysql/src/server/logger/loggerConfig';
-import Server from 'ghmattimysql/packages/ghmattimysql/src/server';
-import getConfig from 'ghmattimysql/packages/ghmattimysql/src/server/utility/getConfig';
+import { safeInvoke } from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/utility';
+import CFXCallback from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/types/cfxCallback';
+import { OutputDestination } from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/logger/loggerConfig';
+import Server from '../vendor/ghmattimysql/packages/ghmattimysql/src/server';
+import getConfig from '../vendor/ghmattimysql/packages/ghmattimysql/src/server/utility/getConfig';
 
 const defaultCfg = {
   host: '127.0.0.1',

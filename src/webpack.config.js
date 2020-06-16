@@ -25,7 +25,22 @@ const serverConfig = {
     rules: [
       {
         test: /.ts$/,
-        loader: 'babel-loader',
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  targets: {
+                    node: true,
+                  },
+                },
+              ],
+            ],
+            plugins: ["@babel/plugin-transform-typescript"],
+          },
+        },
       },
     ],
   },
