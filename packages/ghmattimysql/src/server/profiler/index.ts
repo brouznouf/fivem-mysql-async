@@ -52,7 +52,7 @@ class Profiler {
   get getFastestSlowQuery() {
     return this.profiles.slowQueries.reduce(
       (acc, { queryTime }) => ((queryTime < acc) ? queryTime : acc),
-      0,
+      1000,
     );
   }
 
