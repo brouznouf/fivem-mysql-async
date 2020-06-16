@@ -103,6 +103,24 @@ function MySQL.Sync.insert(query, params)
 end
 
 ---
+-- Stores a query for later execution
+--
+-- @param query
+--
+function MySQL.Sync.store(query)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    local res = -1
+    local finishedQuery = false
+    exports['mysql-async']:mysql_store(query, function (result)
+        res = result
+        finishedQuery = true
+    end)
+    repeat Citizen.Wait(0) until finishedQuery == true
+    return res
+end
+
+---
 -- Execute a List of querys and returns bool true when all are executed successfully
 --
 -- @param querys
@@ -172,6 +190,18 @@ function MySQL.Async.insert(query, params, func)
     assert(type(query) == "string", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_insert(query, safeParameters(params), func)
+end
+
+---
+-- Stores a query for later execution
+--
+-- @param query
+-- @param func(number)
+--
+function MySQL.Async.store(query, func)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    exports['mysql-async']:mysql_store(query, func)
 end
 
 ---
