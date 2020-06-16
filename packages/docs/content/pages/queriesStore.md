@@ -38,5 +38,4 @@ onNet('getInfoFromId', (id) => {
     if (result.length) emitNet('recieveInfo', src, { ...result[0], id });
   });
 });
-
 ```
