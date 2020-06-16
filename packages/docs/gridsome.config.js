@@ -11,6 +11,7 @@ const remark = {
 
 module.exports = {
   siteName: 'ghmattimysql',
+  pathPrefix: '/ghmattimysql',
   plugins: [
     {
       use: '@gridsome/source-filesystem',
