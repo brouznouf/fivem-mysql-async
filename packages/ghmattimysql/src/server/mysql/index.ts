@@ -16,13 +16,13 @@ function formatVersion(versionString: string) {
 class MySQL {
   pool: Pool;
 
-  profiler: Profiler;
-
   logger: Logger;
+
+  profiler: Profiler;
 
   formatQuery: any;
 
-  constructor(mysqlConfig: PoolConfig | string, logger: Logger, profiler: Profiler) {
+  constructor(mysqlConfig: PoolConfig | string, profiler: Profiler, logger: Logger) {
     this.pool = null;
     this.profiler = profiler;
     this.logger = logger;
@@ -31,16 +31,16 @@ class MySQL {
     if (typeof mysqlConfig === 'object') {
       this.pool = createPool(mysqlConfig);
     } else {
-      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
+      this.logger.error(`Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
       if (!error) {
         const formattedVersion = formatVersion(result[0]['VERSION()']);
         profiler.setVersion(formattedVersion);
-        logger.log('\x1b[32m[ghmattimysql]\x1b[0m Database server connection established.');
+        this.logger.success('Database server connection established.');
       } else {
-        logger.error(`[ERROR] ${error.message}`);
+        this.logger.error(error.message);
       }
     });
   }
@@ -56,9 +56,12 @@ class MySQL {
         resolve(result);
       });
     }).catch((error) => {
-      this.logger.error(`[ERROR] [${this.profiler.version}] [${invokingResource}] An error happens on MySQL for query "${this.formatQuery(sql)}": ${error.message}`);
-      // We should not catch this error when doing a transaction, throw new error instead.
-      if (connection) throw new Error('This error might result from a transaction and be deliberate.');
+      if (connection) {
+        this.logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+        throw new Error(`See Info-Message for full information: ${error.message}`);
+      } else {
+        this.logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      }
     });
 
     return queryPromise;

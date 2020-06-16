@@ -94,8 +94,8 @@ prints:
 
 Example of updating a row with the mysql.js syntax.
 ```lua
-local values = { "users", "online", true, "id", getPlayerId() }
-exports.ghmattimysql:execute("UPDATE ?? SET ?? = ? WHERE ?? = ?", values,
+local values = { "users", "online", true, { ["id"] = getPlayerId() } }
+exports.ghmattimysql:execute("UPDATE ?? SET ?? = ? WHERE ?", values,
   function(result)
     print(json.encode(result))
   end

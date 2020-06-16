@@ -3,6 +3,8 @@ interface QueryParametersLegacy {
 }
 
 type QueryParameterOptions = string | number;
-type QueryParameters = QueryParametersLegacy | Array<Array<Array<QueryParameterOptions>>> | Array<QueryParameterOptions>;
+type QueryParameters = QueryParametersLegacy
+  | Array<Array<Array<QueryParameterOptions>>>
+  | Array<QueryParameterOptions>;
 
 export default QueryParameters;

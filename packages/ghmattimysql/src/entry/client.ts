@@ -1,5 +1,4 @@
 let isNuiActive = false;
-const currentResourceName = GetCurrentResourceName();
 
 function NuiMessage(msg: any) {
   SendNuiMessage(JSON.stringify(msg));
@@ -16,7 +15,7 @@ function NuiCallback(name: string, callback) {
 function setNuiActive(boolean = true) {
   if (boolean !== isNuiActive) {
     if (boolean) {
-      emitNet(`${currentResourceName}:request-data`);
+      emitNet('ghmattimysql:request-data');
     }
     isNuiActive = boolean;
     NuiMessage({ type: 'onToggleShow' });
@@ -34,11 +33,11 @@ NuiCallback('close-explorer', () => {
 
 setInterval(() => {
   if (isNuiActive) {
-    emitNet(`${currentResourceName}:request-data`);
+    emitNet('ghmattimysql:request-data');
   }
 }, 300000);
 
-onNet(`${currentResourceName}:update-resource-data`, (resourceData: any) => {
+onNet('ghmattimysql:update-resource-data', (resourceData: any) => {
   let arrayToSortAndMap = [];
   const resources = Object.keys(resourceData);
   for (let i = 0; i < resources.length; i += 1) {
@@ -88,7 +87,7 @@ onNet(`${currentResourceName}:update-resource-data`, (resourceData: any) => {
   }
 });
 
-onNet(`${currentResourceName}:update-time-data`, (timeData) => {
+onNet('ghmattimysql:update-time-data', (timeData) => {
   let timeArray = [];
   if (Array.isArray(timeData)) {
     const len = timeData.length;
@@ -113,7 +112,7 @@ onNet(`${currentResourceName}:update-time-data`, (timeData) => {
   }
 });
 
-onNet(`${currentResourceName}:update-slow-queries`, (slowQueryData) => {
+onNet('ghmattimysql:update-slow-queries', (slowQueryData) => {
   const slowQueries = slowQueryData.map((el) => {
     const element = el;
     element.queryTime = Math.round(el.queryTime * 100) / 100;

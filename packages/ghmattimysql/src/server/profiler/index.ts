@@ -28,18 +28,18 @@ class Profiler {
 
   startTime: number;
 
-  logger: Logger;
-
   config: ProfilerConfig;
 
   profiles: Profile;
 
   slowQueryLimit: number;
 
-  constructor(logger: Logger, config: ProfilerConfig) {
+  logger: Logger;
+
+  constructor(config: ProfilerConfig, logger: Logger) {
     this.version = 'MySQL';
-    this.startTime = Date.now();
     this.logger = logger;
+    this.startTime = Date.now();
     this.config = { ...defaultProfilerConfig, ...config };
     this.profiles = {
       executionTimes: [],
@@ -68,7 +68,7 @@ class Profiler {
 
   setVersion({ versionPrefix, version }) {
     if (version.startsWith('8.0.') && versionPrefix === 'MySQL') {
-      this.logger.error('[ghmattimysql] [Warning] It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
+      this.logger.warning('It is recommended to run MySQL 5 or MariaDB with mysql-async. You may experience performance issues under load by using MySQL 8.');
     }
     this.version = `${versionPrefix}:${version}`;
   }
@@ -103,11 +103,9 @@ class Profiler {
     }
 
     if (this.config.slowQueryWarningTime < queryTime) {
-      this.logger.error(`[${this.version}] [Slow Query Warning] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
-    }
-
-    if (this.config.trace) {
-      this.logger.log(`[${this.version}] [${resource}] [${queryTime.toFixed()}ms] ${sql}`);
+      this.logger.warning(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
+    } else {
+      this.logger.log(`[${resource}] [${queryTime.toFixed()}ms] ${sql}`, { tag: this.version });
     }
   }
 }

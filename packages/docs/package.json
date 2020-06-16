@@ -19,7 +19,6 @@
     "@gridsome/source-filesystem": "^0.6.2",
     "@gridsome/transformer-remark": "^0.6.0",
     "bootstrap-vue": "^2.15.0",
-    "gridsome": "^0.7.16",
-    "uninstall": "0.0.0"
+    "gridsome": "^0.7.16"
   }
 }
