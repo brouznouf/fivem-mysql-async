@@ -5200,6 +5200,7 @@ global.on('onResourceStart', (resourcename) => {
 
 global.RegisterCommand('mysql:debug', () => {
   profiler.config.trace = !profiler.config.trace;
+  console.log(`\x1b[36m[mysql-async]\x1b[0m display debug: ${profiler.config.trace}`);
 }, true);
 
 global.onNet('mysql-async:request-data', () => {
@@ -5235,7 +5236,7 @@ class MySQL {
     if (typeof mysqlConfig === 'object') {
       this.pool = mysql.createPool(mysqlConfig);
     } else {
-      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlconfig} received.`);
+      this.logger.error(`[ERROR] [MySQL] Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
 
     this.pool.query('SELECT VERSION()', (error, result) => {
@@ -15714,14 +15715,15 @@ class Logger {
   constructor(output) {
     this.output = output;
     this.fileStream = null;
-    if (this.output === 'file' || this.output === 'both') {
-      this.fileStream = fs.createWriteStream('./mysql-async.log');
-    }
     this.writeConsole = (msg) => console.log(msg);
     this.getTimeStamp = () => {
       const date = new Date();
       return date.toISOString();
     };
+
+    if (this.output === 'file' || this.output === 'both') {
+      this.fileStream = fs.createWriteStream(`./mysql-async-${Date.now()}.log`);
+    }
   }
 
   writeFile(msg) {
@@ -15802,14 +15804,17 @@ class Profiler {
   }
 
   get getFastestSlowQuery() {
-    return this.profiles.slowQueries.reduce((acc, cur) => ((cur < acc) ? cur : acc));
+    return this.profiles.slowQueries.reduce(
+      (acc, { queryTime }) => ((queryTime < acc) ? queryTime : acc),
+      0,
+    );
   }
 
   addSlowQuery(sql, resource, queryTime) {
     this.profiles.slowQueries.push({ sql, resource, queryTime });
     if (this.profiles.slowQueries.length > this.config.slowestQueries) {
       const min = this.getFastestSlowQuery;
-      this.profiles.slowQueries = this.profiles.slowQueries.filter((el) => el !== min);
+      this.profiles.slowQueries = this.profiles.slowQueries.filter((sq) => sq.queryTime !== min);
       this.slowQueryLimit = this.getFastestSlowQuery;
     }
   }
@@ -15872,6 +15877,7 @@ const { parseUrl } = __webpack_require__(10);
 const defaultCfg = {
   host: '127.0.0.1',
   user: 'root',
+  password: '',
   database: 'fivem',
   supportBigNumbers: true,
   multipleStatements: true,

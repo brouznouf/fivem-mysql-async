@@ -8,7 +8,7 @@ const OptimizeCssnanoPlugin = require('@intervolga/optimize-cssnano-plugin');
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
 
 const serverConfig = {
-  entry: './entry/server.js',
+  entry: './entry/server.ts',
   target: 'node',
   mode: 'production',
   output: {
@@ -17,6 +17,17 @@ const serverConfig = {
   },
   optimization: {
     minimize: false,
+  },
+  resolve: {
+    extensions: [ '.ts', '.js' ],
+  },
+  module: {
+    rules: [
+      {
+        test: /.ts$/,
+        loader: 'babel-loader',
+      },
+    ],
   },
 };
 
@@ -128,4 +139,4 @@ const nuiConfig = {
   },
 };
 
-module.exports = [serverConfig, clientConfig, nuiConfig];
+module.exports = [serverConfig, clientConfig];
