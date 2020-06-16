@@ -6,6 +6,7 @@ import QueryStringStorage from './queryStorage';
 import Logger from './logger';
 import Profiler from './profiler';
 import queryStorage from './queryStore';
+import { LoggerConfig } from './logger/loggerConfig';
 
 class Server {
   logger: Logger;
@@ -16,8 +17,8 @@ class Server {
 
   queryStorage: QueryStringStorage;
 
-  constructor(config: PoolConfig) {
-    this.logger = new Logger(GetConvar('mysql_debug', 'None'));
+  constructor(config: PoolConfig, loggerOverrides: LoggerConfig = {}) {
+    this.logger = new Logger(GetConvar('mysql_debug', 'None'), loggerOverrides);
     this.profiler = new Profiler({ slowQueryWarningTime: GetConvarInt('mysql_slow_query_warning', 150) }, this.logger);
     this.mysql = new MySQL(config, this.profiler, this.logger);
     this.queryStorage = queryStorage;

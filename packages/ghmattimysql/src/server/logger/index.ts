@@ -9,9 +9,9 @@ class Logger {
 
   loggingFile: string;
 
-  constructor(outputString: string) {
+  constructor(outputString: string, defaultOverRides: LoggerConfig) {
     const output = OutputDestination[outputString] || OutputDestination.None;
-    this.defaultConfig = { ...defaultLoggerConfig, output };
+    this.defaultConfig = { ...defaultLoggerConfig, output, ...defaultOverRides };
     this.loggingFile = null;
 
     if (this.defaultConfig.output === OutputDestination.File
