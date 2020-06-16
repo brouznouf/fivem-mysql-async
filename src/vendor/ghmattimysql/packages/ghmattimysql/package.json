@@ -1,0 +1,35 @@
+{
+  "name": "ghmattimysql",
+  "version": "1.3.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "lint": "eslint src/**/*.{js,ts}",
+    "lintfix": "eslint src/**/*.{js,ts} --fix",
+    "build": "webpack"
+  },
+  "author": "Matthias Mandelartz",
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/plugin-transform-typescript": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@citizenfx/client": "^1.0.2613-1",
+    "@citizenfx/server": "^1.0.2613-1",
+    "@types/mysql": "^2.15.13",
+    "@types/node": "^14.0.13",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
+    "babel-loader": "^8.1.0",
+    "copy-webpack-plugin": "^6.0.2",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.20.2",
+    "terser-webpack-plugin": "^3.0.3",
+    "typescript": "^3.9.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "mysql": "^2.18.1"
+  }
+}

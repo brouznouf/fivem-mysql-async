@@ -1,0 +1,24 @@
+{
+  "name": "ghmattimysql-docs",
+  "version": "1.0.1",
+  "description": "generator for docs for ghmattimysql",
+  "private": true,
+  "scripts": {
+    "build": "gridsome build",
+    "dev": "gridsome develop",
+    "deploy": "gh-pages -d dist"
+  },
+  "author": "Matthias Mandelartz",
+  "devDependencies": {
+    "gh-pages": "^2.2.0",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2"
+  },
+  "dependencies": {
+    "@gridsome/remark-prismjs": "^0.3.0",
+    "@gridsome/source-filesystem": "^0.6.2",
+    "@gridsome/transformer-remark": "^0.6.0",
+    "bootstrap-vue": "^2.15.0",
+    "gridsome": "^0.7.16"
+  }
+}
