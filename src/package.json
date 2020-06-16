@@ -28,6 +28,7 @@
     "@citizenfx/client": "^1.0.2624-1",
     "@citizenfx/server": "^1.0.2624-1",
     "@intervolga/optimize-cssnano-plugin": "^1.0.6",
+    "@types/mysql": "^2.15.13",
     "@types/node": "^14.0.13",
     "@vue/cli-plugin-eslint": "^4.3.1",
     "@vue/cli-service": "^4.3.1",
