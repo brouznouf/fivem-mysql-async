@@ -56,8 +56,12 @@ class MySQL {
         resolve(result);
       });
     }).catch((error) => {
-      if (connection) this.logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
-      else this.logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      if (connection) {
+        this.logger.info(`[${invokingResource}] A (possible deliberate) error happens on transaction for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+        throw new Error(`See Info-Message for full information: ${error.message}`);
+      } else {
+        this.logger.error(`[${invokingResource}] An error happens for query "${this.formatQuery(sql)}": ${error.message}`, { tag: this.profiler.version });
+      }
     });
 
     return queryPromise;
