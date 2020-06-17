@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import vuetify from '../ui/plugins/vuetify';
+import vuetify from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/plugins/vuetify';
 import App from '../ui/Nui.vue';
 
 Vue.config.productionTip = false;

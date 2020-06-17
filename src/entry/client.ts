@@ -1,12 +1,12 @@
 let isNuiActive = false;
 
-function NuiMessage(msg) {
-  window.SendNuiMessage(JSON.stringify(msg));
+function NuiMessage(msg: any) {
+  SendNuiMessage(JSON.stringify(msg));
 }
 
-function NuiCallback(name, callback) {
-  window.RegisterNuiCallbackType(name);
-  window.on(`__cfx_nui:${name}`, (data, cb) => {
+function NuiCallback(name: string, callback) {
+  RegisterNuiCallbackType(name);
+  on(`__cfx_nui:${name}`, (data, cb) => {
     callback(data);
     cb('ok');
   });
@@ -15,15 +15,15 @@ function NuiCallback(name, callback) {
 function setNuiActive(boolean = true) {
   if (boolean !== isNuiActive) {
     if (boolean) {
-      window.emitNet('mysql-async:request-data');
+      emitNet('mysql-async:request-data');
     }
     isNuiActive = boolean;
     NuiMessage({ type: 'onToggleShow' });
-    window.SetNuiFocus(boolean, boolean);
+    SetNuiFocus(boolean, boolean);
   }
 }
 
-window.RegisterCommand('mysql', () => {
+RegisterCommand('mysql', () => {
   setNuiActive();
 }, true);
 
@@ -31,13 +31,13 @@ NuiCallback('close-explorer', () => {
   setNuiActive(false);
 });
 
-window.setInterval(() => {
+setInterval(() => {
   if (isNuiActive) {
-    window.emitNet('mysql-async:request-data');
+    emitNet('mysql-async:request-data');
   }
 }, 300000);
 
-window.onNet('mysql-async:update-resource-data', (resourceData) => {
+onNet('mysql-async:update-resource-data', (resourceData: any) => {
   let arrayToSortAndMap = [];
   const resources = Object.keys(resourceData);
   for (let i = 0; i < resources.length; i += 1) {
@@ -87,7 +87,7 @@ window.onNet('mysql-async:update-resource-data', (resourceData) => {
   }
 });
 
-window.onNet('mysql-async:update-time-data', (timeData) => {
+onNet('mysql-async:update-time-data', (timeData) => {
   let timeArray = [];
   if (Array.isArray(timeData)) {
     const len = timeData.length;
@@ -112,7 +112,7 @@ window.onNet('mysql-async:update-time-data', (timeData) => {
   }
 });
 
-window.onNet('mysql-async:update-slow-queries', (slowQueryData) => {
+onNet('mysql-async:update-slow-queries', (slowQueryData) => {
   const slowQueries = slowQueryData.map((el) => {
     const element = el;
     element.queryTime = Math.round(el.queryTime * 100) / 100;

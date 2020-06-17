@@ -9,7 +9,6 @@ local function safeParameters(params)
     end
 
     assert(type(params) == "table", "A table is expected")
-    assert(params[1] == nil, "Parameters should not be an array, but a map (key / value pair) instead")
 
     if next(params) == nil then
         return {[''] = ''}
@@ -27,7 +26,7 @@ end
 -- @return int Number of rows updated
 --
 function MySQL.Sync.execute(query, params)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     local res = 0
     local finishedQuery = false
@@ -47,7 +46,7 @@ end
 -- @return table Query results
 --
 function MySQL.Sync.fetchAll(query, params)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     local res = {}
     local finishedQuery = false
@@ -69,7 +68,7 @@ end
 -- @return mixed Value of the first column in the first row
 --
 function MySQL.Sync.fetchScalar(query, params)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     local res = ''
     local finishedQuery = false
@@ -90,11 +89,29 @@ end
 -- @return mixed Value of the last insert id
 --
 function MySQL.Sync.insert(query, params)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     local res = 0
     local finishedQuery = false
     exports['mysql-async']:mysql_insert(query, safeParameters(params), function (result)
+        res = result
+        finishedQuery = true
+    end)
+    repeat Citizen.Wait(0) until finishedQuery == true
+    return res
+end
+
+---
+-- Stores a query for later execution
+--
+-- @param query
+--
+function MySQL.Sync.store(query)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    local res = -1
+    local finishedQuery = false
+    exports['mysql-async']:mysql_store(query, function (result)
         res = result
         finishedQuery = true
     end)
@@ -129,7 +146,7 @@ end
 -- @param func(int)
 --
 function MySQL.Async.execute(query, params, func)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_execute(query, safeParameters(params), func)
 end
@@ -142,7 +159,7 @@ end
 -- @param func(table)
 --
 function MySQL.Async.fetchAll(query, params, func)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), func)
 end
@@ -156,7 +173,7 @@ end
 -- @param func(mixed)
 --
 function MySQL.Async.fetchScalar(query, params, func)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_fetch_scalar(query, safeParameters(params), func)
 end
@@ -169,9 +186,21 @@ end
 -- @param func(string)
 --
 function MySQL.Async.insert(query, params, func)
-    assert(type(query) == "string", "The SQL Query must be a string")
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
     exports['mysql-async']:mysql_insert(query, safeParameters(params), func)
+end
+
+---
+-- Stores a query for later execution
+--
+-- @param query
+-- @param func(number)
+--
+function MySQL.Async.store(query, func)
+    assert(type(query) == "string", "The SQL Query must be a string")
+
+    exports['mysql-async']:mysql_store(query, func)
 end
 
 ---

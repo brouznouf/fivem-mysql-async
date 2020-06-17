@@ -1,0 +1,4 @@
+[submodule "src/vendor/ghmattimysql"]
+	path = src/vendor/ghmattimysql
+	url = https://github.com/GHMatti/ghmattimysql.git
+	branch = master
