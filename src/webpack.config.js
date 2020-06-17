@@ -154,4 +154,4 @@ const nuiConfig = {
   },
 };
 
-module.exports = [serverConfig, clientConfig];
+module.exports = [serverConfig, clientConfig, nuiConfig];

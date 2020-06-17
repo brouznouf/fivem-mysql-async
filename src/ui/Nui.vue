@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import MChart from './components/MChart.vue';
+import MChart from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MChart.vue';
 
 export default {
   components: {
@@ -203,7 +203,7 @@ export default {
 </script>
 
 <style lang="scss">
-@import './styles/_mixins';
+@import '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/styles/mixins';
 
 html {
   overflow-y: auto;

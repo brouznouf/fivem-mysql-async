@@ -15,7 +15,8 @@ const defaultCfg = {
 };
 
 // Switch to just connecting immediately
-const server = new Server({ ...defaultCfg, ...getConfig() }, { tag: 'mysql-async' });
+const config = { ...defaultCfg, ...getConfig() };
+const server = new Server(config, { tag: 'mysql-async' });
 
 let isReady = false;
 global.exports('is_ready', () => isReady);
@@ -25,6 +26,11 @@ on('onResourceStart', (resourcename) => {
   if (resourcename === 'mysql-async') {
     emit('onMySQLReady');
     isReady = true;
+    if ((<any>config).keepAlive) {
+      setInterval(() => {
+        server.execute('SELECT 1', [], null, 'mysql-async:keepAlive');
+      }, (<any>config).keepAlive * 1000);
+    }
   }
 });
 

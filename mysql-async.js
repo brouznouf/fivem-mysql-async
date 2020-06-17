@@ -16171,9 +16171,10 @@ const defaultCfg = {
   multipleStatements: true
 }; // Switch to just connecting immediately
 
-const server_server = new server({ ...defaultCfg,
+const server_config = { ...defaultCfg,
   ...utility_getConfig()
-}, {
+};
+const server_server = new server(server_config, {
   tag: 'mysql-async'
 });
 let isReady = false;
@@ -16183,6 +16184,12 @@ on('onResourceStart', resourcename => {
   if (resourcename === 'mysql-async') {
     emit('onMySQLReady');
     isReady = true;
+
+    if (server_config.keepAlive) {
+      setInterval(() => {
+        server_server.execute('SELECT 1', [], null, 'mysql-async:keepAlive');
+      }, server_config.keepAlive * 1000);
+    }
   }
 });
 global.exports('mysql_execute', (query, parameters, callback, resource) => {
