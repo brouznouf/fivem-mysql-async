@@ -15717,10 +15717,10 @@ function colorize(string, color) {
 var OutputDestination;
 
 (function (OutputDestination) {
-  OutputDestination[OutputDestination["FileAndConsole"] = 'FileAndConsole'] = "FileAndConsole";
-  OutputDestination[OutputDestination["Console"] = 'Console'] = "Console";
-  OutputDestination[OutputDestination["File"] = 'File'] = "File";
   OutputDestination[OutputDestination["None"] = 'None'] = "None";
+  OutputDestination[OutputDestination["File"] = 'File'] = "File";
+  OutputDestination[OutputDestination["Console"] = 'Console'] = "Console";
+  OutputDestination[OutputDestination["FileAndConsole"] = 'FileAndConsole'] = "FileAndConsole";
 })(OutputDestination || (OutputDestination = {}));
 
 const defaultLoggerConfig = {
@@ -15891,7 +15891,6 @@ class logger_Logger {
     };
 
     switch (opts.output) {
-      default:
       case OutputDestination.Console:
         logger_writeConsole(msg, opts);
         break;
