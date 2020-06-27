@@ -15759,7 +15759,9 @@ class mysql_MySQL {
     this.formatQuery = sql => `${sql.sql} : ${JSON.stringify(sql.values)}`;
 
     if (typeof mysqlConfig === 'object') {
-      this.pool = Object(mysql["createPool"])(mysqlConfig);
+      this.pool = Object(mysql["createPool"])({ ...mysqlConfig,
+        debug: ['HandshakeInitializationPacket', 'ComPingPacket', 'ComQueryPacket', 'ComQuitPacket', 'EmptyPacket', 'ErrorPacket', 'ClientAuthenticationPacket', 'ComStatisticsPacket']
+      });
     } else {
       this.logger.error(`Unexpected configuration of type ${typeof mysqlConfig} received.`);
     }
