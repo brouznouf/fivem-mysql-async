@@ -15727,6 +15727,7 @@ const defaultLoggerConfig = {
   color: Color.Default,
   tag: 'ghmattimysql',
   level: '',
+  logLevel: 15,
   output: OutputDestination.None
 };
 
@@ -15856,7 +15857,27 @@ function writeConsole(msg, options) {
 }
 
 /* harmony default export */ var logger_writeConsole = (writeConsole);
+// CONCATENATED MODULE: ./vendor/ghmattimysql/packages/ghmattimysql/src/server/logger/logLevel.ts
+var LogLevel;
+
+(function (LogLevel) {
+  LogLevel[LogLevel["Info"] = 0] = "Info";
+  LogLevel[LogLevel["Success"] = 1] = "Success";
+  LogLevel[LogLevel["Warning"] = 2] = "Warning";
+  LogLevel[LogLevel["Error"] = 3] = "Error";
+})(LogLevel || (LogLevel = {}));
+
+/* harmony default export */ var logger_logLevel = (LogLevel);
+// CONCATENATED MODULE: ./vendor/ghmattimysql/packages/ghmattimysql/src/server/logger/getLoggingFileName.ts
+function getLoggingFileName() {
+  const loggingFile = GetConvar('mysql_log_file_format', '%s-%d.log');
+  return loggingFile.replace('%s', GetCurrentResourceName()).replace('%d', Date.now().toString());
+}
+
+/* harmony default export */ var logger_getLoggingFileName = (getLoggingFileName);
 // CONCATENATED MODULE: ./vendor/ghmattimysql/packages/ghmattimysql/src/server/logger/index.ts
+
+
 
 
 
@@ -15873,7 +15894,7 @@ class logger_Logger {
     this.loggingFile = null;
 
     if (this.defaultConfig.output === OutputDestination.File || this.defaultConfig.output === OutputDestination.FileAndConsole) {
-      this.loggingFile = `./${GetCurrentResourceName()}-${Date.now()}.log`;
+      this.loggingFile = logger_getLoggingFileName();
       Object(external_fs_["closeSync"])(Object(external_fs_["openSync"])(this.loggingFile, 'w'));
     }
   }
@@ -15903,13 +15924,21 @@ class logger_Logger {
         logger_writeConsole(msg, opts);
         this.writeFile(msg, opts);
         break;
+
+      default:
     }
+  }
+
+  getOutputDestination(logLevel) {
+    /* eslint no-bitwise: ["error", { "allow": ["&", "<<"] }] */
+    const logToConsole = (this.defaultConfig.logLevel & 1 << logLevel) !== 0;
+    return logToConsole ? OutputDestination.FileAndConsole : OutputDestination.File;
   }
 
   error(msg, options = {}) {
     this.log(msg, {
       color: Color.Error,
-      output: OutputDestination.FileAndConsole,
+      output: this.getOutputDestination(logger_logLevel.Error),
       level: 'ERROR',
       ...options
     });
@@ -15918,7 +15947,7 @@ class logger_Logger {
   info(msg, options = {}) {
     this.log(msg, {
       color: Color.Info,
-      output: OutputDestination.FileAndConsole,
+      output: this.getOutputDestination(logger_logLevel.Info),
       level: 'INFO',
       ...options
     });
@@ -15927,7 +15956,7 @@ class logger_Logger {
   success(msg, options = {}) {
     this.log(msg, {
       color: Color.Success,
-      output: OutputDestination.FileAndConsole,
+      output: this.getOutputDestination(logger_logLevel.Success),
       level: 'SUCCESS',
       ...options
     });
@@ -15936,7 +15965,7 @@ class logger_Logger {
   warning(msg, options = {}) {
     this.log(msg, {
       color: Color.Warning,
-      output: OutputDestination.FileAndConsole,
+      output: this.getOutputDestination(logger_logLevel.Warning),
       level: 'WARNING',
       ...options
     });
@@ -16071,7 +16100,9 @@ class profiler_Profiler {
 
 class server_Server {
   constructor(config, loggerOverrides = {}) {
-    this.logger = new server_logger(GetConvar('mysql_debug', 'None'), loggerOverrides);
+    this.logger = new server_logger(GetConvar('mysql_debug', 'None'), { ...loggerOverrides,
+      logLevel: GetConvarInt('mysql_log_level', 15)
+    });
     this.profiler = new server_profiler({
       slowQueryWarningTime: GetConvarInt('mysql_slow_query_warning', 150)
     }, this.logger);

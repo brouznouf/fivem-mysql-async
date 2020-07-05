@@ -4,7 +4,7 @@ game 'common'
 name 'mysql-async'
 description 'MySQL Middleware for lua.'
 author 'Joel Wurtz & Matthias Mandelartz'
-version '3.3.0'
+version '3.3.1'
 url 'https://github.com/brouznouf/fivem-mysql-async'
 
 server_script 'mysql-async.js'
@@ -12,8 +12,8 @@ client_script 'mysql-async-client.js'
 
 files {
   'ui/index.html',
-  'ui/app.js',
-  'ui/app.css',
+  'ui/js/app.js',
+  'ui/css/app.css',
   'ui/fonts/fira-sans-v9-latin-700.woff',
   'ui/fonts/fira-sans-v9-latin-700.woff2',
   'ui/fonts/fira-sans-v9-latin-italic.woff',
