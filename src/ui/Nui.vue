@@ -1,87 +1,83 @@
 <template>
-  <v-app v-if="showInterface" class="v-app-background">
-    <v-content>
-      <v-container fluid fill-height>
-        <v-layout align-center justify-center>
-          <v-flex xs9>
-            <v-card class="elevation-12">
-              <v-system-bar window dark>
-                mysql-async Explorer
-                <v-spacer></v-spacer>
-                <v-icon @click="close()">close</v-icon>
-              </v-system-bar>
-              <v-tabs
-                v-model="active"
-                color="primary"
-                slider-color="secondary"
-              >
-                <v-tab ripple>
-                  Time-resolved
-                </v-tab>
-                <v-tab ripple>
-                  Resources
-                </v-tab>
-                <v-tab ripple>
-                  Slowest Queries
-                </v-tab>
-                <v-tab-item>
-                  <v-flex xs12 pa-2 style="height: 480px;">
-                    <m-chart
-                      id="time-graph"
-                      :labels="timeLabels" 
-                      :datasets="timeData"
-                      height="540"
-                    ></m-chart>
-                  </v-flex>
-                </v-tab-item>
-                <v-tab-item>
-                  <v-flex xs12 pa-2 style="height: 480px;">
-                    <m-chart
-                      id="resource-graph"
-                      :labels="resourceLabels"
-                      :datasets="resourceData"
-                      height="540"
-                    ></m-chart>
-                  </v-flex>
-                </v-tab-item>
-                <v-tab-item>
-                  <v-flex xs12 pa-2 style="height: 480px;">
-                    <v-data-table
-                      align-end
-                      :headers="headers"
-                      :items="slowqueries"
-                      :items-per-page="7"
-                      :footer-props="{
-                        'items-per-page-options': [7],
-                        prevIcon: 'chevron_left',
-                        nextIcon: 'chevron_right'
-                      }"
-                    >
-                      <template v-slot:items="props">
-                        <td>{{ props.item.resource }}</td>
-                        <td>{{ props.item.sql }}</td>
-                        <td>{{ props.item.queryTime }}</td>
-                      </template>
-                    </v-data-table>
-                  </v-flex>
-                </v-tab-item>
-              </v-tabs>
-              <v-footer dark color="black" height="28" style="min-height: 28px;">
-              </v-footer>
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </v-content>
-  </v-app>
+  <main
+    v-if="showInterface"
+    class="flex h-screen bg-opacity-50 bg-black items-center justify-center"
+  >
+    <div class="w-full bg-white shadow-2xl rounded-md max-w-screen-xl">
+      <m-app-bar>
+        <m-icon class="mr-2">storage</m-icon>
+        <span>MySQL Explorer</span>
+        <div class="flex-grow" />
+        <m-icon
+          @click.native="close()"
+          class="
+            cursor-pointer rounded-full hover:bg-white hover:bg-opacity-10
+            transition duration-300 ease-in-out
+          "
+        >
+          close
+        </m-icon>
+      </m-app-bar>
+      <m-tabs>
+        <m-tab-item label="Time-resolved" icon="timeline">
+          <div class="p-2" style="height: 480px;">
+            <m-chart
+              id="time-graph"
+              chartFontFamily="'Fira Sans', 'sans-serif'"
+              :labels="timeLabels"
+              :datasets="timeData"
+              :height="540"
+            ></m-chart>
+          </div>
+        </m-tab-item>
+        <m-tab-item label="Resources" icon="apps">
+          <div class="p-2" style="height: 480px;">
+            <m-chart
+              id="resource-graph"
+              chartFontFamily="'Fira Sans', 'sans-serif'"
+              :labels="resourceLabels"
+              :datasets="resourceData"
+              :height="540"
+            ></m-chart>
+          </div>
+        </m-tab-item>
+        <m-tab-item label="Slowest Queries" icon="slow_motion_video">
+          <div class="p-2" style="height: 480px;">
+            <m-data-table
+              :headers="headers"
+              :items="slowqueries"
+              :items-per-page="7"
+            >
+              <template v-slot:row="props">
+                <td class="text-center h-12">{{ props.item.resource }}</td>
+                <td class="text-left h-12">{{ props.item.sql }}</td>
+                <td class="text-center h-12">{{ props.item.queryTime }}ms</td>
+              </template>
+            </m-data-table>
+          </div>
+        </m-tab-item>
+      </m-tabs>
+      <div class="h-8 bg-black w-full rounded-b-md" />
+    </div>
+  </main>
 </template>
 
 <script>
+import MAppBar from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MAppBar.vue';
 import MChart from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MChart.vue';
+import MDataTable from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MDataTable.vue';
+import MIcon from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MIcon.vue';
+import MTabs from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MTabs.vue';
+import MTabItem from '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/components/MTabItem.vue';
 
 export default {
   components: {
+    MAppBar,
     MChart,
+    MDataTable,
+    MIcon,
+    MTabs,
+    MTabItem,
   },
   data() {
     return {
@@ -129,12 +125,12 @@ export default {
           text: 'Resource',
           value: 'resource',
         },
-        { 
-          text: 'Query', 
+        {
+          text: 'Query',
           value: 'sql',
-          sortable: false, 
+          sortable: false,
         },
-        { 
+        {
           text: 'Execution Time (ms)',
           value: 'queryTime',
         },
@@ -164,14 +160,14 @@ export default {
     onTimeData({ timeData }) {
       if (Array.isArray(timeData) && timeData.length === 3) {
         this.timeData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, timeData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, timeData[1]),
-          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, timeData[2]),
+          { ...this.colorGraphLoad, label: 'Server Load (ms)', ...timeData[0] },
+          { ...this.colorGraphAvg, label: 'Average Query Time (ms)', ...timeData[1] },
+          { ...this.colorGraphCount, label: 'Query Count', ...timeData[2] },
         ];
         const labels = [];
         for (let i = timeData[0].data.length - 1; i > -1; i -= 1) {
           if (i !== 0) {
-            labels.push(`-${i*5}min`);
+            labels.push(`-${i * 5}min`);
           } else {
             labels.push('now');
           }
@@ -182,9 +178,9 @@ export default {
     onResourceData({ resourceData }) {
       if (Array.isArray(resourceData) && resourceData.length === 3) {
         this.resourceData = [
-          Object.assign({}, this.colorGraphLoad, { label: 'Server Load (ms)' }, resourceData[0]),
-          Object.assign({}, this.colorGraphAvg, { label: 'Average Query Time (ms)' }, resourceData[1]),
-          Object.assign({}, this.colorGraphCount, { label: 'Query Count' }, resourceData[2]),
+          { ...this.colorGraphLoad, label: 'Server Load (ms)', ...resourceData[0] },
+          { ...this.colorGraphAvg, label: 'Average Query Time (ms)', ...resourceData[1] },
+          { ...this.colorGraphCount, label: 'Query Count', ...resourceData[2] },
         ];
       }
     },
@@ -199,17 +195,14 @@ export default {
     });
   },
   name: 'app',
-}
+};
 </script>
 
 <style lang="scss">
+@import './tailwind.css'; // less configuring
 @import '../vendor/ghmattimysql/packages/ghmattimysql-ui/src/styles/mixins';
 
-html {
-  overflow-y: auto;
-}
-
-@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-regular', 400, normal, woff woff2);
-@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-italic', 400, italic, woff woff2);
-@include font-face('Fira Sans', './assets/fonts/fira-sans-v9-latin-700', 700, normal, woff woff2);
+@include font-face('Fira Sans', './fonts/fira-sans-v9-latin-regular', 400, normal, woff woff2);
+@include font-face('Fira Sans', './fonts/fira-sans-v9-latin-italic', 400, italic, woff woff2);
+@include font-face('Fira Sans', './fonts/fira-sans-v9-latin-700', 700, normal, woff woff2);
 </style>
