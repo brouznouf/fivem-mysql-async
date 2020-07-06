@@ -1,0 +1,14 @@
+$font-family-sans-serif: 'Fira Sans', sans-serif;
+$blue: #1976D2;
+$green: #4CAF50;
+$red: #FF5252;
+$yellow: #FFC107;
+$info: #2196F3;
+$secondary: #424242;
+$navbar-dark-color: rgba(#fff, .7);
+$navbar-dark-hover-color: rgba(#fff, .9);
+
+
+@import "~bootstrap";
+@import "~bootstrap-vue";
+@import '~prismjs/themes/prism.css';
