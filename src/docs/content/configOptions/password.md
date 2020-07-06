@@ -1,5 +1,5 @@
 ---
 id: 6
-name: 'password'
+name: 'password | pwd'
 ---
 The password of that MySQL user.

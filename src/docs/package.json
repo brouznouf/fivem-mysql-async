@@ -4,7 +4,8 @@
   "scripts": {
     "build": "gridsome build",
     "develop": "gridsome develop",
-    "explore": "gridsome explore"
+    "explore": "gridsome explore",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@gridsome/remark-prismjs": "^0.3.0",
