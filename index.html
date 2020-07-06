@@ -1,1 +1,234 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"><link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet"><link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/themes/prism.min.css" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/prism.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.20.0/plugins/autoloader/prism-autoloader.min.js"></script><title>mysql-async Documentation</title><link href="app.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but chargen doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div><script src="app.js"></script></body></html>
+<!DOCTYPE html>
+<html data-html-server-rendered="true" lang="en" data-vue-tag="%7B%22lang%22:%7B%22ssr%22:%22en%22%7D%7D">
+  <head>
+    <title>Documentation - mysql-async Documentation</title><meta name="gridsome:hash" content="4b16b732a0a889ece1ce469cc89aca08800f3e76"><meta data-vue-tag="ssr" charset="utf-8"><meta data-vue-tag="ssr" name="generator" content="Gridsome v0.7.18"><meta data-vue-tag="ssr" data-key="viewport" name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta data-vue-tag="ssr" data-key="format-detection" name="format-detection" content="telephone=no"><link data-vue-tag="ssr" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,700;1,400&amp;display=swap"><link rel="preload" href="/fivem-mysql-async/assets/css/0.styles.26c1b615.css" as="style"><link rel="preload" href="/fivem-mysql-async/assets/js/app.7fbffcf3.js" as="script"><link rel="preload" href="/fivem-mysql-async/assets/js/page--src-pages-index-vue.8b4ce2d3.js" as="script"><link rel="prefetch" href="/fivem-mysql-async/assets/js/page--node-modules-gridsome-app-pages-404-vue.36b46e7e.js"><link rel="prefetch" href="/fivem-mysql-async/assets/js/vendors~page--src-pages-index-vue.97429054.js"><link rel="stylesheet" href="/fivem-mysql-async/assets/css/0.styles.26c1b615.css"><noscript data-vue-tag="ssr"><style>.g-image--loading{display:none;}</style></noscript>
+  </head>
+  <body >
+    <div data-server-rendered="true" id="app" class="layout"><nav class="navbar navbar-dark bg-primary fixed-top navbar-expand-md"><div class="navbar-brand">mysql-async</div><button type="button" aria-label="Toggle navigation" class="navbar-toggler"><span class="navbar-toggler-icon"></span></button><div id="navbarSupportedContent" class="navbar-collapse collapse" style="display:none;"><ul class="navbar-nav mr-auto"><li class="nav-item"><a href="#about" target="_self" class="nav-link">About</a></li><li class="nav-item"><a href="#setup" target="_self" class="nav-link">Setup</a></li><li class="nav-item"><a href="#configuration" target="_self" class="nav-link">Configuration</a></li><li class="nav-item"><a href="#queries" target="_self" class="nav-link">Queries</a></li><li class="nav-item"><a href="#transactions" target="_self" class="nav-link">Transactions</a></li><li class="nav-item"><a href="#gui--dev" target="_self" class="nav-link">GUI &amp; Dev</a></li></ul></div></nav><main class="container-md mt-2 bg-light" style="padding-top: 56px;"><div><div><h2 id="setup"><a href="#setup" aria-hidden="true"><span class="icon icon-link"></span></a>Setup</h2>
+<p>To Install mysql-async your first need to have installed a MySQL Database.</p>
+</div><!----><!----><!----><!----></div><div><div><h4 id="database-options"><a href="#database-options" aria-hidden="true"><span class="icon icon-link"></span></a>Database Options</h4>
+<p>Included in the table are the benchmark results of 1,000,000 inserts, with 20 done per server tick, that should mean it is about 100 inserts per second.</p>
+</div><!----><table role="table" aria-busy="false" aria-colcount="4" class="table b-table"><!----><!----><thead role="rowgroup"><!----><tr role="row"><th role="columnheader" scope="col" aria-colindex="1"><div>Implementation</div></th><th role="columnheader" scope="col" aria-colindex="2"><div>Average Speed</div></th><th role="columnheader" scope="col" aria-colindex="3"><div>[Min, Max]</div></th><th role="columnheader" scope="col" aria-colindex="4"><div>Download Link</div></th></tr></thead><tbody role="rowgroup"><!----><tr role="row"><td aria-colindex="1" role="cell"><b>MariaDB 10.4</b></td><td aria-colindex="2" role="cell">
+        13.94ms ± 5.2ms
+      </td><td aria-colindex="3" role="cell">
+        [3ms, 151ms]
+      </td><td aria-colindex="4" role="cell"><a href="https://downloads.mariadb.org/mariadb/10.4/" rel="noopener" target="_blank" class="btn btn-outline-primary">Download</a></td></tr><tr role="row"><td aria-colindex="1" role="cell"><b>MariaDB 10.3</b></td><td aria-colindex="2" role="cell">
+        16.38ms ± 7.85ms
+      </td><td aria-colindex="3" role="cell">
+        [2ms, 200ms]
+      </td><td aria-colindex="4" role="cell"><a href="https://downloads.mariadb.org/mariadb/10.3/" rel="noopener" target="_blank" class="btn btn-outline-primary">Download</a></td></tr><tr role="row"><td aria-colindex="1" role="cell"><b>MySQL 5.7</b></td><td aria-colindex="2" role="cell">
+        15.81ms ± 5.81ms
+      </td><td aria-colindex="3" role="cell">
+        [2ms, 119ms]
+      </td><td aria-colindex="4" role="cell"><a href="https://dev.mysql.com/downloads/mysql/5.7.html" rel="noopener" target="_blank" class="btn btn-outline-primary">Download</a></td></tr><tr role="row"><td aria-colindex="1" role="cell"><b>MySQL 8.0</b></td><td aria-colindex="2" role="cell">
+        27.14ms ± 66.58ms
+      </td><td aria-colindex="3" role="cell">
+        [3ms, 1323ms]
+      </td><td aria-colindex="4" role="cell"><a href="https://dev.mysql.com/downloads/mysql/" rel="noopener" target="_blank" class="btn btn-outline-primary">Download</a></td></tr><!----><!----></tbody><!----></table><!----><!----></div><div><div><h4 id="installing-the-resource"><a href="#installing-the-resource" aria-hidden="true"><span class="icon icon-link"></span></a>Installing the Resource</h4>
+<p> After you have installed a database, you will have to add the resource to the server. To do this, first  <a href="https://github.com/brouznouf/fivem-mysql-async/releases" target="_blank" rel="nofollow noopener noreferrer">download</a> the <em>Source Code (zip)</em> then extract the contents to the /resources/ folder of your server configuration.</p>
+<p>To learn more about configuring your server follow this <a href="https://docs.fivem.net/docs/server-manual/setting-up-a-server/" target="_blank" rel="nofollow noopener noreferrer">Link</a> to the FiveM Documentation about the step-by-step guide on setting up FXServer.</p>
+<p>After the resource has been extracted you will need to add <code>ensure mysql-async</code> to your server configuration, and proceed with configuring the resource. </p>
+</div><!----><!----><!----><!----></div><div><div><h2 id="configuration"><a href="#configuration" aria-hidden="true"><span class="icon icon-link"></span></a>Configuration</h2>
+<p><em>mysql-async</em> is configured by setting <code>set mysql_connection_string "[string]"</code>. The connection string can either be formatted like an url:</p>
+<pre class="language-text"><code class="language-text">set mysql_connection_string &quot;mysql://user:password@host/database?charset=utf8mb4&quot;</code></pre>
+<p>Here options are chained <code>&#x26;</code>. The other option is to to use an option string where each variable is seperated by an <code>;</code>, which would look like:</p>
+<pre class="language-text"><code class="language-text">set mysql_connection_string &quot;database=mysqlasync;charset=utf8mb4&quot;</code></pre>
+<p>The configuration options available for these strings are listed below. </p>
+</div><!----><!----><!----><!----></div><div><div><h4 id="configuration-options"><a href="#configuration-options" aria-hidden="true"><span class="icon icon-link"></span></a>Configuration Options</h4>
+<p>This is taken directly from the <a href="https://github.com/mysqljs/mysql#connection-options" target="_blank" rel="nofollow noopener noreferrer">mysql.js Readme file</a>, but trimmed to only applicable connection and pooling options, or changed a bit to accomodate legacy settings. </p>
+</div><!----><!----><div class="list-group"><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">host | server | data source | datasource | addr | address</h5><span class="description"><p>The hostname of the database you are connecting to. (Default: <code>localhost</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">port</h5><span class="description"><p>The port number to connect to. (Default: <code>3306</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">localAddress</h5><span class="description"><p>The source IP address to use for TCP connection. (Optional)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">socketPath</h5><span class="description"><p>The path to a unix domain socket to connect to. When used <code>host</code> and <code>port</code> are ignored.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">user | user id | userid | user name | username | uid</h5><span class="description"><p>The MySQL user to authenticate as.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">password | pwd</h5><span class="description"><p>The password of that MySQL user.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">database | initial catalog</h5><span class="description"><p>Name of the database to use for this connection (Optional).</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">charset</h5><span class="description"><p>The charset for the connection. This is called "collation" in the SQL-level of MySQL (like <code>utf8_general_ci</code>).
+If a SQL-level charset is specified (like <code>utf8mb4</code>) then the default collation for that charset is used.
+(Default: <code>'UTF8_GENERAL_CI'</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">timezone</h5><span class="description"><p>The timezone configured on the MySQL server. This is used to type cast server date/time values to JavaScript Date object
+and vice versa. This can be <code>'local'</code>, <code>'Z'</code>, or an offset in the form <code>+HH:MM</code> or
+<code>-HH:MM.</code> (Default: <code>'local'</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">connectTimeout</h5><span class="description"><p>The milliseconds before a timeout occurs during the initial connection to the MySQL server. (Default: <code>10000</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">stringifyObjects</h5><span class="description"><p>Stringify objects instead of converting to values. (Default: <code>false</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">insecureAuth</h5><span class="description"><p>Allow connecting to MySQL instances that ask for the old (insecure) authentication method. (Default: <code>false</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">supportBigNumbers</h5><span class="description"><p>When dealing with big numbers (BIGINT and DECIMAL columns) in the database, you should enable this option (Default: <code>false</code>).</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">bigNumberStrings</h5><span class="description"><p>Enabling both <code>supportBigNumbers</code> and <code>bigNumberStrings</code> forces big numbers (BIGINT and DECIMAL columns)
+to be always returned as JavaScript String objects (Default: <code>false</code>).</p>
+<p>Enabling <code>supportBigNumbers</code> but leaving <code>bigNumberStrings</code> disabled will return big numbers as String objects
+only when they cannot be accurately represented with
+<a href="http://ecma262-5.com/ELS5_HTML.htm#Section_8.5" target="_blank" rel="nofollow noopener noreferrer">JavaScript Number objects</a> (which happens when they exceed
+the [-2<sup>53</sup>, +2<sup>53</sup>] range), otherwise they will be returned as Number objects. This option is ignored if
+<code>supportBigNumbers</code> is disabled.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">debug</h5><span class="description"><p>Prints protocol details to stdout. Can be <code>true</code>/<code>false</code> or an array of packet type names that should be
+printed. (Default: <code>false</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">trace</h5><span class="description"><p>Generates stack traces on <code>Error</code> to include call site of library entrance ("long stack traces").
+Slight performance penalty for most calls. (Default: <code>true</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">localInfile</h5><span class="description"><p>Allow <code>LOAD DATA INFILE</code> to use the LOCAL modifier. (Default: <code>true</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">multipleStatements</h5><span class="description"><p>Allow multiple mysql statements per query. Be careful with this, it could increase the scope of SQL injection attacks. (Default: <code>false</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">flags</h5><span class="description"><p>List of connection flags to use other than the default ones. It is also possible to blacklist default ones.
+For more information, check <a href="https://github.com/mysqljs/mysql#connection-flags" target="_blank" rel="nofollow noopener noreferrer">Connection Flags</a>.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">ssl</h5><span class="description"><p>Object with ssl parameters or a string containing name of ssl profile. See <a href="https://github.com/mysqljs/mysql#ssl-options" target="_blank" rel="nofollow noopener noreferrer">SSL options</a>.</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">acquireTimeout</h5><span class="description"><p>The milliseconds before a timeout occurs during the connection acquisition. This is slightly different from <code>connectTimeout</code>,
+because acquiring a pool connection does not always involve making a connection. If a connection request is queued,
+the time the request spends in the queue does not count towards this timeout. (Default: <code>10000</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">waitForConnections</h5><span class="description"><p>Determines the pool's action when no connections are available and the limit has been reached. If <code>true</code>,
+the pool will queue the connection request and call it when one becomes available. If <code>false</code>, the pool
+will immediately call back with an error. (Default: <code>true</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">connectionLimit</h5><span class="description"><p>The maximum number of connections to create at once. (Default: <code>10</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">queueLimit</h5><span class="description"><p>The maximum number of connection requests the pool will queue before returning an error from <code>getConnection</code>.
+If set to <code>0</code>, there is no limit to the number of queued connection requests. (Default: <code>0</code>)</p>
+</span></div></div><!----></div><div><div><h4 id="additional-configuration-options"><a href="#additional-configuration-options" aria-hidden="true"><span class="icon icon-link"></span></a>Additional Configuration Options</h4>
+<p>These additional configuration are to be set in the server configuration file, in a similar way to
+setting the <code>mysql_connection_string</code>.</p>
+</div><!----><!----><!----><div class="list-group"><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">mysql_debug</h5><span class="description"><p>Possible options are <code>Console</code>, <code>File</code>, <code>FileAndConsole</code> and <code>None</code>.
+In case of a file output, the file will be located in the current working directory
+on starting the server, named like <code>/&#x3C;resourcename>-&#x3C;timestamp>.log</code>. The name of the
+file can be changed by setting <code>mysql_log_file_format</code>.
+(Default: <code>None</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">mysql_slow_query_warning</h5><span class="description"><p>Sets a limit in millisecondss, queries slower than this limit will be displayed with a warning at the specified location of
+<code>mysql_debug_output</code>, see above (Default: <code>100</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">mysql_log_level</h5><span class="description"><p>This variable gives control over what goes to the console, and what does not. Add the numbers to get the value to set it to.
+1: Info, 2: Success, 4: Warning, 8: Error. For example you wanted only Info's and Error's appearing in the server console, you would set it to 9.
+(Default: <code>15</code>)</p>
+</span></div><div class="list-group-item flex-column align-items-start"><h5 class="mb-1">mysql_log_file_format</h5><span class="description"><p>Sets the log file format, relative to the working directory of the server. If <code>mysql_debug</code> is not set to File or FileAndConsole,
+then this option is useless. <code>%s</code> is replaced with the name of the resource, <code>%d</code> is replaced by a timestamp.
+(Default: <code>%s-%d.log</code>)</p>
+</span></div></div></div><div><div><h2 id="queries"><a href="#queries" aria-hidden="true"><span class="icon icon-link"></span></a>Queries</h2>
+<p> All query types in mysql-async can be fired using either <em>Sync</em> or <em>Async</em> methods, which can be retrieved from the MySQL object. The last parameter of an Async function is always the callback, the argument of the callback gets returned by <em>Sync</em> functions.</p>
+<p>Contrary to older <em>Sync</em> implementations, these functions are safe to use, since they are non-blocking and just wrappers around the <em>Async</em> calls. But for a possible migration to other Database implementations, the use of the Sync functions should be discouraged.</p>
+<h3 id="mysqlready"><a href="#mysqlready" aria-hidden="true"><span class="icon icon-link"></span></a>MySQL.ready</h3>
+<p>You need to encapsulate your code into <code>MySQL.ready</code> to be sure that the mod will be available and initialized before your first request. In subsequent examples the <code>MySQL.ready</code> function will not be shown, and it is expected that the code is encapsulated.</p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span><span class="token function">ready</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token function">print</span><span class="token punctuation">(</span>MySQL<span class="token punctuation">.</span>Sync<span class="token punctuation">.</span><span class="token function">fetchScalar</span><span class="token punctuation">(</span><span class="token string">'SELECT @parameters'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">[</span><span class="token string">'@parameters'</span><span class="token punctuation">]</span> <span class="token operator">=</span>  <span class="token string">'string'</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+string
+]]</span><span class="token comment">--</span></code></pre>
+<h3 id="execute"><a href="#execute" aria-hidden="true"><span class="icon icon-link"></span></a>execute</h3>
+<p>Execute a mysql query which should not send any result (like a Insert / Delete / Update), and will return the number of affected rows. </p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">execute</span><span class="token punctuation">(</span><span class="token string">'INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'x'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>x<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'y'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>y<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'z'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>z<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span> <span class="token operator">=</span> player<span class="token punctuation">.</span>id <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token keyword">function</span><span class="token punctuation">(</span>affectedRows<span class="token punctuation">)</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>affectedRows<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+<span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+1
+]]</span><span class="token comment">--</span></code></pre>
+<h3 id="fetchall"><a href="#fetchall" aria-hidden="true"><span class="icon icon-link"></span></a>fetchAll</h3>
+<p>Fetch results from MySQL and returns them in the form of an Array of Objects: </p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">fetchAll</span><span class="token punctuation">(</span><span class="token string">'SELECT * FROM users WHERE id = @id'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'@id'</span><span class="token punctuation">]</span> <span class="token operator">=</span> playerId <span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+  <span class="token function">print</span><span class="token punctuation">(</span>json<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+[{
+  "id": 95585726093402110,
+  "cash": 0,
+  "bank": 0,
+  "skin": "{}",
+  "online": true,
+  "lastSeen": 1590656804000
+}]
+]]</span><span class="token comment">--</span></code></pre>
+<h3 id="fetchscalar"><a href="#fetchscalar" aria-hidden="true"><span class="icon icon-link"></span></a>fetchScalar</h3>
+<p>Fetch the first field of the first row in a query:</p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">fetchScalar</span><span class="token punctuation">(</span><span class="token string">'SELECT COUNT(1) FROM users'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+  <span class="token function">print</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+15
+]]</span><span class="token comment">--</span></code></pre>
+<h3 id="insert"><a href="#insert" aria-hidden="true"><span class="icon icon-link"></span></a>insert</h3>
+<p>Returns the last insert id of the inserted item. Needs an auto-incremented primary key to work. </p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span><span class="token string">'INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'x'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>x<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'y'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>y<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'z'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>z<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span> <span class="token operator">=</span> player<span class="token punctuation">.</span>id <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token keyword">function</span><span class="token punctuation">(</span>insertId<span class="token punctuation">)</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>insertId<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+<span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+1137
+]]</span><span class="token comment">--</span></code></pre>
+<h3 id="store"><a href="#store" aria-hidden="true"><span class="icon icon-link"></span></a>store</h3>
+<p>The store export should be used for storing query strings, when a lot of queries are expected to be triggered at once. The idea behind this feature is, that while recieving data puts stress on your server infrastructure, so does sending data. And the biggest polluter for this resource is sending overly long and complicated query strings.</p>
+<p>While the server is running you want to minimize the impact of sending a lot of queries at once puts on your architecture, thus you can already store these queries ahead of time, and just pass the id returned by the callback function and pass the parameters for these queries along.</p>
+<pre class="language-lua"><code class="language-lua">insertUserLog <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">1</span>
+MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">store</span><span class="token punctuation">(</span><span class="token string">"INSERT INTO users_log SET ?"</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>storeId<span class="token punctuation">)</span> insertUser <span class="token operator">=</span> storeId <span class="token keyword">end</span><span class="token punctuation">)</span>
+<span class="token comment">-- ...</span>
+MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>insertUserLog<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'x'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>x<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'y'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>y<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'z'</span><span class="token punctuation">]</span> <span class="token operator">=</span> pos<span class="token punctuation">.</span>z<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'playerId'</span><span class="token punctuation">]</span> <span class="token operator">=</span> player<span class="token punctuation">.</span>id <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">function</span><span class="token punctuation">(</span>response<span class="token punctuation">)</span>
+  <span class="token function">print</span><span class="token punctuation">(</span>insertId<span class="token punctuation">)</span>
+<span class="token keyword">end</span><span class="token punctuation">)</span></code></pre>
+<p>This works like the example above, but the query string does not need to be reset and is a bit more elegant in the writing.</p>
+</div><!----><!----><!----><!----></div><div><div><h2 id="transactions"><a href="#transactions" aria-hidden="true"><span class="icon icon-link"></span></a>Transactions</h2>
+<p> A transaction will only commit all queries to the database, if all queries to the database succeed. If one of them fails, no changes to the database will be made. This can be easily used when e.g. transfering money, making sure that the money field is positive. A transaction would fail if someone would attempt to have negative cash, so that no money would be transfered.</p>
+<p>Since the transaction will either fail or succeed, the callback of the function will either answer with true or false depending on if the transaction succeeded. If it fails an error message will be printed, but it is an intended one, since the commit to the database would be likely unwanted.</p>
+<p>The following example shows the same transaction being done twice in different ways. </p>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">transaction</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token string">'UPDATE users SET cash = cash - @transfer WHERE id = @senderId'</span><span class="token punctuation">,</span>
+    <span class="token string">'UPDATE users SET cash = cash + @transfer WHERE id = @recipientId'</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'transfer'</span><span class="token punctuation">]</span> <span class="token operator">=</span> amount<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'senderId'</span><span class="token punctuation">]</span> <span class="token operator">=</span> senderId<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'recipientId'</span><span class="token punctuation">]</span> <span class="token operator">=</span> recipientId <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token keyword">function</span><span class="token punctuation">(</span>success<span class="token punctuation">)</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>success<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+<span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+true or false, depending on if cash goes negative or not.
+]]</span><span class="token comment">--</span></code></pre>
+<pre class="language-lua"><code class="language-lua">MySQL<span class="token punctuation">.</span>Async<span class="token punctuation">.</span><span class="token function">transaction</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token punctuation">{</span>
+      query <span class="token operator">=</span> <span class="token string">'UPDATE users SET cash = cash - @transfer WHERE id = @senderId'</span><span class="token punctuation">,</span>
+      parameters <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'transfer'</span><span class="token punctuation">]</span> <span class="token operator">=</span> amount<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'senderId'</span><span class="token punctuation">]</span> <span class="token operator">=</span> senderId <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      query <span class="token operator">=</span> <span class="token string">'UPDATE users SET cash = cash + @transfer WHERE id = @recipientId'</span><span class="token punctuation">,</span>
+      parameters <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token punctuation">[</span><span class="token string">'transfer'</span><span class="token punctuation">]</span> <span class="token operator">=</span> amount<span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token string">'recipientId'</span><span class="token punctuation">]</span> <span class="token operator">=</span> recipientId <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token keyword">function</span><span class="token punctuation">(</span>success<span class="token punctuation">)</span>
+    <span class="token function">print</span><span class="token punctuation">(</span>success<span class="token punctuation">)</span>
+  <span class="token keyword">end</span>
+<span class="token punctuation">)</span>
+<span class="token comment">--[[
+prints:
+
+true or false, depending on if cash goes negative or not.
+]]</span><span class="token comment">--</span></code></pre>
+</div><!----><!----><!----><!----></div><div><div><h2 id="gui--dev"><a href="#gui--dev" aria-hidden="true"><span class="icon icon-link"></span></a>GUI &#x26; Dev</h2>
+<p>With administration rights on your server, if you are unsure how to get those check the
+<a href="https://docs.fivem.net/docs/server-manual/setting-up-a-server/" target="_blank" rel="nofollow noopener noreferrer">step-by-step guide on setting up FXServer</a>,
+you can type in the command <code>mysql</code> into the console to open the GUI. You can open that console via the <kbd>F8</kbd> key.
+It should show you a concise summary of how your server is doing.</p>
+<p>The first tab shows you a time-resolved graph showing how long the queries took time in a five minute interval.
+As a general rule of thumb the server should not spend more than 300,000ms querying the database. It could become especially problematic
+if the amount of queries is at that point lower than 6,000, at which point your queries are likely too slow and
+are in need of optimization.</p>
+<p>The second tab shows you the same as the first tab, but instead of the queries being time-resolved they are resolved by the resources
+which trigger them. So you can see which resources ask for the largest amount of database time.</p>
+<p>The last slow query tab lists the 21 slowest queries. If they are all below the max-limit in <a href="#setup">table for MySQL servers</a>,
+then there is no need to panic, it might be database and not a query related issue.</p>
+</div><figure class="figure"><img alt="Ingame view of the GUI" src="data:image/svg+xml,%3csvg fill='none' viewBox='0 0 1439 606' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3e%3cdefs%3e%3cfilter id='__svg-blur-75f844c195c7786c152cb752055342f9'%3e%3cfeGaussianBlur in='SourceGraphic' stdDeviation='40'/%3e%3c/filter%3e%3c/defs%3e%3cimage x='0' y='0' filter='url(%23__svg-blur-75f844c195c7786c152cb752055342f9)' width='1439' height='606' xlink:href='data:image/webp%3bbase64%2cUklGRtIBAABXRUJQVlA4IMYBAAAQCQCdASpAABsAPm0skkWkIqGZ%2bzQAQAbEs4BmWoBdAG7vKiYG3CFoffgDGkOzjx%2blvt//iCTf4wuinD2qgslN/8CVRcCKoqDvtcPtrQNDYMAA/PM/6zBqLBf/OsHIE/TPNpbziCW4JxFkm9fb49Z1GhmvBmXkXc5O%2bBwmVImOyUk8dnIBCv9D/rbLFB/cns0v6MmFBzZ6PcXBdM4ss4VEnG4E%2bMC5wEnkRn9ZjkT3om6JkhhqtPwQE2vr9bw8aFW/KNFjbbRl%2bLsN85iyVVNxE3oe4xNhu3zyn0%2bUJfZVKZ9zLEQYJMpYSqD9rAtaNx9FAT6ReHnCHNImws%2bf6XWm21bQ2Ob%2bw%2b/w5TX/1F6D1lKAAqFGPHpImaxvKyuDC32lV%2bD808tJt1jVapHne%2bRhp%2bZ4xXvLGBTRTV/qw3W5L2ssUw/xz5%2bMARjfITWfCuOn719ctX7eP7W5N8W2ygi9gF2m6famto2f1CjMhpG17BmfWqCR%2b61sRh1fwsNTh4IDSbODwZCw8zPyeWyNQNa%2bmL186icrDNhM8bfg2GrFVbTEmaj4hw77xvI2tko2agSa2Z1jhGURs2cUTDsgfVwNBxvyoAAA' /%3e%3c/svg%3e" width="1439" data-src="/fivem-mysql-async/assets/static/gui.418dd0c.eebdeaa62879d789086be97366ea6640.webp" data-srcset="/fivem-mysql-async/assets/static/gui.82a2fbd.eebdeaa62879d789086be97366ea6640.webp 480w, /fivem-mysql-async/assets/static/gui.cbab2cf.eebdeaa62879d789086be97366ea6640.webp 1024w, /fivem-mysql-async/assets/static/gui.418dd0c.eebdeaa62879d789086be97366ea6640.webp 1439w" data-sizes="(max-width: 1439px) 100vw, 1439px" class="figure-img img-fluid rounded g-image g-image--lazy g-image--loading"><noscript><img src="/fivem-mysql-async/assets/static/gui.418dd0c.eebdeaa62879d789086be97366ea6640.webp" class="figure-img img-fluid rounded g-image g-image--loaded" width="1439" alt="Ingame view of the GUI"></noscript><figcaption class="figure-caption">View of the GUI ingame.</figcaption></figure><!----><!----><!----></div><div><div><h4 id="toggle-debug-print"><a href="#toggle-debug-print" aria-hidden="true"><span class="icon icon-link"></span></a>Toggle Debug Print</h4>
+<p>Given you have admin rights, you can use the command <code>mysql:debug</code> which flips interally the value
+for <code>mysql_debug</code> to <code>1</code> or <code>0</code>, so it enables you to turn on the debug prints
+to the console or a file, or both given your settings for <code>mysql_debug_output</code>.</p>
+</div><!----><!----><!----><!----></div></main></div>
+    <script src="/fivem-mysql-async/assets/js/app.7fbffcf3.js" defer></script><script src="/fivem-mysql-async/assets/js/page--src-pages-index-vue.8b4ce2d3.js" defer></script>
+  </body>
+</html>
