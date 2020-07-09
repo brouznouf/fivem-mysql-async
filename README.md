@@ -9,6 +9,9 @@ Check out https://brouznouf.github.io/fivem-mysql-async/ for a complete document
 ### Questions
 For help and support questions, please use [Discord](https://discord.gg/AXcxRjt). I would like to keep the issues in this repository for bugs and feature requests only.
 
+### Supporting
+If you wish to support GHMatti for whatever reason use the **[Patreon](https://www.patreon.com/GHMatti)**.
+
 ### Issues
 Make sure you provide all information possible when reporting an issue.
 
