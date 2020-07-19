@@ -16171,7 +16171,7 @@ function getConfigFromConnectionString() {
       const equal = el.indexOf('=');
       const key = equal > -1 ? el.substr(0, equal) : el;
       const value = equal > -1 ? el.substr(equal + 1) : '';
-      cfg[key] = Number.isNaN(Number(value)) ? value : Number(value);
+      cfg[key.trim()] = Number.isNaN(Number(value)) ? value : Number(value);
     });
   } else if (/mysql:\/\//gi.test(connectionString)) {
     cfg = Object(ConnectionConfig["parseUrl"])(connectionString);
@@ -16280,6 +16280,19 @@ onNet('mysql-async:request-data', () => {
   emitNet('mysql-async:update-resource-data', src, server_server.profiler.profiles.resources);
   emitNet('mysql-async:update-time-data', src, server_server.profiler.profiles.executionTimes);
   emitNet('mysql-async:update-slow-queries', src, server_server.profiler.profiles.slowQueries);
+});
+onNet('mysql-async:request-server-status', () => {
+  const src = source;
+  server_server.execute('SHOW GLOBAL STATUS', data => {
+    emitNet('mysql-async:update-status', src, data);
+  }, null, 'mysql-async').then(([result, cb]) => {
+    cb(result);
+  }).catch(() => false);
+  server_server.execute('SHOW GLOBAL VARIABLES', data => {
+    emitNet('mysql-async:update-variables', src, data);
+  }, null, 'mysql-async').then(([result, cb]) => {
+    cb(result);
+  }).catch(() => false);
 });
 
 /***/ })
