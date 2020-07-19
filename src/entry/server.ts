@@ -99,3 +99,17 @@ onNet('mysql-async:request-data', () => {
   emitNet('mysql-async:update-time-data', src, server.profiler.profiles.executionTimes);
   emitNet('mysql-async:update-slow-queries', src, server.profiler.profiles.slowQueries);
 });
+
+onNet('mysql-async:request-server-status', () => {
+  const src = source;
+  server.execute('SHOW GLOBAL STATUS', (data: unknown) => {
+    emitNet('mysql-async:update-status', src, data);
+  }, null, 'mysql-async').then(([result, cb]) => {
+    cb(result);
+  }).catch(() => false);
+  server.execute('SHOW GLOBAL VARIABLES', (data: unknown) => {
+    emitNet('mysql-async:update-variables', src, data);
+  }, null, 'mysql-async').then(([result, cb]) => {
+    cb(result);
+  }).catch(() => false);
+});

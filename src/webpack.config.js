@@ -43,13 +43,4 @@ const serverConfig = {
   ...baseConfig,
 };
 
-const clientConfig = {
-  entry: './entry/client.ts',
-  output: {
-    filename: 'mysql-async-client.js',
-    path: path.resolve(__dirname, '..'),
-  },
-  ...baseConfig,
-};
-
-module.exports = [serverConfig, clientConfig];
+module.exports = serverConfig;
