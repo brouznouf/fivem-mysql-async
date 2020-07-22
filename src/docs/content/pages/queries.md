@@ -103,7 +103,7 @@ While the server is running you want to minimize the impact of sending a lot of 
 
 ```lua
 insertUserLog = -1
-MySQL.Async.store("INSERT INTO users_log SET ?", function(storeId) insertUser = storeId end)
+MySQL.Async.store("INSERT INTO users_log SET ?", function(storeId) insertUserLog = storeId end)
 -- ...
 MySQL.Async.insert(insertUserLog, {
   { ['x'] = pos.x, ['y'] = pos.y, ['z'] = pos.z, ['playerId'] = player.id }
