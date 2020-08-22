@@ -37,5 +37,13 @@ module.exports = {
         remark,
       },
     },
+    {
+      use: '@gridsome/source-filesystem',
+      options: {
+        path: 'content/Setup/**/*.md',
+        typeName: 'SetupStep',
+        remark,
+      },
+    },
   ],
 }
