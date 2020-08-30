@@ -31,11 +31,11 @@ true or false, depending on if cash goes negative or not.
 MySQL.Async.transaction({
     {
       query = 'UPDATE users SET cash = cash - @transfer WHERE id = @senderId',
-      parameters = { ['transfer'] = amount, ['senderId'] = senderId },
+      values = { ['transfer'] = amount, ['senderId'] = senderId },
     },
     {
       query = 'UPDATE users SET cash = cash + @transfer WHERE id = @recipientId',
-      parameters = { ['transfer'] = amount, ['recipientId'] = recipientId },
+      values = { ['transfer'] = amount, ['recipientId'] = recipientId },
     },
   },
   function(success)
