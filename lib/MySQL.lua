@@ -195,7 +195,7 @@ end
 function MySQL.Async.fetchFirst(query, params, func)
     assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
 
-    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), function(result) func(result[1]) end)
+    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), function(result) if func then func(result[1]) end end)
 end
 
 
