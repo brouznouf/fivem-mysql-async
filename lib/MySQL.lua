@@ -59,6 +59,27 @@ function MySQL.Sync.fetchAll(query, params)
 end
 
 ---
+-- Execute a query and fetch the first result in an sync way
+--
+-- @param query
+-- @param params
+--
+-- @return table Query results
+--
+function MySQL.Sync.fetchFirst(query, params)
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
+
+    local res = {}
+    local finishedQuery = false
+    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), function (result)
+        res = result
+        finishedQuery = true
+    end)
+    repeat Citizen.Wait(0) until finishedQuery == true
+    return res[1]
+end
+
+---
 -- Execute a query and fetch the first column of the first row, sync version
 -- Useful for count function by example
 --
@@ -163,6 +184,20 @@ function MySQL.Async.fetchAll(query, params, func)
 
     exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), func)
 end
+
+---
+-- Execute a query and fetch the first results in an async way
+--
+-- @param query
+-- @param params
+-- @param func(table)
+--
+function MySQL.Async.fetchFirst(query, params, func)
+    assert(type(query) == "string" or type(query) == "number", "The SQL Query must be a string")
+
+    exports['mysql-async']:mysql_fetch_all(query, safeParameters(params), function(result) if func then func(result[1]) end end)
+end
+
 
 ---
 -- Execute a query and fetch the first column of the first row, async version
