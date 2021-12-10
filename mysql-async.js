@@ -16263,6 +16263,9 @@ global.exports('mysql_store', (query, callback) => {
   server_server.logger.info(`[${invokingResource}] Stored [${storageId}] : ${query}`);
   utility_safeInvoke(callback, storageId);
 });
+global.exports('get_config', () => {
+  return server_config;
+});
 RegisterCommand('mysql:debug', () => {
   let trace = false;
 

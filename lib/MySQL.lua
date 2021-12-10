@@ -214,15 +214,26 @@ function MySQL.Async.transaction(querys, params, func)
     return exports['mysql-async']:mysql_transaction(querys, params, func)
 end
 
-function MySQL.ready (callback)
+---
+-- Get the config object
+--
+-- @return table config
+--
+function MySQL.getConfig()
+    return exports['mysql-async']:get_config()
+end
+
+function MySQL.ready(callback)
     Citizen.CreateThread(function ()
         -- add some more error handling
         while GetResourceState('mysql-async') ~= 'started' do
             Citizen.Wait(0)
         end
+            
         while not exports['mysql-async']:is_ready() do
             Citizen.Wait(0)
         end
+            
         callback()
     end)
 end
