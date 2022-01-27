@@ -10,6 +10,7 @@ Contrary to older *Sync* implementations, these functions are safe to use, since
 ### MySQL.ready
 
 You need to encapsulate your code into `MySQL.ready` to be sure that the mod will be available and initialized before your first request. In subsequent examples the `MySQL.ready` function will not be shown, and it is expected that the code is encapsulated.
+#### Lua
 ```lua
 MySQL.ready(function ()
   print(MySQL.Sync.fetchScalar('SELECT @parameters', {
@@ -23,10 +24,26 @@ string
 ]]--
 ```
 
+#### JavaScript
+```javascript
+MySQL.ready(function () {
+  console.log(await MySQL.Async.fetchScalar('SELECT @parameters', {
+    '@parameters': 'string'
+    }
+  ))
+})
+/*
+prints:
+
+string
+*/
+```
+
 ### execute
 
 Execute a mysql query which should not send any result (like a Insert / Delete / Update), and will return the number of affected rows. 
 
+#### Lua
 ```lua
 MySQL.Async.execute('INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)',
   { ['x'] = pos.x, ['y'] = pos.y, ['z'] = pos.z, ['id'] = player.id },
@@ -41,10 +58,25 @@ prints:
 ]]--
 ```
 
+#### JavaScript
+```javascript
+console.log(await MySQL.Async.execute('INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)',
+  { '@x': pos.x, '@y': pos.y, '@z': pos.z, '@id': player.id }
+))
+/*
+prints:
+
+1
+*/
+```
+
+
+
 ### fetchAll
 
 Fetch results from MySQL and returns them in the form of an Array of Objects: 
 
+#### Lua
 ```lua
 MySQL.Async.fetchAll('SELECT * FROM users WHERE id = @id', { ['@id'] = playerId }, function(result)
   print(json.encode(result))
@@ -63,9 +95,30 @@ prints:
 ]]--
 ```
 
+#### JavaScript
+```javascript
+console.log(await MySQL.Async.fetchAll('SELECT * FROM users WHERE id = @id',
+  { '@id': playerId }
+))
+/*
+prints:
+
+[{
+  "id": 95585726093402110,
+  "cash": 0,
+  "bank": 0,
+  "skin": "{}",
+  "online": true,
+  "lastSeen": 1590656804000
+}]
+*/
+```
+
 ### fetchScalar
 
 Fetch the first field of the first row in a query:
+
+#### Lua
 ```lua
 MySQL.Async.fetchScalar('SELECT COUNT(1) FROM users', {}, function(result)
   print(result)
@@ -77,10 +130,21 @@ prints:
 ]]--
 ```
 
+#### JavaScript
+```javascript
+console.log(await MySQL.Async.fetchScalar('SELECT COUNT(1) FROM users', {} ))
+/*
+prints:
+
+15
+*/
+```
+
 ### insert
 
 Returns the last insert id of the inserted item. Needs an auto-incremented primary key to work. 
 
+#### Lua
 ```lua
 MySQL.Async.insert('INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)',
   { ['x'] = pos.x, ['y'] = pos.y, ['z'] = pos.z, ['id'] = player.id },
@@ -95,12 +159,25 @@ prints:
 ]]--
 ```
 
+#### JavaScript
+```javascript
+console.log(await MySQL.Async.fetchScalar('INSERT INTO users_log (x, y, z, playerId) VALUES (@x, @y, @z, @id)', 
+  { '@x': pos.x, '@y': pos.y, '@z': pos.z, '@id': player.id }
+))
+/*
+prints:
+
+1137
+*/
+```
+
 ### store
 
 The store export should be used for storing query strings, when a lot of queries are expected to be triggered at once. The idea behind this feature is, that while recieving data puts stress on your server infrastructure, so does sending data. And the biggest polluter for this resource is sending overly long and complicated query strings.
 
 While the server is running you want to minimize the impact of sending a lot of queries at once puts on your architecture, thus you can already store these queries ahead of time, and just pass the id returned by the callback function and pass the parameters for these queries along.
 
+#### Lua
 ```lua
 insertUserLog = -1
 MySQL.Async.store("INSERT INTO users_log SET ?", function(storeId) insertUserLog = storeId end)
@@ -112,4 +189,38 @@ MySQL.Async.insert(insertUserLog, {
 end)
 ```
 
+#### JavaScript
+```javascript
+var insertUserLog = await MySQL.Async.store('INSERT INTO users_log SET ?');
+// ...
+console.log(await MySQL.Async.insert(insertUserLog,
+  { '@x': pos.x, '@y': pos.y, '@z': pos.z, '@id': player.id }
+))
+```
+
 This works like the example above, but the query string does not need to be reset and is a bit more elegant in the writing.
+
+
+Every JavaScript function is also available as a callback function.
+Just leave out the ".Async" keyword and add a callback as the last argument.
+#### JavaScript
+```javascript
+MySQL.fetchAll('SELECT * FROM users WHERE id = @id',
+  { '@id': playerId },
+  function (results) {
+    console.log(results);
+  }
+)
+/*
+prints:
+
+[{
+  "id": 95585726093402110,
+  "cash": 0,
+  "bank": 0,
+  "skin": "{}",
+  "online": true,
+  "lastSeen": 1590656804000
+}]
+*/
+```
