@@ -10,7 +10,7 @@
   "dependencies": {
     "@gridsome/remark-prismjs": "^0.3.0",
     "@gridsome/source-filesystem": "^0.6.2",
-    "@gridsome/transformer-remark": "^0.6.1",
+    "@gridsome/transformer-remark": "^0.6.4",
     "bootstrap-vue": "^2.15.0",
     "gridsome": "^0.7.0"
   },
